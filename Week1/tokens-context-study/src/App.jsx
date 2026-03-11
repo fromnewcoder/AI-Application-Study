@@ -135,7 +135,7 @@ const sections = [
           },
           {
             title: "Count chat message tokens (with overhead)",
-            code: `def count_chat_tokens(messages: list[dict], model: str = "gpt-4") -> int:\n    enc = tiktoken.encoding_for_model(model)\n    tokens_per_message = 3  # every message adds <|start|>role<|end|>\n    tokens_per_name = 1     # if name field present\n    \n    total = 0\n    for msg in messages:\n        total += tokens_per_message\n        for key, value in msg.items():\n            total += len(enc.encode(value))\n            if key == "name":\n                total += tokens_per_name\n    total += 3  # reply primer\n    return total\n\nmessages = [\n    {"role": "system", "content": "You are a helpful assistant."},\n    {"role": "user", "content": "Explain quantum entanglement simply."}\n]\nprint(count_chat_tokens(messages))  # ~23 tokens`,
+            code: `def count_chat_tokens(messages: list[dict], model: str = "gpt-4") -> int:\n    enc = tiktoken.encoding_for_model(model)\n    tokens_per_message = 3  # every message adds <|start|>role<|end|>\n    tokens_per_name = 1     # optional 'name' field costs +1 token\n    \n    total = 0\n    for msg in messages:\n        total += tokens_per_message\n        for key, value in msg.items():\n            total += len(enc.encode(value))\n            if key == "name":          # +1 only when name field is present\n                total += tokens_per_name\n    total += 3  # reply primer\n    return total\n\nmessages = [\n    {"role": "system", "content": "You are a helpful assistant."},\n    {"role": "user",   "name": "Alice", "content": "Explain quantum entanglement simply."}\n    #                   ^^^^ optional - adds +1 token when included\n]\nprint(count_chat_tokens(messages))  # ~24 tokens (1 extra for name: Alice)`,
             lang: "python",
           },
           {
@@ -601,11 +601,7 @@ export default function App() {
             </div>
           </div>
 
-          {/* Quiz */}
-          <div style={{ background: "#fff", borderRadius: 14, border: "1.5px solid #e2e8f0", padding: "16px 20px", marginBottom: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: 1.2, marginBottom: 14 }}>🧠 Quick Check</div>
-            <QuizBlock questions={sec.content.quiz} />
-          </div>
+
 
           {/* Done Button */}
           <button onClick={markDone} style={{
