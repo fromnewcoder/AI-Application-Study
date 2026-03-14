@@ -6,16 +6,25 @@ A study project for learning and experimenting with AI application development u
 
 ```
 AI-Application-Study/
-├── Week1/                    # Week 1 study materials
-│   ├── DeepSeekAPIDemo.py    # DeepSeek API demonstration
-│   ├── OpenAIDemo.py         # OpenAI API demonstration
-│   └── tokens-context-study/ # Interactive React app for learning tokens & context windows
-│       ├── src/              # React source code
-│       ├── public/           # Static assets
-│       ├── package.json      # Node.js dependencies
-│       └── README.md         # React app documentation
-├── .gitignore               # Git ignore files
-└── README.md                # This file
+├── Week1/                           # Week 1 study materials
+│   ├── DeepSeekAPIDemo.py          # DeepSeek API demonstration
+│   ├── OpenAIDemo.py               # OpenAI API demonstration
+│   ├── MiniMaxDemo.py              # MiniMax API demonstration
+│   ├── PromptTemplate.py           # Prompt engineering templates
+│   ├── TokenAndConextWindows.py    # Token & context window education
+│   ├── tokens-context-study/        # Interactive React app for learning tokens & context windows
+│   │   ├── src/                    # React source code
+│   │   ├── public/                 # Static assets
+│   │   ├── package.json            # Node.js dependencies
+│   │   └── README.md               # React app documentation
+│   ├── CLI Chatbot/                # CLI-based chatbot implementations
+│   │   ├── From ClaudeAI/          # Claude AI chatbot
+│   │   └── From Google AI/          # Google AI chatbot
+│   ├── prompt_engineering_basics.docx    # Prompt engineering basics guide
+│   ├── prompt_engineering_advanced.docx  # Advanced prompt engineering
+│   └── prompt_engineering_III.docx       # Prompt engineering Level III
+├── .gitignore                      # Git ignore files
+└── README.md                        # This file
 ```
 
 ## Getting Started
@@ -51,12 +60,29 @@ AI-Application-Study/
 #### Python API Demos
 - **OpenAIDemo.py**: Basic OpenAI API usage example
 - **DeepSeekAPIDemo.py**: DeepSeek API integration example
+- **MiniMaxDemo.py**: MiniMax API integration example
+- **PromptTemplate.py**: Prompt engineering template examples
+- **TokenAndConextWindows.py**: Token & context window educational content
 
 Run the demos:
 ```bash
 cd Week1
 python OpenAIDemo.py
 python DeepSeekAPIDemo.py
+python MiniMaxDemo.py
+```
+
+#### CLI Chatbots
+Terminal-based chatbot implementations using different AI providers:
+
+- **From ClaudeAI/**: CLI chatbot using Anthropic's Claude
+- **From Google AI/**: CLI chatbot using Google AI
+
+Run a chatbot:
+```bash
+cd Week1/CLI Chatbot/From ClaudeAI
+pip install -r requirements.txt
+python chatbot.py
 ```
 
 #### Interactive Tokens & Context Windows Study App
