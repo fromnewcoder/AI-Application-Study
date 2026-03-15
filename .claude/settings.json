@@ -6,7 +6,11 @@
       "Bash(pip install:*)",
       "Bash(python create_sample_pdf.py)",
       "Bash(python RAGPDFDemo.py AI_Study_Material.pdf)",
-      "Bash(ls \"d:/learning/GenAI/AI Application Study\"/*.md)"
+      "Bash(ls \"d:/learning/GenAI/AI Application Study\"/*.md)",
+      "Bash(python cli.py ingest https://en.wikipedia.org/wiki/Retrieval-augmented_generation)",
+      "Bash(python cli.py ingest https://en.wikipedia.org/wiki/Artificial_intelligence)",
+      "Bash(python cli.py ingest ../AI_Study_Material.pdf)",
+      "Bash(python cli.py ask \"What is machine learning?\")"
     ]
   }
 }

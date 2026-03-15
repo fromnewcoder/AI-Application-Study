@@ -1,0 +1,25 @@
+# RAG App — Python dependencies
+# Install with:  pip install -r requirements.txt
+
+# Vector store
+chromadb>=0.5.0
+
+# Embeddings — primary (local, semantic)
+sentence-transformers>=2.7.0
+
+# LLM
+anthropic>=0.20.0
+
+# Document loaders
+pymupdf>=1.24.0          # PDF
+python-docx>=1.1.0       # DOCX
+requests>=2.31.0         # URL fetching
+beautifulsoup4>=4.12.0   # HTML parsing
+
+# CLI
+click>=8.1.0
+rich>=13.0.0
+
+# Embeddings fallback (usually already installed)
+scikit-learn>=1.4.0
+numpy>=1.26.0
