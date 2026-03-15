@@ -28,6 +28,8 @@ AI-Application-Study/
 │   ├── EmbeddingsDemo.py           # Embeddings demo with similarity matrix
 │   ├── ChromaDBTheory.md           # Vector databases & Chroma DB guide
 │   ├── ChromaDBDemo.py             # Store & query 100 embeddings
+│   ├── RAGTheory.md               # RAG architecture & chunking guide
+│   ├── RAGDemo.py                 # RAG pipeline demo
 │   └── requirements.txt            # Python dependencies
 ├── .gitignore                      # Git ignore files
 └── README.md                        # This file
@@ -142,6 +144,29 @@ python ChromaDBDemo.py
 The demo includes:
 - Adding 100 documents across 10 categories (technology, food, sports, etc.)
 - Basic similarity search queries
+- Metadata filtering by category and word count
+- Combined semantic search + metadata filter
+- CRUD operations
+
+#### RAG Architecture Deep Dive
+Learn about Retrieval-Augmented Generation architecture, chunking strategies, and augmented prompting:
+
+- **RAGTheory.md**: Theory guide covering RAG fundamentals, chunking strategies (fixed, semantic, sliding), overlap, retrieval pipeline design, and augmented prompting
+- **RAGDemo.py**: Interactive demo that demonstrates all chunking strategies and full RAG pipeline with Chroma
+
+Run the demo:
+```bash
+cd Week2
+pip install -r requirements.txt
+python -m spacy download en_core_web_md
+python RAGDemo.py
+```
+
+The demo includes:
+- Three chunking strategies: fixed-size, semantic (by sentence), sliding window
+- Vector storage and semantic retrieval
+- Augmented prompting examples
+- Decision diagram for choosing chunking strategies
 - Metadata filtering by category and word count
 - Combined semantic search + metadata filter
 - Get document by ID
