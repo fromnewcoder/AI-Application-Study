@@ -23,6 +23,10 @@ AI-Application-Study/
 │   ├── prompt_engineering_basics.docx    # Prompt engineering basics guide
 │   ├── prompt_engineering_advanced.docx  # Advanced prompt engineering
 │   └── prompt_engineering_III.docx       # Prompt engineering Level III
+├── Week2/                           # Week 2 study materials
+│   ├── EmbeddingsTheory.md         # Embeddings theory guide
+│   ├── EmbeddingsDemo.py           # Embeddings demo with similarity matrix
+│   └── requirements.txt            # Python dependencies
 ├── .gitignore                      # Git ignore files
 └── README.md                        # This file
 ```
@@ -100,6 +104,24 @@ The app includes:
 - **Token Counting Functions**: Production-ready Python code for counting tokens
 - **Context Window Architecture**: Decision tree for choosing the right approach
 - **Interactive Quizzes**: Test your understanding of key concepts
+
+### Week 2 Demos
+
+#### Embeddings Theory & Demo
+Learn about text embeddings, vector spaces, and cosine similarity:
+
+- **EmbeddingsTheory.md**: Theory guide covering what embeddings are, vector space concepts, cosine similarity, how embedding models differ, and use cases
+- **EmbeddingsDemo.py**: Interactive demo that embeds 10 sentences and computes a similarity matrix
+
+Run the demo:
+```bash
+cd Week2
+pip install -r requirements.txt
+python -m spacy download en_core_web_md
+python EmbeddingsDemo.py
+```
+
+The demo uses spaCy's word vectors (no API key required) to demonstrate semantic similarity between sentences.
 
 ## Project Goals
 - Learn AI API integration
