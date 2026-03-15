@@ -1,7 +1,7 @@
 """
 RAG PDF Demo: Demonstrates PDF ingestion pipeline
 Load PDF -> Chunk text -> Generate embeddings -> Store in Chroma with metadata
-Integrated with MiniMax LLM for answer generation
+Integrated with MiniMax and DeepSeek LLMs for answer generation
 """
 
 import os
@@ -10,37 +10,52 @@ import chromadb
 from typing import List, Tuple
 import PyPDF2
 import anthropic
+from openai import OpenAI
 
 # Load spaCy for semantic operations
 print("Loading spaCy model...")
 nlp = spacy.load("en_core_web_md")
 
-# Initialize MiniMax client
+# Initialize LLM clients
+minimax_client = None
+deepseek_client = None
+
 print("Initializing MiniMax client...")
 try:
-    client = anthropic.Anthropic()
-    print("MiniMax client ready")
+    minimax_client = anthropic.Anthropic()
+    print("  MiniMax client ready")
 except Exception as e:
-    print(f"Warning: Could not initialize MiniMax client: {e}")
-    client = None
+    print(f"  Warning: Could not initialize MiniMax client: {e}")
+
+print("Initializing DeepSeek client...")
+try:
+    deepseek_client = OpenAI(
+        api_key=os.environ.get('DEEPSEEK_API_KEY'),
+        base_url="https://api.deepseek.com"
+    )
+    print("  DeepSeek client ready")
+except Exception as e:
+    print(f"  Warning: Could not initialize DeepSeek client: {e}")
+
+# Default LLM
+DEFAULT_LLM = "minimax"
 
 
 # =============================================================================
 # LLM INTEGRATION
 # =============================================================================
 
-def generate_answer(query: str, context_docs: List[str], max_context: int = 1500) -> str:
+def generate_answer(query: str, context_docs: List[str], max_context: int = 1500,
+                    llm: str = DEFAULT_LLM) -> str:
     """
-    Generate answer using MiniMax LLM with retrieved context.
+    Generate answer using MiniMax or DeepSeek LLM with retrieved context.
 
     Args:
         query: User question
         context_docs: List of retrieved document chunks
         max_context: Maximum characters to include in context
+        llm: LLM to use - "minimax" (default) or "deepseek"
     """
-    if not client:
-        return "Error: MiniMax client not initialized"
-
     # Build context from retrieved docs
     context_parts = []
     current_len = 0
@@ -63,8 +78,19 @@ Question: {query}
 
 Answer:"""
 
+    if llm == "deepseek":
+        return _generate_deepseek(prompt)
+    else:
+        return _generate_minimax(prompt)
+
+
+def _generate_minimax(prompt: str) -> str:
+    """Generate answer using MiniMax."""
+    if not minimax_client:
+        return "Error: MiniMax client not initialized"
+
     try:
-        message = client.messages.create(
+        message = minimax_client.messages.create(
             model="MiniMax-M2.5",
             max_tokens=500,
             messages=[
@@ -75,7 +101,6 @@ Answer:"""
             ]
         )
 
-        # Extract response
         for block in message.content:
             if block.type == "text":
                 return block.text
@@ -85,7 +110,28 @@ Answer:"""
         return "No response generated"
 
     except Exception as e:
-        return f"Error generating answer: {e}"
+        return f"Error generating answer (MiniMax): {e}"
+
+
+def _generate_deepseek(prompt: str) -> str:
+    """Generate answer using DeepSeek."""
+    if not deepseek_client:
+        return "Error: DeepSeek client not initialized"
+
+    try:
+        response = deepseek_client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=500
+        )
+
+        return response.choices[0].message.content
+
+    except Exception as e:
+        return f"Error generating answer (DeepSeek): {e}"
 
 
 # =============================================================================
@@ -249,7 +295,8 @@ def run_rag_pipeline(pdf_path: str, chunking_strategy: str = "semantic",
 # RETRIEVAL DEMO
 # =============================================================================
 
-def demo_retrieval(collection, query: str, n_results: int = 3, use_llm: bool = True):
+def demo_retrieval(collection, query: str, n_results: int = 3, use_llm: bool = True,
+                   llm: str = DEFAULT_LLM):
     """Demo retrieval and LLM-generated answer from the vector DB."""
     print(f"\nQuery: '{query}'")
     print("-" * 50)
@@ -272,12 +319,13 @@ def demo_retrieval(collection, query: str, n_results: int = 3, use_llm: bool = T
 
     # Generate answer with LLM
     if use_llm:
+        llm_name = "MiniMax" if llm == "minimax" else "DeepSeek"
         print("\n" + "-" * 50)
-        print("LLM Answer (MiniMax):")
+        print(f"LLM Answer ({llm_name}):")
         print("-" * 50)
 
         context_docs = results['documents'][0]
-        answer = generate_answer(query, context_docs)
+        answer = generate_answer(query, context_docs, llm=llm)
         print(f"  {answer}")
 
     print()
@@ -290,8 +338,18 @@ def demo_retrieval(collection, query: str, n_results: int = 3, use_llm: bool = T
 if __name__ == "__main__":
     import sys
 
-    # Default PDF path - can be overridden via command line
-    PDF_PATH = sys.argv[1] if len(sys.argv) > 1 else "AI_Study_Material.pdf"
+    # Parse arguments
+    # Usage: python RAGPDFDemo.py [pdf_path] [--llm minimax|deepseek]
+    PDF_PATH = "AI_Study_Material.pdf"
+    llm = DEFAULT_LLM
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "--llm" and len(sys.argv) > 2:
+            llm = sys.argv[2]
+            if len(sys.argv) > 3:
+                PDF_PATH = sys.argv[3]
+        else:
+            PDF_PATH = sys.argv[1]
 
     # Run pipeline with semantic chunking (best for preserving meaning)
     collection = run_rag_pipeline(
@@ -301,11 +359,19 @@ if __name__ == "__main__":
     )
 
     if collection:
-        # Demo retrieval
+        # Demo retrieval with default LLM (MiniMax)
         print("\n" + "=" * 80)
-        print("RETRIEVAL DEMO")
+        print("RETRIEVAL DEMO (LLM: " + ("MiniMax" if llm == "minimax" else "DeepSeek") + ")")
         print("=" * 80)
 
-        demo_retrieval(collection, "What is machine learning?")
-        demo_retrieval(collection, "Explain deep learning neural networks")
-        demo_retrieval(collection, "Natural language processing applications")
+        # To use DeepSeek: pass llm="deepseek" to demo_retrieval
+        # demo_retrieval(collection, query, llm="deepseek")
+        demo_retrieval(collection, "What is machine learning?", llm=llm)
+        demo_retrieval(collection, "Explain deep learning neural networks", llm=llm)
+        demo_retrieval(collection, "Natural language processing applications", llm=llm)
+
+        # Example: Uncomment to test DeepSeek
+        # print("\n" + "=" * 80)
+        # print("RETRIEVAL DEMO (DeepSeek)")
+        # print("=" * 80)
+        # demo_retrieval(collection, "What is machine learning?", llm="deepseek")
