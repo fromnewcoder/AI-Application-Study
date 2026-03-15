@@ -59,6 +59,7 @@ AI-Application-Study/
      ```
      OPENAI_API_KEY=your_openai_api_key_here
      DEEPSEEK_API_KEY=your_deepseek_api_key_here
+     MINIMAX_API_KEY=your_minimax_api_key_here
      ```
 
 ## Usage

@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Read(//d/learning/GenAI/AIApplicationStudy/**)"
+      "Read(//d/learning/GenAI/AIApplicationStudy/**)",
+      "Bash(python -c \"import PyPDF2; print\\(''PyPDF2 installed''\\)\")",
+      "Bash(pip install:*)",
+      "Bash(python create_sample_pdf.py)",
+      "Bash(python RAGPDFDemo.py AI_Study_Material.pdf)",
+      "Bash(ls \"d:/learning/GenAI/AI Application Study\"/*.md)"
     ]
   }
 }
