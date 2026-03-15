@@ -26,6 +26,8 @@ AI-Application-Study/
 ├── Week2/                           # Week 2 study materials
 │   ├── EmbeddingsTheory.md         # Embeddings theory guide
 │   ├── EmbeddingsDemo.py           # Embeddings demo with similarity matrix
+│   ├── ChromaDBTheory.md           # Vector databases & Chroma DB guide
+│   ├── ChromaDBDemo.py             # Store & query 100 embeddings
 │   └── requirements.txt            # Python dependencies
 ├── .gitignore                      # Git ignore files
 └── README.md                        # This file
@@ -122,6 +124,28 @@ python EmbeddingsDemo.py
 ```
 
 The demo uses spaCy's word vectors (no API key required) to demonstrate semantic similarity between sentences.
+
+#### Vector Databases (Chroma DB)
+Learn about vector databases, CRUD operations, indexing, similarity search, and metadata filtering:
+
+- **ChromaDBTheory.md**: Theory guide covering what vector databases are, Chroma DB setup, CRUD operations, indexing (HNSW), similarity search, and metadata filtering
+- **ChromaDBDemo.py**: Interactive demo that stores and queries 100 embeddings across 10 categories
+
+Run the demo:
+```bash
+cd Week2
+pip install -r requirements.txt
+python -m spacy download en_core_web_md
+python ChromaDBDemo.py
+```
+
+The demo includes:
+- Adding 100 documents across 10 categories (technology, food, sports, etc.)
+- Basic similarity search queries
+- Metadata filtering by category and word count
+- Combined semantic search + metadata filter
+- Get document by ID
+- Update and delete operations
 
 ## Project Goals
 - Learn AI API integration
