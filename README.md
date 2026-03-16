@@ -31,6 +31,9 @@ AI-Application-Study/
 │   ├── RAGTheory.md               # RAG architecture & chunking guide
 │   ├── RAGDemo.py                 # RAG pipeline demo
 │   └── requirements.txt            # Python dependencies
+├── Week3/                           # Week 3 study materials
+│   ├── StructuredOutputsDemo.py   # JSON mode, Pydantic, instructor
+│   └── README.md                   # Structured outputs guide
 ├── .gitignore                      # Git ignore files
 └── README.md                        # This file
 ```
