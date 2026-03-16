@@ -9,7 +9,7 @@ Week3: Streaming & Temperature Demo
 import os
 import json
 from openai import OpenAI
-from anthropic import Anthropic
+import anthropic
 
 # ============================================================
 # 1. Basic Streaming
@@ -55,7 +55,7 @@ def streaming_minimax():
     print("Response: ", end="", flush=True)
 
     response = client.chat.completions.create(
-        model="abab6.5s-chat",
+        model="MiniMax-M2.5",
         messages=[{"role": "user", "content": "Say hello in 3 words"}],
         stream=True
     )
@@ -110,25 +110,31 @@ def streaming_anthropic_minimax():
         print("MINIMAX_API_KEY not set, skipping...")
         return
 
-    # Use Anthropic SDK with MiniMax endpoint
-    client = Anthropic(
-        api_key=api_key,
-        base_url="https://api.minimax.chat/v1"
-    )
+    # Use Anthropic SDK - works with MiniMax API via compatibility
+    client = anthropic.Anthropic(api_key=api_key)
 
     print("\n=== Anthropic SDK + MiniMax Streaming Demo ===")
     print("Response: ", end="", flush=True)
 
-    # Anthropic uses messages API
-    response = client.messages.stream(
-        model="MiniMax-M2.1",
-        max_tokens=100,
-        messages=[{"role": "user", "content": "Say hello in 3 words"}]
-    )
-
-    for chunk in response:
-        if chunk.type == "content_block_delta":
-            print(chunk.delta.text, end="", flush=True)
+    try:
+        # Anthropic SDK streaming with context manager
+        with client.messages.stream(
+            model="MiniMax-M2.5",
+            max_tokens=100,
+            messages=[{"role": "user", "content": "Say hello in 3 words"}]
+        ) as response:
+            for chunk in response.text_stream:
+                print(chunk, end="", flush=True)
+    except Exception as e:
+        print(f"Streaming not supported via this endpoint: {e}")
+        # Fallback: non-streaming call
+        print("\n(Fallback to non-streaming)")
+        response = client.messages.create(
+            model="MiniMax-M2.5",
+            max_tokens=100,
+            messages=[{"role": "user", "content": "Say hello in 3 words"}]
+        )
+        print(response.content[0].text)
 
     print()
 
@@ -139,7 +145,7 @@ def streaming_anthropic_minimax():
 
 def temperature_comparison():
     """Compare different temperature settings"""
-    client = OpenAI()
+    client = anthropic.Anthropic()
 
     prompts = [
         "Write a short story opening: 'The door creaked open...'"
@@ -149,13 +155,17 @@ def temperature_comparison():
 
     for temp in temperatures:
         print(f"\n=== Temperature = {temp} ===")
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+        message = client.messages.create(
+            model="MiniMax-M2.5",
             messages=[{"role": "user", "content": prompts[0]}],
             temperature=temp,
-            max_tokens=100
+            max_tokens=1000
         )
-        print(response.choices[0].message.content[:200])
+        for block in message.content:
+            if block.type == "thinking":
+                print(f"Thinking:\n{block.thinking}\n")
+            elif block.type == "text":
+                print(f"Text:\n{block.text}\n")
 
 
 # ============================================================
@@ -164,13 +174,20 @@ def temperature_comparison():
 
 def seed_demo():
     """Using seed for reproducible outputs (OpenAI only)"""
-    client = OpenAI()
+    api_key = os.environ.get("DEEPSEEK_API_KEY")
+    if not api_key:
+        print("DEEPSEEK_API_KEY not set, skipping...")
+        return
 
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.deepseek.com"
+    )
     print("\n=== Seed Demo (should be identical) ===")
 
     for i in range(2):
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="deepseek-chat",
             messages=[{"role": "user", "content": "Say 'random'"}],
             temperature=0.7,
             seed=42  # Fixed seed for reproducibility
@@ -184,7 +201,15 @@ def seed_demo():
 
 def top_p_demo():
     """Comparing top_p settings"""
-    client = OpenAI()
+    api_key = os.environ.get("DEEPSEEK_API_KEY")
+    if not api_key:
+        print("DEEPSEEK_API_KEY not set, skipping...")
+        return
+
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.deepseek.com"
+    )
 
     prompts = [
         "Complete: The capital of France is"
@@ -195,7 +220,7 @@ def top_p_demo():
     for top_p in top_p_values:
         print(f"\n=== Top-p = {top_p} ===")
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="deepseek-chat",
             messages=[{"role": "user", "content": prompts[0]}],
             temperature=0.7,
             top_p=top_p,
@@ -210,13 +235,21 @@ def top_p_demo():
 
 def streaming_with_temperature():
     """Streaming with temperature control"""
-    client = OpenAI()
+    api_key = os.environ.get("DEEPSEEK_API_KEY")
+    if not api_key:
+        print("DEEPSEEK_API_KEY not set, skipping...")
+        return
+
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.deepseek.com"
+    )
 
     print("\n=== Streaming + Temperature (temp=0.2) ===")
     print("Response: ", end="", flush=True)
 
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="deepseek-chat",
         messages=[{"role": "user", "content": "What is 2+2? Be brief."}],
         temperature=0.2,  # Low temperature = more deterministic
         stream=True
@@ -244,7 +277,7 @@ def streaming_handler_example():
         prompt = f"Context: {context}\n\nQuestion: {query}\n\nAnswer:"
 
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="deepseek-chat",
             messages=[{"role": "user", "content": prompt}],
             temperature=temperature,
             stream=True
@@ -260,9 +293,16 @@ def streaming_handler_example():
         print()
         return full_response
 
-    # Demo usage
+    api_key = os.environ.get("DEEPSEEK_API_KEY")
+    if not api_key:
+        print("DEEPSEEK_API_KEY not set, skipping...")
+        return
+    client = OpenAI(
+        api_key=api_key,
+        base_url="https://api.deepseek.com"
+    )
     result = stream_response(
-        OpenAI(),
+        client,
         query="What is Python?",
         temperature=0.5
     )
@@ -273,8 +313,8 @@ if __name__ == "__main__":
     print("Week3: Streaming & Temperature Demo")
     print("=" * 60)
 
-    print("\n1. Basic Streaming (OpenAI):")
-    basic_streaming_demo()
+    #print("\n1. Basic Streaming (OpenAI):")
+    #basic_streaming_demo()
 
     print("\n2. MiniMax Streaming:")
     streaming_minimax()
@@ -282,12 +322,13 @@ if __name__ == "__main__":
     print("\n3. DeepSeek Streaming:")
     streaming_deepseek()
 
-    print("\n3b. Anthropic SDK + MiniMax Streaming:")
-    streaming_anthropic_minimax()
+    #print("\n3b. Anthropic SDK + MiniMax Streaming:")
+    #streaming_anthropic_minimax()
 
-    print("\n4. Temperature Comparison:")
-    temperature_comparison()
+    #print("\n4. Temperature Comparison:")
+    #temperature_comparison()
 
+    #the Anthropic API does not natively support a seed parameter.
     print("\n5. Seed for Reproducibility:")
     seed_demo()
 
