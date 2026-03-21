@@ -457,14 +457,12 @@ if __name__ == "__main__":
         age: Optional[int] = None
 
     try:
-        response = client.chat_completions_create(
-            messages=[{
-                "role": "user",
-                "content": "Extract: John is 30, email john@example.com. Return JSON."
-            }],
-            response_format={"type": "json_object"}
+        # Use structured_completion_with_fallback which adds schema to prompt
+        user = structured_completion_with_fallback(
+            client,
+            messages=[{"role": "user", "content": "Extract: John is 30, email john@example.com"}],
+            response_model=UserInfo
         )
-        user = validate_json_output(response.choices[0].message.content, UserInfo)
         print("Structured:", user.model_dump())
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Structured Error: {e}")
