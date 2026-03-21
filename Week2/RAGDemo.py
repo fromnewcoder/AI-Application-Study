@@ -149,7 +149,7 @@ print("2. Semantic Chunking (by sentences, max 2)")
 print("-" * 40)
 semantic_chunks = semantic_chunking(SAMPLE_DOCUMENT, max_sentences=2)
 for i, chunk in enumerate(semantic_chunks):
-    print(f"  Chunk {i}: [{len(chunk)} chars] {chunk}")
+    print(f"  Chunk {i}: [{len(chunk)} chars] {chunk[:60]}...")
 print(f"  Total chunks: {len(semantic_chunks)}")
 
 # Strategy 3: Sliding Window (replacing recursive for simplicity)
