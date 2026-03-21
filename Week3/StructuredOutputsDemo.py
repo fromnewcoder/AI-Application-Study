@@ -255,8 +255,8 @@ if __name__ == "__main__":
     #print("\n3. Instructor (OpenAI):")
     #instructor_openai_demo()
 
-    print("\n4. Instructor (Anthropic):")
-    instructor_anthropic_demo()
+    #print("\n4. Instructor (Anthropic):")
+    #instructor_anthropic_demo()
 
     #print("\n5. Instructor (MiniMax):")
     #instructor_minimax_demo()

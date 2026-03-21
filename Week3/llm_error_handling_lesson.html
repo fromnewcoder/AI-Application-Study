@@ -1,0 +1,839 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: var(--color-background-primary);
+  --bg2: var(--color-background-secondary);
+  --bg3: var(--color-background-tertiary);
+  --text: var(--color-text-primary);
+  --muted: var(--color-text-secondary);
+  --hint: var(--color-text-tertiary);
+  --border: var(--color-border-tertiary);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Sora', sans-serif;
+}
+
+.lesson {
+  font-family: var(--sans);
+  color: var(--text);
+  padding: 0.5rem 0 2rem;
+  max-width: 100%;
+}
+
+/* Header */
+.lesson-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 0.5px solid var(--border);
+}
+.lesson-badge {
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--color-background-info);
+  color: var(--color-text-info);
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.lesson-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.lesson-meta {
+  font-size: 12px;
+  color: var(--hint);
+  margin-left: auto;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1.5rem;
+  border-bottom: 0.5px solid var(--border);
+  overflow-x: auto;
+}
+.tab {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--sans);
+  color: var(--muted);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color 0.15s;
+  margin-bottom: -0.5px;
+}
+.tab.active {
+  color: var(--text);
+  border-bottom-color: var(--text);
+}
+.tab:hover:not(.active) { color: var(--text); }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Concept cards */
+.concept-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 520px) { .concept-grid { grid-template-columns: 1fr; } }
+
+.concept-card {
+  background: var(--bg2);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.concept-icon {
+  font-size: 18px;
+  margin-bottom: 8px;
+  display: block;
+}
+.concept-name {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.concept-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* Error type pills */
+.error-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 1.5rem;
+}
+.error-table th {
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--hint);
+  text-align: left;
+  padding: 6px 10px;
+  border-bottom: 0.5px solid var(--border);
+}
+.error-table td {
+  padding: 10px 10px;
+  border-bottom: 0.5px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.error-table tr:last-child td { border-bottom: none; }
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-family: var(--mono);
+}
+.tag-red { background: var(--color-background-danger); color: var(--color-text-danger); }
+.tag-amber { background: #FAEEDA; color: #854F0B; }
+.tag-green { background: var(--color-background-success); color: var(--color-text-success); }
+.tag-blue { background: var(--color-background-info); color: var(--color-text-info); }
+
+/* Backoff visualizer */
+.viz-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.viz-label { font-size: 13px; color: var(--muted); }
+.viz-val { font-size: 13px; font-weight: 500; min-width: 32px; text-align: right; }
+
+canvas#backoffChart {
+  width: 100%;
+  height: 160px;
+  display: block;
+  border-radius: 8px;
+  border: 0.5px solid var(--border);
+  margin-bottom: 1rem;
+  background: var(--bg2);
+}
+
+.backoff-table {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 1.5rem;
+}
+.bt-cell {
+  background: var(--bg2);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+}
+.bt-attempt { font-size: 11px; color: var(--hint); margin-bottom: 4px; }
+.bt-val { font-size: 15px; font-weight: 500; }
+.bt-unit { font-size: 10px; color: var(--hint); }
+
+/* Code block */
+.code-block {
+  background: var(--bg2);
+  border-radius: 10px;
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.8;
+  overflow-x: auto;
+  margin-bottom: 1rem;
+  border: 0.5px solid var(--border);
+  white-space: pre;
+}
+.c-kw  { color: #7c6ef5; }
+.c-fn  { color: #3B8BD4; }
+.c-str { color: #1D9E75; }
+.c-num { color: #BA7517; }
+.c-cm  { color: var(--hint); font-style: italic; }
+.c-cls { color: #D85A30; }
+
+/* Simulator */
+.sim-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+.sim-select {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 0.5px solid var(--color-border-secondary);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+.run-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 0.5px solid var(--color-border-secondary);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.run-btn:hover { background: var(--bg2); }
+.run-btn:active { transform: scale(0.98); }
+
+.log-pane {
+  background: var(--bg2);
+  border-radius: 10px;
+  padding: 14px 16px;
+  min-height: 140px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.9;
+  border: 0.5px solid var(--border);
+}
+.log-line { display: flex; gap: 10px; }
+.log-ts { color: var(--hint); min-width: 54px; }
+.log-ok { color: #1D9E75; }
+.log-warn { color: #BA7517; }
+.log-err { color: #A32D2D; }
+.log-info { color: #185FA5; }
+.log-fall { color: #533C17; background: #FAEEDA; padding: 1px 6px; border-radius: 4px; }
+
+/* Fallback strategy cards */
+.strat-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
+.strat-card {
+  background: var(--bg2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.strat-num {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--hint);
+  min-width: 20px;
+  padding-top: 1px;
+}
+.strat-name { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
+.strat-desc { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+.section-label {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--hint);
+  margin-bottom: 10px;
+}
+
+/* Summary quiz */
+.quiz-q {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+.quiz-opts { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; }
+.quiz-opt {
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 0.5px solid var(--color-border-secondary);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s;
+}
+.quiz-opt:hover { background: var(--bg2); }
+.quiz-opt.correct { background: var(--color-background-success); border-color: var(--color-border-success); color: var(--color-text-success); }
+.quiz-opt.wrong { background: var(--color-background-danger); border-color: var(--color-border-danger); color: var(--color-text-danger); }
+.quiz-feedback { font-size: 13px; color: var(--muted); min-height: 24px; }
+.progress-bar {
+  height: 4px;
+  background: var(--bg2);
+  border-radius: 2px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--color-text-info);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+</style>
+
+<div class="lesson">
+
+  <!-- Header -->
+  <div class="lesson-header">
+    <span class="lesson-badge">Wk 3 · Ph 1 · #15</span>
+    <span class="lesson-title">Error Handling &amp; Retries</span>
+    <span class="lesson-meta">≈ 1 hr</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('concepts')">Concepts</button>
+    <button class="tab" onclick="switchTab('backoff')">Backoff Viz</button>
+    <button class="tab" onclick="switchTab('code')">Wrapper Code</button>
+    <button class="tab" onclick="switchTab('sim')">Simulator</button>
+    <button class="tab" onclick="switchTab('quiz')">Quiz</button>
+  </div>
+
+  <!-- === TAB: CONCEPTS === -->
+  <div class="panel active" id="tab-concepts">
+    <p class="section-label">Error taxonomy</p>
+    <table class="error-table">
+      <thead>
+        <tr><th>Code</th><th>Name</th><th>Retryable?</th><th>Cause</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-amber">429</span></td>
+          <td><strong>Rate limit</strong></td>
+          <td><span class="tag tag-green">yes</span></td>
+          <td>TPM/RPM quota hit. Respect <code>retry-after</code> header</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">500</span></td>
+          <td><strong>Server error</strong></td>
+          <td><span class="tag tag-green">yes</span></td>
+          <td>Transient failure on Anthropic side. Safe to retry</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">529</span></td>
+          <td><strong>Overloaded</strong></td>
+          <td><span class="tag tag-green">yes</span></td>
+          <td>API capacity. Back off and retry</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">400</span></td>
+          <td><strong>Bad request</strong></td>
+          <td><span class="tag tag-red">no</span></td>
+          <td>Malformed payload. Fix the input, don't retry blindly</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">401</span></td>
+          <td><strong>Unauthorized</strong></td>
+          <td><span class="tag tag-red">no</span></td>
+          <td>Invalid API key. Human intervention needed</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">—</span></td>
+          <td><strong>Malformed JSON</strong></td>
+          <td><span class="tag tag-amber">maybe</span></td>
+          <td>Model didn't follow format. Re-prompt or parse defensively</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-blue">—</span></td>
+          <td><strong>Timeout / network</strong></td>
+          <td><span class="tag tag-green">yes</span></td>
+          <td>Transient connectivity. Retry with backoff</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="section-label">Core strategies</p>
+    <div class="concept-grid">
+      <div class="concept-card">
+        <span class="concept-icon">⏱</span>
+        <div class="concept-name">Exponential backoff</div>
+        <div class="concept-desc">Wait grows by 2ⁿ between retries. Prevents thundering herd and hammering the API. Add jitter to desync clients.</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">🔁</span>
+        <div class="concept-name">Max retry budget</div>
+        <div class="concept-desc">Cap total attempts (e.g. 3–5). After budget is exhausted, throw a final error or activate a fallback path.</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">🔍</span>
+        <div class="concept-name">Output validation</div>
+        <div class="concept-desc">Parse and schema-check every response. If malformed, re-prompt with corrective instructions before giving up.</div>
+      </div>
+      <div class="concept-card">
+        <span class="concept-icon">🪂</span>
+        <div class="concept-name">Fallback strategy</div>
+        <div class="concept-desc">When retries fail: degrade gracefully. Return cached result, use smaller model, queue for async, or surface an informative error.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === TAB: BACKOFF === -->
+  <div class="panel" id="tab-backoff">
+    <p class="section-label" style="margin-bottom:12px">Exponential backoff with jitter</p>
+    <div class="viz-controls">
+      <span class="viz-label">Base (s)</span>
+      <input type="range" id="base" min="0.5" max="4" step="0.5" value="1" oninput="drawBackoff()">
+      <span class="viz-val" id="base-v">1.0</span>
+      <span class="viz-label">Multiplier</span>
+      <input type="range" id="mult" min="1.5" max="4" step="0.5" value="2" oninput="drawBackoff()">
+      <span class="viz-val" id="mult-v">2.0</span>
+      <span class="viz-label">Max (s)</span>
+      <input type="range" id="maxw" min="10" max="120" step="10" value="60" oninput="drawBackoff()">
+      <span class="viz-val" id="maxw-v">60</span>
+    </div>
+    <canvas id="backoffChart"></canvas>
+    <div class="backoff-table" id="backoff-table"></div>
+    <p style="font-size:12px;color:var(--hint);margin-top:-0.5rem">
+      Orange bars = pure exponential. Blue dots = with jitter (±30%). Formula: <code style="font-family:var(--mono)">min(base × mult^attempt + rand(), maxWait)</code>
+    </p>
+  </div>
+
+  <!-- === TAB: CODE === -->
+  <div class="panel" id="tab-code">
+    <p class="section-label">Robust wrapper — async Python</p>
+    <div class="code-block"><span class="c-kw">import</span> asyncio, random, json, time
+<span class="c-kw">from</span> typing <span class="c-kw">import</span> Any
+<span class="c-kw">import</span> anthropic
+
+client = anthropic.<span class="c-cls">Anthropic</span>()
+
+<span class="c-kw">class</span> <span class="c-cls">LLMError</span>(Exception):
+    <span class="c-kw">def</span> <span class="c-fn">__init__</span>(self, msg, retryable=<span class="c-cls">False</span>):
+        super().__init__(msg)
+        self.retryable = retryable
+
+RETRYABLE_CODES = {<span class="c-num">429</span>, <span class="c-num">500</span>, <span class="c-num">502</span>, <span class="c-num">503</span>, <span class="c-num">529</span>}
+
+<span class="c-kw">async def</span> <span class="c-fn">call_with_retry</span>(
+    messages: list,
+    model: str = <span class="c-str">"claude-sonnet-4-20250514"</span>,
+    max_retries: int = <span class="c-num">4</span>,
+    base_delay: float = <span class="c-num">1.0</span>,
+    max_delay: float = <span class="c-num">60.0</span>,
+    schema: dict | None = None,
+) -> Any:
+    <span class="c-cm">"""Call Anthropic API with exponential backoff + output validation."""</span>
+
+    <span class="c-kw">for</span> attempt <span class="c-kw">in</span> range(max_retries + <span class="c-num">1</span>):
+        <span class="c-kw">try</span>:
+            resp = client.messages.create(
+                model=model,
+                max_tokens=<span class="c-num">1024</span>,
+                messages=messages,
+            )
+            content = resp.content[<span class="c-num">0</span>].text
+
+            <span class="c-cm"># ── Output validation ────────────────────────</span>
+            <span class="c-kw">if</span> schema:
+                parsed = <span class="c-fn">_parse_json</span>(content)   <span class="c-cm"># raises on malformed</span>
+                <span class="c-fn">_validate</span>(parsed, schema)       <span class="c-cm"># raises on schema mismatch</span>
+                <span class="c-kw">return</span> parsed
+
+            <span class="c-kw">return</span> content
+
+        <span class="c-kw">except</span> anthropic.APIStatusError <span class="c-kw">as</span> e:
+            retryable = e.status_code <span class="c-kw">in</span> RETRYABLE_CODES
+            <span class="c-kw">if not</span> retryable <span class="c-kw">or</span> attempt == max_retries:
+                <span class="c-kw">raise</span> <span class="c-cls">LLMError</span>(f<span class="c-str">"API {e.status_code}: {e.message}"</span>,
+                               retryable=retryable)
+            wait = <span class="c-fn">_backoff</span>(attempt, base_delay, max_delay)
+            <span class="c-fn">print</span>(f<span class="c-str">"[retry {attempt+1}] status={e.status_code} wait={wait:.1f}s"</span>)
+            <span class="c-kw">await</span> asyncio.<span class="c-fn">sleep</span>(wait)
+
+        <span class="c-kw">except</span> (<span class="c-cls">ValueError</span>, <span class="c-cls">KeyError</span>) <span class="c-kw">as</span> e:
+            <span class="c-cm"># Malformed / schema-invalid output</span>
+            <span class="c-kw">if</span> attempt == max_retries:
+                <span class="c-kw">raise</span> <span class="c-cls">LLMError</span>(f<span class="c-str">"Output invalid after {max_retries} retries"</span>)
+            <span class="c-cm"># Inject corrective instruction</span>
+            messages.append({<span class="c-str">"role"</span>: <span class="c-str">"assistant"</span>, <span class="c-str">"content"</span>: content})
+            messages.append({<span class="c-str">"role"</span>: <span class="c-str">"user"</span>, <span class="c-str">"content"</span>:
+                f<span class="c-str">"Your last response was invalid JSON or missing required fields. "</span>
+                f<span class="c-str">"Error: {e}. Please respond with valid JSON only."</span>})
+            <span class="c-kw">await</span> asyncio.<span class="c-fn">sleep</span>(<span class="c-num">0.5</span>)
+
+<span class="c-kw">def</span> <span class="c-fn">_backoff</span>(attempt: int, base: float, cap: float) -> float:
+    <span class="c-cm">"Exponential backoff with full jitter."</span>
+    exp = min(base * (<span class="c-num">2</span> ** attempt), cap)
+    <span class="c-kw">return</span> random.<span class="c-fn">uniform</span>(<span class="c-num">0</span>, exp)   <span class="c-cm"># full jitter strategy</span>
+
+<span class="c-kw">def</span> <span class="c-fn">_parse_json</span>(text: str) -> dict:
+    <span class="c-cm">"Strip markdown fences, parse JSON."</span>
+    clean = text.strip().strip(<span class="c-str">"```json"</span>).strip(<span class="c-str">"```"</span>).strip()
+    <span class="c-kw">return</span> json.<span class="c-fn">loads</span>(clean)       <span class="c-cm"># raises ValueError on bad JSON</span>
+
+<span class="c-kw">def</span> <span class="c-fn">_validate</span>(data: dict, schema: dict) -> None:
+    <span class="c-kw">for</span> key, typ <span class="c-kw">in</span> schema.items():
+        <span class="c-kw">if</span> key <span class="c-kw">not in</span> data:
+            <span class="c-kw">raise</span> <span class="c-cls">KeyError</span>(f<span class="c-str">"Missing field: {key}"</span>)
+        <span class="c-kw">if not</span> <span class="c-fn">isinstance</span>(data[key], typ):
+            <span class="c-kw">raise</span> <span class="c-cls">ValueError</span>(f<span class="c-str">"{key} expected {typ.__name__}"</span>)</div>
+
+    <p class="section-label">Fallback wrapper</p>
+    <div class="strat-list">
+      <div class="strat-card">
+        <span class="strat-num">1</span>
+        <div>
+          <div class="strat-name">Model downgrade</div>
+          <div class="strat-desc">If Sonnet fails, retry with Haiku. Cheaper, faster, often enough for the task.</div>
+        </div>
+      </div>
+      <div class="strat-card">
+        <span class="strat-num">2</span>
+        <div>
+          <div class="strat-name">Cached response</div>
+          <div class="strat-desc">Return a recent successful response for identical/similar inputs. Useful for read-heavy pipelines.</div>
+        </div>
+      </div>
+      <div class="strat-card">
+        <span class="strat-num">3</span>
+        <div>
+          <div class="strat-name">Async queue</div>
+          <div class="strat-desc">Enqueue the request to a job queue (e.g. Celery, BullMQ). Process later when rate limit resets.</div>
+        </div>
+      </div>
+      <div class="strat-card">
+        <span class="strat-num">4</span>
+        <div>
+          <div class="strat-name">Graceful degradation</div>
+          <div class="strat-desc">Return a deterministic rule-based result or a helpful "service unavailable" message. Never a silent failure.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- === TAB: SIMULATOR === -->
+  <div class="panel" id="tab-sim">
+    <p class="section-label">Retry simulator</p>
+    <div class="sim-row">
+      <select class="sim-select" id="err-type">
+        <option value="429">429 — Rate limit</option>
+        <option value="500">500 — Server error</option>
+        <option value="400">400 — Bad request</option>
+        <option value="malformed">Malformed JSON output</option>
+        <option value="ok">Clean success (no error)</option>
+      </select>
+      <select class="sim-select" id="fail-times">
+        <option value="1">Fail 1× then succeed</option>
+        <option value="2">Fail 2× then succeed</option>
+        <option value="3">Fail 3× then succeed</option>
+        <option value="99">Fail every attempt</option>
+      </select>
+      <button class="run-btn" onclick="runSim()">Run ↗</button>
+    </div>
+    <div class="log-pane" id="log"></div>
+  </div>
+
+  <!-- === TAB: QUIZ === -->
+  <div class="panel" id="tab-quiz">
+    <div class="progress-bar"><div class="progress-fill" id="qprog" style="width:0%"></div></div>
+    <div id="quiz-container"></div>
+  </div>
+
+</div>
+
+<script>
+// ── Tab switching ──────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'backoff') drawBackoff();
+  if (name === 'quiz') initQuiz();
+}
+
+// ── Backoff visualizer ─────────────────────────────────────────
+function getBackoffVals() {
+  const base = parseFloat(document.getElementById('base').value);
+  const mult = parseFloat(document.getElementById('mult').value);
+  const maxw = parseFloat(document.getElementById('maxw').value);
+  document.getElementById('base-v').textContent = base.toFixed(1);
+  document.getElementById('mult-v').textContent = mult.toFixed(1);
+  document.getElementById('maxw-v').textContent = maxw;
+  return { base, mult, maxw };
+}
+
+function calcWaits(base, mult, maxw) {
+  const pure = [], jit = [];
+  for (let i = 0; i < 5; i++) {
+    const exp = Math.min(base * Math.pow(mult, i), maxw);
+    pure.push(exp);
+    jit.push(exp * (0.7 + Math.random() * 0.6));
+  }
+  return { pure, jit };
+}
+
+function drawBackoff() {
+  const { base, mult, maxw } = getBackoffVals();
+  const { pure, jit } = calcWaits(base, mult, maxw);
+
+  const cvs = document.getElementById('backoffChart');
+  if (!cvs) return;
+  const W = cvs.clientWidth || 560, H = 160;
+  cvs.width = W * devicePixelRatio; cvs.height = H * devicePixelRatio;
+  cvs.style.width = W + 'px'; cvs.style.height = H + 'px';
+  const ctx = cvs.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  const isDark = getComputedStyle(document.body).getPropertyValue('color-scheme').includes('dark') || window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const textCol = isDark ? '#9c9a92' : '#73726c';
+  const barCol = isDark ? '#BA7517' : '#EF9F27';
+  const dotCol = isDark ? '#185FA5' : '#3B8BD4';
+
+  const pad = { l: 36, r: 12, t: 12, b: 28 };
+  const gW = W - pad.l - pad.r, gH = H - pad.t - pad.b;
+  const n = 5;
+  const maxVal = Math.max(...pure, ...jit, 1);
+  const bw = gW / n * 0.45;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.font = '10px JetBrains Mono, monospace';
+  ctx.fillStyle = textCol;
+  ctx.textAlign = 'right';
+
+  // Y ticks
+  for (let t of [0, 0.25, 0.5, 0.75, 1]) {
+    const y = pad.t + gH * (1 - t);
+    ctx.fillStyle = textCol;
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxVal * t) + 's', pad.l - 4, y + 4);
+    ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+    ctx.lineWidth = 0.5;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + gW, y); ctx.stroke();
+  }
+
+  // Bars
+  for (let i = 0; i < n; i++) {
+    const cx = pad.l + (i + 0.5) * gW / n;
+    const bh = (pure[i] / maxVal) * gH;
+    ctx.fillStyle = barCol + '99';
+    ctx.beginPath();
+    ctx.roundRect(cx - bw / 2, pad.t + gH - bh, bw, bh, 3);
+    ctx.fill();
+
+    const jh = (Math.min(jit[i], maxw) / maxVal) * gH;
+    ctx.fillStyle = dotCol;
+    ctx.beginPath();
+    ctx.arc(cx, pad.t + gH - jh, 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = textCol;
+    ctx.textAlign = 'center';
+    ctx.fillText('attempt ' + (i + 1), cx, pad.t + gH + 18);
+  }
+
+  // Table
+  const tbl = document.getElementById('backoff-table');
+  tbl.innerHTML = pure.map((v, i) => `
+    <div class="bt-cell">
+      <div class="bt-attempt">attempt ${i + 1}</div>
+      <div class="bt-val">${v.toFixed(1)}</div>
+      <div class="bt-unit">seconds</div>
+    </div>`).join('');
+}
+
+// ── Simulator ──────────────────────────────────────────────────
+let simRunning = false;
+async function runSim() {
+  if (simRunning) return;
+  simRunning = true;
+  const errType = document.getElementById('err-type').value;
+  const failTimes = parseInt(document.getElementById('fail-times').value);
+  const log = document.getElementById('log');
+  log.innerHTML = '';
+  let fails = 0;
+  const maxRetries = 4;
+  const base = 1.0;
+
+  function addLine(cls, msg) {
+    const ts = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const line = document.createElement('div');
+    line.className = 'log-line';
+    line.innerHTML = `<span class="log-ts">${ts}</span><span class="${cls}">${msg}</span>`;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  addLine('log-info', `→ Starting request  [error: ${errType}, will fail: ${failTimes === 99 ? 'always' : failTimes + 'x'}]`);
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const shouldFail = fails < failTimes;
+    await new Promise(r => setTimeout(r, 600));
+
+    if (shouldFail) {
+      fails++;
+      if (errType === '400') {
+        addLine('log-err', `✗ attempt ${attempt + 1} → 400 Bad Request  (not retryable)`);
+        addLine('log-err', `✗ Aborting — fix the request payload`);
+        break;
+      } else if (errType === '401') {
+        addLine('log-err', `✗ attempt ${attempt + 1} → 401 Unauthorized  (not retryable)`);
+        addLine('log-err', `✗ Check your API key`);
+        break;
+      } else if (errType === 'malformed') {
+        addLine('log-warn', `⚠ attempt ${attempt + 1} → 200 OK but malformed JSON in output`);
+        if (attempt < maxRetries) {
+          addLine('log-info', `  ↳ injecting corrective re-prompt…`);
+        } else {
+          addLine('log-err', `✗ Max retries exceeded — fallback activated`);
+          addLine('log-fall', `⬇ FALLBACK: returning cached result`);
+        }
+      } else {
+        const wait = Math.min(base * Math.pow(2, attempt), 60);
+        const jitter = (wait * (0.7 + Math.random() * 0.6)).toFixed(1);
+        addLine('log-warn', `⚠ attempt ${attempt + 1} → ${errType}  wait ${jitter}s (backoff)`);
+        if (attempt < maxRetries) {
+          await new Promise(r => setTimeout(r, 400));
+        } else {
+          addLine('log-err', `✗ Max retries (${maxRetries}) exceeded`);
+          addLine('log-fall', `⬇ FALLBACK: queued for async retry`);
+        }
+      }
+    } else {
+      addLine('log-ok', `✓ attempt ${attempt + 1} → 200 OK  response received`);
+      if (errType === 'malformed') {
+        addLine('log-ok', `  ↳ JSON parsed and validated successfully`);
+      }
+      addLine('log-ok', `✓ Done after ${attempt + 1} attempt${attempt > 0 ? 's' : ''}`);
+      break;
+    }
+    if (errType === '400' || errType === '401') break;
+  }
+  simRunning = false;
+}
+
+// ── Quiz ───────────────────────────────────────────────────────
+const QUESTIONS = [
+  {
+    q: "A 429 error arrives with a Retry-After: 30 header. What should you do?",
+    opts: ["Immediately retry", "Wait exactly 30s then retry", "Abort — rate limits are non-retryable", "Switch to a different model"],
+    correct: 1,
+    exp: "429 is retryable. Always respect the Retry-After header — it tells you exactly when the quota resets."
+  },
+  {
+    q: "The model returns a 200 OK but the JSON body is missing a required field. What's the best first step?",
+    opts: ["Raise an exception immediately", "Return partial data anyway", "Inject a corrective re-prompt and retry", "Log it silently and move on"],
+    correct: 2,
+    exp: "Malformed or incomplete outputs should trigger a corrective re-prompt before raising. Models often self-correct when shown the error."
+  },
+  {
+    q: "What does 'full jitter' add to exponential backoff?",
+    opts: ["Randomness between 0 and the cap, to desync parallel clients", "A fixed extra second on each attempt", "A hard cap to prevent very long waits", "Nothing — jitter is optional decoration"],
+    correct: 0,
+    exp: "Full jitter picks a random value between 0 and the exponential cap. This spreads retries across time and avoids thundering herd when many clients hit the API at once."
+  },
+  {
+    q: "Which HTTP status code should NOT be retried automatically?",
+    opts: ["500 Internal Server Error", "503 Service Unavailable", "400 Bad Request", "529 Overloaded"],
+    correct: 2,
+    exp: "400 means the request itself is malformed. Retrying the same bad payload will always fail — you need to fix the input first."
+  },
+  {
+    q: "After exhausting all retries, what is the best fallback for a user-facing summarisation feature?",
+    opts: ["Throw an uncaught exception", "Return a cached summary from an earlier run", "Silently return an empty string", "Retry forever in the background"],
+    correct: 1,
+    exp: "Returning a stale cached result degrades gracefully — the user still gets a response. Silent empty strings are confusing; uncaught exceptions crash the UX."
+  },
+];
+
+let quizState = { idx: 0, answered: false, score: 0 };
+function initQuiz() {
+  if (document.getElementById('quiz-container').innerHTML) return;
+  renderQuestion();
+}
+function renderQuestion() {
+  const c = document.getElementById('quiz-container');
+  const q = QUESTIONS[quizState.idx];
+  const pct = (quizState.idx / QUESTIONS.length * 100).toFixed(0);
+  document.getElementById('qprog').style.width = pct + '%';
+  c.innerHTML = `
+    <p style="font-size:12px;color:var(--hint);margin-bottom:8px">Question ${quizState.idx + 1} of ${QUESTIONS.length}</p>
+    <p class="quiz-q">${q.q}</p>
+    <div class="quiz-opts">
+      ${q.opts.map((o, i) => `<button class="quiz-opt" onclick="answer(${i})">${o}</button>`).join('')}
+    </div>
+    <p class="quiz-feedback" id="qfb"></p>
+  `;
+}
+function answer(i) {
+  if (document.querySelectorAll('.quiz-opt')[i].classList.contains('correct') ||
+      document.querySelectorAll('.quiz-opt')[i].classList.contains('wrong')) return;
+  const q = QUESTIONS[quizState.idx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts[i].classList.add(i === q.correct ? 'correct' : 'wrong');
+  opts[q.correct].classList.add('correct');
+  opts.forEach(o => o.style.pointerEvents = 'none');
+  if (i === q.correct) quizState.score++;
+  document.getElementById('qfb').textContent = q.exp;
+
+  setTimeout(() => {
+    quizState.idx++;
+    if (quizState.idx < QUESTIONS.length) {
+      renderQuestion();
+    } else {
+      document.getElementById('qprog').style.width = '100%';
+      document.getElementById('quiz-container').innerHTML = `
+        <div style="text-align:center;padding:2rem 1rem">
+          <div style="font-size:32px;font-weight:600;margin-bottom:8px">${quizState.score}/${QUESTIONS.length}</div>
+          <div style="font-size:14px;color:var(--muted);margin-bottom:1.5rem">
+            ${quizState.score === QUESTIONS.length ? 'Perfect score! Ready for Phase 2.' : 'Review the concepts tab and try again.'}
+          </div>
+          <button class="run-btn" onclick="quizState={idx:0,answered:false,score:0};document.getElementById('quiz-container').innerHTML='';initQuiz();">Retry quiz</button>
+        </div>`;
+    }
+  }, 2200);
+}
+</script>
