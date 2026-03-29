@@ -15,8 +15,8 @@ import { VectorStore }              from "./vectorStore.js";
 
 // ── Config ─────────────────────────────────────────────────────────────────────
 
-const CLAUDE_API_URL = "https://api.anthropic.com/v1/messages";
-const CLAUDE_MODEL   = "claude-sonnet-4-20250514";
+const CLAUDE_API_URL = "https://api.minimaxi.com/anthropic/v1/messages";
+const CLAUDE_MODEL   = "MiniMax-M2.7";
 const MAX_TOKENS     = 1024;
 
 // ── Prompt templates ───────────────────────────────────────────────────────────
