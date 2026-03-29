@@ -30,7 +30,7 @@ except ImportError:
 class Chatbot:
     """Manages conversation state and streaming responses."""
     
-    def __init__(self, provider: str = "anthropic", model: str = "MiniMax-M2.5"):
+    def __init__(self, provider: str = "anthropic", model: str = "MiniMax-M2.7"):
         """
         Initialize chatbot with provider and model.
         
@@ -205,7 +205,7 @@ def main():
     
     if choice == "2":
         provider = "anthropic"
-        default_model = "MiniMax-M2.5"
+        default_model = "MiniMax-M2.7"
     else:
         provider = "openai"
         default_model = "gpt-4o-mini"

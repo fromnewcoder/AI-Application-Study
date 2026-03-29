@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_URL = "https://api.minimaxi.com/anthropic/v1/messages"
-MODEL = "MiniMax-M2.5"
+MODEL = "MiniMax-M2.7"
 MAX_TOKENS = 1024
 
 
