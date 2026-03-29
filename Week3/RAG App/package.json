@@ -1,0 +1,22 @@
+{
+  "name": "rag-pipeline",
+  "version": "1.0.0",
+  "description": "A clean, well-documented RAG pipeline: chunking + embeddings + retrieval + structured output + streaming + retries",
+  "type": "module",
+  "main": "src/rag.js",
+  "exports": {
+    ".": "./src/rag.js",
+    "./chunker": "./src/chunker.js",
+    "./embedder": "./src/embedder.js",
+    "./vectorStore": "./src/vectorStore.js"
+  },
+  "scripts": {
+    "example": "node examples/example.js",
+    "test": "node --test src/rag.test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["rag", "llm", "embeddings", "claude", "anthropic", "retrieval"],
+  "license": "MIT"
+}
