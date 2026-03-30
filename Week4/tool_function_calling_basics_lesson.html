@@ -1,0 +1,351 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-mono); }
+
+.lesson-wrap { padding: 1.5rem 0; max-width: 780px; }
+
+.badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; border: 0.5px solid; }
+.badge-wk { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
+.badge-ph { background: #EEEDFE; color: #3C3489; border-color: #AFA9EC; }
+.badge-time { background: #F1EFE8; color: #444441; border-color: #B4B2A9; }
+
+.lesson-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 0.5rem; font-family: var(--font-sans); }
+.lesson-sub { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 2rem; font-family: var(--font-sans); }
+
+.tabs { display: flex; gap: 0; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1.5rem; }
+.tab { font-size: 13px; padding: 8px 16px; cursor: pointer; color: var(--color-text-secondary); border-bottom: 2px solid transparent; margin-bottom: -0.5px; font-family: var(--font-sans); background: none; border-left: none; border-right: none; border-top: none; }
+.tab.active { color: var(--color-text-primary); border-bottom-color: #7F77DD; font-weight: 500; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* Concepts */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.concept-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 14px 16px; }
+.concept-num { font-size: 11px; color: #7F77DD; font-weight: 500; margin-bottom: 6px; font-family: var(--font-sans); }
+.concept-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; font-family: var(--font-sans); }
+.concept-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; font-family: var(--font-sans); }
+
+/* Flow diagram */
+.flow { display: flex; flex-direction: column; gap: 0; margin-bottom: 1.5rem; }
+.flow-step { display: flex; gap: 12px; align-items: flex-start; position: relative; }
+.flow-left { display: flex; flex-direction: column; align-items: center; width: 36px; flex-shrink: 0; }
+.flow-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; flex-shrink: 0; font-family: var(--font-sans); }
+.flow-line { width: 1px; flex: 1; min-height: 20px; background: var(--color-border-tertiary); margin: 2px 0; }
+.flow-content { padding-bottom: 20px; flex: 1; }
+.flow-label { font-size: 12px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; font-family: var(--font-sans); }
+.flow-detail { font-size: 11.5px; color: var(--color-text-secondary); line-height: 1.5; font-family: var(--font-sans); }
+
+.dot-user { background: #EEEDFE; color: #3C3489; }
+.dot-model { background: #E1F5EE; color: #0F6E56; }
+.dot-tool { background: #FAEEDA; color: #633806; }
+.dot-result { background: #E6F1FB; color: #0C447C; }
+
+/* Code viewer */
+.code-tabs { display: flex; gap: 4px; margin-bottom: 10px; flex-wrap: wrap; }
+.code-tab { font-size: 11px; padding: 4px 10px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); background: none; font-family: var(--font-sans); }
+.code-tab.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-secondary); }
+
+.code-block { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 14px 16px; font-size: 12px; line-height: 1.7; overflow-x: auto; white-space: pre; font-family: var(--font-mono); color: var(--color-text-primary); }
+.kw { color: #7F77DD; }
+.str { color: #0F6E56; }
+.cm { color: var(--color-text-secondary); }
+.num { color: #BA7517; }
+.key { color: #185FA5; }
+
+/* Live demo */
+.demo-area { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.demo-header { background: var(--color-background-secondary); padding: 10px 16px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); display: flex; justify-content: space-between; align-items: center; font-family: var(--font-sans); }
+.demo-body { padding: 16px; }
+
+.msg { display: flex; gap: 10px; margin-bottom: 14px; }
+.msg-role { font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 20px; flex-shrink: 0; margin-top: 2px; font-family: var(--font-sans); }
+.role-user { background: #EEEDFE; color: #3C3489; }
+.role-model { background: #E1F5EE; color: #0F6E56; }
+.role-tool { background: #FAEEDA; color: #633806; }
+.msg-content { font-size: 12.5px; color: var(--color-text-primary); line-height: 1.6; font-family: var(--font-mono); flex: 1; }
+.msg-content.json { background: var(--color-background-secondary); padding: 10px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); white-space: pre; overflow-x: auto; font-size: 11.5px; }
+
+.demo-controls { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+.city-btn { font-size: 12px; padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-tertiary); cursor: pointer; color: var(--color-text-secondary); background: var(--color-background-primary); font-family: var(--font-sans); }
+.city-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+.city-btn.selected { background: #EEEDFE; color: #3C3489; border-color: #AFA9EC; }
+
+.step-indicator { display: flex; gap: 6px; align-items: center; }
+.step-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-border-tertiary); }
+.step-dot.done { background: #7F77DD; }
+.step-dot.current { background: #1D9E75; }
+
+#demo-msgs { min-height: 160px; }
+
+.info-box { background: var(--color-background-secondary); border-left: 3px solid #7F77DD; padding: 12px 14px; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; margin-top: 1rem; }
+.info-box p { font-size: 12.5px; color: var(--color-text-secondary); line-height: 1.6; font-family: var(--font-sans); }
+.info-box strong { color: var(--color-text-primary); font-weight: 500; }
+</style>
+
+<div class="lesson-wrap">
+  <div class="badge-row">
+    <span class="badge badge-wk">Week 4</span>
+    <span class="badge badge-ph">Phase 2 · Lesson 16</span>
+    <span class="badge badge-time">60 min</span>
+  </div>
+  <div class="lesson-title">Tool / Function Calling Basics</div>
+  <div class="lesson-sub">Tool schema definition · how the model decides to call tools · parsing tool_use responses · tool result format</div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('concepts')">Concepts</button>
+    <button class="tab" onclick="switchTab('flow')">Call flow</button>
+    <button class="tab" onclick="switchTab('code')">Code</button>
+    <button class="tab" onclick="switchTab('demo')">Live demo</button>
+  </div>
+
+  <!-- CONCEPTS -->
+  <div id="panel-concepts" class="panel active">
+    <div class="concept-grid">
+      <div class="concept-card">
+        <div class="concept-num">01 · Schema</div>
+        <div class="concept-name">Tool definition</div>
+        <div class="concept-desc">A JSON object with <code>name</code>, <code>description</code>, and an <code>input_schema</code> (JSON Schema). The description is the most important part — the model reads it to decide when and how to call the tool.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-num">02 · Decision</div>
+        <div class="concept-name">When the model calls</div>
+        <div class="concept-desc">The model reads user intent, compares it against each tool's description, and emits a <code>tool_use</code> block when a tool is needed. It can call multiple tools in one turn.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-num">03 · Parsing</div>
+        <div class="concept-name">tool_use response block</div>
+        <div class="concept-desc">The response <code>content</code> array contains blocks of <code>type: "tool_use"</code> with an <code>id</code>, <code>name</code>, and <code>input</code> object. You must check for this type before calling the real API.</div>
+      </div>
+      <div class="concept-card">
+        <div class="concept-num">04 · Result</div>
+        <div class="concept-name">tool_result format</div>
+        <div class="concept-desc">You call the real tool, then send back a message with <code>role: "user"</code> containing a <code>tool_result</code> block referencing the <code>tool_use_id</code> so the model can generate a final answer.</div>
+      </div>
+    </div>
+    <div class="info-box">
+      <p><strong>Key insight:</strong> The model never actually calls your API. It emits a structured request (<code>tool_use</code>), you run the real code, then feed the result back. The model is the orchestrator — your code is the executor.</p>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <div id="panel-flow" class="panel">
+    <div class="flow">
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-dot dot-user">1</div><div class="flow-line"></div></div>
+        <div class="flow-content">
+          <div class="flow-label">User sends a message</div>
+          <div class="flow-detail">"What's the weather in Singapore?" — natural language, no awareness of tools required.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-dot dot-model">2</div><div class="flow-line"></div></div>
+        <div class="flow-content">
+          <div class="flow-label">You send the request with tools array</div>
+          <div class="flow-detail">Your app sends the conversation + the tool schema to <code>/v1/messages</code>. The model reads both.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-dot dot-model">3</div><div class="flow-line"></div></div>
+        <div class="flow-content">
+          <div class="flow-label">Model returns stop_reason: "tool_use"</div>
+          <div class="flow-detail">Response contains a <code>tool_use</code> block with <code>id</code>, <code>name: "get_weather"</code>, and <code>input: {location: "Singapore"}</code>.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-dot dot-tool">4</div><div class="flow-line"></div></div>
+        <div class="flow-content">
+          <div class="flow-label">Your code calls the real weather API</div>
+          <div class="flow-detail">You inspect the <code>tool_use</code> block, extract <code>input.location</code>, and make the actual HTTP call to the weather service.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-dot dot-result">5</div><div class="flow-line"></div></div>
+        <div class="flow-content">
+          <div class="flow-label">Send tool_result back to the model</div>
+          <div class="flow-detail">Append the assistant's <code>tool_use</code> turn to history, then add a new user turn with <code>type: "tool_result"</code> containing the weather data.</div>
+        </div>
+      </div>
+      <div class="flow-step">
+        <div class="flow-left"><div class="flow-dot dot-model">6</div></div>
+        <div class="flow-content">
+          <div class="flow-label">Model generates final answer</div>
+          <div class="flow-detail">The model reads the tool result and produces a natural-language response: "It's 31°C and humid in Singapore right now."</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CODE -->
+  <div id="panel-code" class="panel">
+    <div class="code-tabs">
+      <button class="code-tab active" onclick="switchCode('schema')">1. Schema</button>
+      <button class="code-tab" onclick="switchCode('request')">2. Request</button>
+      <button class="code-tab" onclick="switchCode('parse')">3. Parse response</button>
+      <button class="code-tab" onclick="switchCode('result')">4. Send result</button>
+    </div>
+    <div id="code-schema" class="code-block"><span class="cm">// Tool schema — the model reads the description to decide when to call</span>
+<span class="kw">const</span> tools = [
+  {
+    <span class="key">name</span>: <span class="str">"get_weather"</span>,
+    <span class="key">description</span>: <span class="str">"Get current weather for a city. Call this whenever
+    the user asks about weather, temperature, or forecast."</span>,
+    <span class="key">input_schema</span>: {
+      <span class="key">type</span>: <span class="str">"object"</span>,
+      <span class="key">properties</span>: {
+        <span class="key">location</span>: {
+          <span class="key">type</span>: <span class="str">"string"</span>,
+          <span class="key">description</span>: <span class="str">"City name, e.g. 'Singapore' or 'Paris, France'"</span>
+        },
+        <span class="key">unit</span>: {
+          <span class="key">type</span>: <span class="str">"string"</span>,
+          <span class="key">enum</span>: [<span class="str">"celsius"</span>, <span class="str">"fahrenheit"</span>],
+          <span class="key">description</span>: <span class="str">"Temperature unit. Default celsius."</span>
+        }
+      },
+      <span class="key">required</span>: [<span class="str">"location"</span>]
+    }
+  }
+];</div>
+    <div id="code-request" class="code-block" style="display:none"><span class="cm">// Send the request with tools attached</span>
+<span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="str">"https://api.anthropic.com/v1/messages"</span>, {
+  <span class="key">method</span>: <span class="str">"POST"</span>,
+  <span class="key">headers</span>: { <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span> },
+  <span class="key">body</span>: JSON.stringify({
+    <span class="key">model</span>: <span class="str">"claude-sonnet-4-20250514"</span>,
+    <span class="key">max_tokens</span>: <span class="num">1000</span>,
+    <span class="key">tools</span>: tools,           <span class="cm">// ← attach your tools array</span>
+    <span class="key">messages</span>: [
+      { <span class="key">role</span>: <span class="str">"user"</span>, <span class="key">content</span>: <span class="str">"What's the weather in Singapore?"</span> }
+    ]
+  })
+});
+
+<span class="kw">const</span> data = <span class="kw">await</span> response.json();
+<span class="cm">// data.stop_reason will be "tool_use" — not "end_turn"</span></div>
+    <div id="code-parse" class="code-block" style="display:none"><span class="cm">// Parse the tool_use block from the response</span>
+<span class="kw">const</span> toolUseBlock = data.content.find(
+  block => block.type === <span class="str">"tool_use"</span>
+);
+
+<span class="kw">if</span> (toolUseBlock) {
+  <span class="kw">const</span> { id, name, input } = toolUseBlock;
+  <span class="cm">// id      → "toolu_01XVcD..."  (use this when sending result)</span>
+  <span class="cm">// name    → "get_weather"</span>
+  <span class="cm">// input   → { location: "Singapore", unit: "celsius" }</span>
+
+  <span class="cm">// Dispatch to the right handler</span>
+  <span class="kw">if</span> (name === <span class="str">"get_weather"</span>) {
+    <span class="kw">const</span> weather = <span class="kw">await</span> callWeatherAPI(input.location, input.unit);
+    <span class="cm">// → { temp: 31, condition: "Humid", humidity: 84 }</span>
+  }
+}</div>
+    <div id="code-result" class="code-block" style="display:none"><span class="cm">// Send tool result back — role must be "user"</span>
+<span class="kw">const</span> finalResponse = <span class="kw">await</span> fetch(<span class="str">"https://api.anthropic.com/v1/messages"</span>, {
+  <span class="key">method</span>: <span class="str">"POST"</span>,
+  <span class="key">headers</span>: { <span class="str">"Content-Type"</span>: <span class="str">"application/json"</span> },
+  <span class="key">body</span>: JSON.stringify({
+    <span class="key">model</span>: <span class="str">"claude-sonnet-4-20250514"</span>,
+    <span class="key">max_tokens</span>: <span class="num">1000</span>,
+    <span class="key">tools</span>: tools,
+    <span class="key">messages</span>: [
+      { <span class="key">role</span>: <span class="str">"user"</span>,      <span class="key">content</span>: <span class="str">"What's the weather in Singapore?"</span> },
+      { <span class="key">role</span>: <span class="str">"assistant"</span>, <span class="key">content</span>: data.content },   <span class="cm">// full assistant turn</span>
+      {
+        <span class="key">role</span>: <span class="str">"user"</span>,
+        <span class="key">content</span>: [{
+          <span class="key">type</span>: <span class="str">"tool_result"</span>,
+          <span class="key">tool_use_id</span>: toolUseBlock.id,   <span class="cm">// must match!</span>
+          <span class="key">content</span>: JSON.stringify(weather) <span class="cm">// your API result</span>
+        }]
+      }
+    ]
+  })
+});
+<span class="cm">// Model now produces the final natural-language answer</span></div>
+  </div>
+
+  <!-- LIVE DEMO -->
+  <div id="panel-demo" class="panel">
+    <div class="demo-area">
+      <div class="demo-header">
+        <span>Simulated tool call trace</span>
+        <div class="step-indicator" id="step-dots"></div>
+      </div>
+      <div class="demo-body">
+        <div id="demo-msgs"></div>
+      </div>
+      <div class="demo-controls">
+        <span style="font-size: 12px; color: var(--color-text-secondary); font-family: var(--font-sans); align-self: center;">Pick a city:</span>
+        <button class="city-btn" onclick="runDemo('Singapore', 31, 'Humid and hazy', 84)">Singapore</button>
+        <button class="city-btn" onclick="runDemo('Tokyo', 18, 'Partly cloudy', 62)">Tokyo</button>
+        <button class="city-btn" onclick="runDemo('London', 9, 'Overcast', 78)">London</button>
+        <button class="city-btn" onclick="runDemo('Sydney', 24, 'Clear skies', 55)">Sydney</button>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top: 12px;">
+      <p><strong>Note:</strong> This simulation shows the exact message structure the Anthropic API uses. In production you'd call the real <code>/v1/messages</code> endpoint twice — once to get the <code>tool_use</code>, once to get the final answer after sending <code>tool_result</code>.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${name}')"]`).classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+function switchCode(name) {
+  document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.code-block').forEach(b => b.style.display = 'none');
+  document.querySelector(`[onclick="switchCode('${name}')"]`).classList.add('active');
+  document.getElementById('code-' + name).style.display = 'block';
+}
+
+const steps = [
+  { role: 'user', label: 'user', content: city => `What's the weather in ${city}?` },
+  { role: 'model', label: 'model', isJson: true, content: city => `{\n  "stop_reason": "tool_use",\n  "content": [{\n    "type": "tool_use",\n    "id": "toolu_01XVcD9k...",\n    "name": "get_weather",\n    "input": { "location": "${city}", "unit": "celsius" }\n  }]\n}` },
+  { role: 'tool', label: 'tool', isJson: true, content: (city, temp, cond, hum) => `{\n  "type": "tool_result",\n  "tool_use_id": "toolu_01XVcD9k...",\n  "content": "{\\"temp\\": ${temp}, \\"unit\\": \\"celsius\\",\\n  \\"condition\\": \\"${cond}\\", \\"humidity\\": ${hum}}"\n}` },
+  { role: 'model', label: 'model', content: (city, temp, cond, hum) => `Right now in ${city} it's ${temp}°C with ${cond.toLowerCase()} conditions and ${hum}% humidity. Quite ${temp > 28 ? 'warm and sticky' : temp < 15 ? 'cool' : 'pleasant'} out there!` }
+];
+
+let animTimer = null;
+
+function setDots(current, total) {
+  const el = document.getElementById('step-dots');
+  el.innerHTML = Array.from({length: total}, (_, i) => {
+    const cls = i < current ? 'done' : i === current ? 'current' : '';
+    return `<div class="step-dot ${cls}"></div>`;
+  }).join('');
+}
+
+function runDemo(city, temp, cond, hum) {
+  if (animTimer) clearTimeout(animTimer);
+  document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  const msgs = document.getElementById('demo-msgs');
+  msgs.innerHTML = '';
+  setDots(0, steps.length);
+  let i = 0;
+  function nextStep() {
+    if (i >= steps.length) return;
+    const s = steps[i];
+    const roleClass = s.role === 'user' ? 'role-user' : s.role === 'model' ? 'role-model' : 'role-tool';
+    const text = s.content(city, temp, cond, hum);
+    const div = document.createElement('div');
+    div.className = 'msg';
+    div.innerHTML = `<span class="msg-role ${roleClass}">${s.label}</span><div class="msg-content${s.isJson ? ' json' : ''}">${text}</div>`;
+    msgs.appendChild(div);
+    setDots(i + 1, steps.length);
+    i++;
+    if (i < steps.length) animTimer = setTimeout(nextStep, 900);
+  }
+  nextStep();
+}
+
+setDots(0, steps.length);
+</script>
