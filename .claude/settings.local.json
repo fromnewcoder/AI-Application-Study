@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python EmbeddingsDemo.py)"
+      "Bash(python EmbeddingsDemo.py)",
+      "Bash(mv chunker.js embedder.js vectorStore.js rag.js rag.test.js src/)",
+      "Bash(mv example.js examples/)"
     ]
   }
 }
