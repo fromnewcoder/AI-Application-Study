@@ -49,7 +49,7 @@ async function callWeatherAPI(location, unit = "celsius") {
 async function askWeather(question) {
   // Step 1: Send request with tools attached
   const response = await anthropic.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "MiniMax-M2.7",
     max_tokens: 1000,
     tools: tools,
     messages: [
