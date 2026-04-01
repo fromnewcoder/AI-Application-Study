@@ -1,0 +1,359 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:var(--color-text-primary);
+  --muted:var(--color-text-secondary);
+  --faint:var(--color-text-tertiary);
+  --surface:var(--color-background-primary);
+  --raised:var(--color-background-secondary);
+  --line:var(--color-border-tertiary);
+  --accent:#185FA5;
+  --accent2:#0F6E56;
+  --accent3:#993C1D;
+  --accent4:#534AB7;
+  --mono:'JetBrains Mono',monospace;
+  --display:'Syne',sans-serif;
+}
+
+.wrap{padding:1.5rem 1rem 2rem;max-width:700px;margin:0 auto}
+
+/* Header */
+.hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:1.5rem}
+.hdr-left{}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.title{font-family:var(--display);font-size:26px;font-weight:700;color:var(--ink);line-height:1.15}
+.pill-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pill{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:20px;border:0.5px solid var(--line)}
+.pill.blue{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.pill.green{background:var(--color-background-success);color:var(--color-text-success);border-color:var(--color-border-success)}
+.pill.amber{background:var(--color-background-warning);color:var(--color-text-warning);border-color:var(--color-border-warning)}
+.duration{font-family:var(--mono);font-size:12px;color:var(--muted);background:var(--raised);border:0.5px solid var(--line);border-radius:8px;padding:6px 12px;white-space:nowrap;flex-shrink:0}
+
+/* Section label */
+.sec-label{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:.5rem}
+
+/* Concept cards */
+.concepts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.card{background:var(--surface);border:0.5px solid var(--line);border-radius:var(--border-radius-lg);padding:14px 16px;cursor:pointer;transition:border-color .15s}
+.card:hover{border-color:var(--color-border-secondary)}
+.card-num{font-family:var(--mono);font-size:10px;color:var(--faint);margin-bottom:6px}
+.card-head{font-family:var(--display);font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Agent flow diagram */
+.flow-wrap{background:var(--surface);border:0.5px solid var(--line);border-radius:var(--border-radius-lg);padding:16px;margin-bottom:1.5rem}
+.flow-title{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:14px}
+.flow{display:flex;align-items:center;gap:0;overflow-x:auto;padding-bottom:4px}
+.fnode{background:var(--raised);border:0.5px solid var(--line);border-radius:8px;padding:10px 12px;min-width:92px;text-align:center;flex-shrink:0}
+.fnode.active{border-color:var(--accent);background:var(--color-background-info)}
+.fnode-icon{font-size:16px;margin-bottom:4px}
+.fnode-name{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--ink)}
+.fnode-tag{font-size:10px;color:var(--muted);margin-top:2px}
+.arrow{color:var(--faint);font-size:18px;padding:0 4px;flex-shrink:0}
+.fnode.tool{border-left:2px solid}
+.fnode.search{border-color:#185FA5}
+.fnode.calc{border-color:#0F6E56}
+.fnode.file{border-color:#993C1D}
+
+/* Tool definitions panel */
+.tools-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.tool-card{border-radius:10px;padding:14px;border:0.5px solid var(--line)}
+.tool-card.t-search{background:var(--color-background-info);border-color:var(--color-border-info)}
+.tool-card.t-calc{background:var(--color-background-success);border-color:var(--color-border-success)}
+.tool-card.t-file{background:var(--color-background-warning);border-color:var(--color-border-warning)}
+.tool-icon{font-size:20px;margin-bottom:8px}
+.tool-name{font-family:var(--display);font-size:13px;font-weight:600;margin-bottom:4px}
+.tool-name.blue{color:var(--color-text-info)}
+.tool-name.green{color:var(--color-text-success)}
+.tool-name.amber{color:var(--color-text-warning)}
+.tool-desc{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:8px}
+.tool-sig{font-family:var(--mono);font-size:9.5px;padding:5px 7px;background:var(--surface);border-radius:5px;color:var(--faint);line-height:1.4}
+
+/* Key concepts */
+.key-list{display:flex;flex-direction:column;gap:8px;margin-bottom:1.5rem}
+.key-item{display:flex;align-items:flex-start;gap:10px;background:var(--surface);border:0.5px solid var(--line);border-radius:10px;padding:12px 14px}
+.key-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.key-dot.blue{background:var(--accent)}
+.key-dot.green{background:var(--accent2)}
+.key-dot.red{background:var(--accent3)}
+.key-dot.purple{background:var(--accent4)}
+.key-body{}
+.key-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.key-desc{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Code snippet */
+.code-block{background:var(--raised);border:0.5px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:1.5rem;overflow-x:auto}
+.code-label{font-family:var(--mono);font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--faint);margin-bottom:10px}
+pre{font-family:var(--mono);font-size:11.5px;line-height:1.65;color:var(--ink);white-space:pre}
+.kw{color:#185FA5}
+.str{color:#0F6E56}
+.cm{color:var(--faint)}
+.fn{color:#534AB7}
+.val{color:#993C1D}
+
+/* Stopping conditions */
+.stop-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.stop-card{background:var(--surface);border:0.5px solid var(--line);border-radius:10px;padding:12px 14px}
+.stop-badge{display:inline-block;font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:20px;margin-bottom:7px;text-transform:uppercase;letter-spacing:.06em}
+.stop-badge.success{background:var(--color-background-success);color:var(--color-text-success)}
+.stop-badge.danger{background:var(--color-background-danger);color:var(--color-text-danger)}
+.stop-badge.warning{background:var(--color-background-warning);color:var(--color-text-warning)}
+.stop-badge.info{background:var(--color-background-info);color:var(--color-text-info)}
+.stop-title{font-size:12px;font-weight:500;color:var(--ink);margin-bottom:3px}
+.stop-desc{font-size:11px;color:var(--muted);line-height:1.45}
+
+/* Timeline */
+.timeline{display:flex;flex-direction:column;gap:0;margin-bottom:1.5rem}
+.tl-item{display:flex;gap:14px;align-items:flex-start}
+.tl-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:32px}
+.tl-time{font-family:var(--mono);font-size:10px;color:var(--muted);white-space:nowrap}
+.tl-line{width:1px;flex:1;background:var(--line);min-height:20px;margin:4px 0}
+.tl-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:2px}
+.tl-body{padding-bottom:20px}
+.tl-head{font-size:13px;font-weight:500;color:var(--ink)}
+.tl-sub{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+
+/* Divider */
+.divider{border:none;border-top:0.5px solid var(--line);margin:1.25rem 0}
+</style>
+
+<div class="wrap">
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="eyebrow">Week 4 · PH 217 · Lecture Notes</div>
+      <div class="title">Multi-Tool Agents</div>
+      <div class="pill-row">
+        <span class="pill blue">Multiple tool definitions</span>
+        <span class="pill green">Tool chaining</span>
+        <span class="pill amber">Error handling</span>
+        <span class="pill blue">Stopping conditions</span>
+      </div>
+    </div>
+    <div class="duration">⏱ 1.5 hrs</div>
+  </div>
+
+  <!-- Concepts overview -->
+  <div class="sec-label">Core concepts</div>
+  <div class="concepts">
+    <div class="card">
+      <div class="card-num">01</div>
+      <div class="card-head">Tool definitions</div>
+      <div class="card-sub">Declare each tool with a name, description, and typed parameter schema. The model selects tools based on this spec.</div>
+    </div>
+    <div class="card">
+      <div class="card-num">02</div>
+      <div class="card-head">Tool chaining</div>
+      <div class="card-sub">Output of one tool becomes input for the next. The agent decides the chain at runtime based on task decomposition.</div>
+    </div>
+    <div class="card">
+      <div class="card-num">03</div>
+      <div class="card-head">Error handling</div>
+      <div class="card-sub">Tool failures must return structured errors back to the model so it can retry, reroute, or gracefully abort.</div>
+    </div>
+    <div class="card">
+      <div class="card-num">04</div>
+      <div class="card-head">Stopping conditions</div>
+      <div class="card-sub">Define when the agent should stop: task complete, max turns hit, ambiguity detected, or user confirmation needed.</div>
+    </div>
+  </div>
+
+  <!-- Agent flow -->
+  <div class="flow-wrap">
+    <div class="flow-title">Agent loop — run to completion</div>
+    <div class="flow">
+      <div class="fnode active">
+        <div class="fnode-icon">🧠</div>
+        <div class="fnode-name">LLM</div>
+        <div class="fnode-tag">reasons</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fnode tool search">
+        <div class="fnode-icon">🔍</div>
+        <div class="fnode-name">search</div>
+        <div class="fnode-tag">web / db</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fnode tool calc">
+        <div class="fnode-icon">🧮</div>
+        <div class="fnode-name">calc</div>
+        <div class="fnode-tag">compute</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fnode tool file">
+        <div class="fnode-icon">📄</div>
+        <div class="fnode-name">file_reader</div>
+        <div class="fnode-tag">parse / extract</div>
+      </div>
+      <div class="arrow">→</div>
+      <div class="fnode">
+        <div class="fnode-icon">✅</div>
+        <div class="fnode-name">stop</div>
+        <div class="fnode-tag">condition met</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 tools -->
+  <div class="sec-label">The 3 tools in today's agent</div>
+  <div class="tools-grid">
+    <div class="tool-card t-search">
+      <div class="tool-icon">🔍</div>
+      <div class="tool-name blue">search</div>
+      <div class="tool-desc">Queries a knowledge base or web API. Returns ranked results with snippets.</div>
+      <div class="tool-sig">search(query: str,<br>top_k: int = 3)<br>→ list[Result]</div>
+    </div>
+    <div class="tool-card t-calc">
+      <div class="tool-icon">🧮</div>
+      <div class="tool-name green">calc</div>
+      <div class="tool-desc">Evaluates a math expression safely in a sandboxed evaluator. No eval().</div>
+      <div class="tool-sig">calc(expr: str)<br><br>→ float | Error</div>
+    </div>
+    <div class="tool-card t-file">
+      <div class="tool-icon">📄</div>
+      <div class="tool-name amber">file_reader</div>
+      <div class="tool-desc">Reads and parses a file by path. Supports PDF, CSV, TXT, JSON.</div>
+      <div class="tool-sig">read_file(path: str,<br>fmt: Literal[...])<br>→ str | Error</div>
+    </div>
+  </div>
+
+  <!-- Key concepts -->
+  <div class="sec-label">Key implementation concepts</div>
+  <div class="key-list">
+    <div class="key-item">
+      <div class="key-dot blue"></div>
+      <div class="key-body">
+        <div class="key-title">Parallel vs sequential tool calls</div>
+        <div class="key-desc">When tool calls are independent, dispatch them in parallel to cut latency. When output A feeds tool B, they must be sequential. The model signals this implicitly through argument structure.</div>
+      </div>
+    </div>
+    <div class="key-item">
+      <div class="key-dot green"></div>
+      <div class="key-body">
+        <div class="key-title">tool_result with is_error flag</div>
+        <div class="key-desc">Always return a tool_result even on failure. Set <code style="font-family:var(--mono);font-size:11px">is_error: true</code> and include a message. The model will see this and decide whether to retry, use a fallback tool, or explain the failure to the user.</div>
+      </div>
+    </div>
+    <div class="key-item">
+      <div class="key-dot red"></div>
+      <div class="key-body">
+        <div class="key-title">Context window management</div>
+        <div class="key-desc">Tool results accumulate in the context. Long file contents or search dumps can blow the window. Truncate or summarize results before returning them — never pass raw multi-page text back verbatim.</div>
+      </div>
+    </div>
+    <div class="key-item">
+      <div class="key-dot purple"></div>
+      <div class="key-body">
+        <div class="key-title">Stop reason: end_turn vs tool_use</div>
+        <div class="key-desc">Check the API response's <code style="font-family:var(--mono);font-size:11px">stop_reason</code>. <code style="font-family:var(--mono);font-size:11px">end_turn</code> means the model is done. <code style="font-family:var(--mono);font-size:11px">tool_use</code> means it needs another round. Loop on <code style="font-family:var(--mono);font-size:11px">tool_use</code>, exit on <code style="font-family:var(--mono);font-size:11px">end_turn</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Code snippet -->
+  <div class="sec-label">Agent loop skeleton</div>
+  <div class="code-block">
+    <div class="code-label">Python · anthropic SDK</div>
+    <pre><span class="kw">def</span> <span class="fn">run_agent</span>(user_msg, tools, max_turns=<span class="val">10</span>):
+    messages = [{<span class="str">"role"</span>:<span class="str">"user"</span>,<span class="str">"content"</span>:user_msg}]
+
+    <span class="kw">for</span> turn <span class="kw">in</span> range(max_turns):
+        resp = client.messages.create(
+            model=<span class="str">"claude-sonnet-4-20250514"</span>,
+            tools=tools,
+            messages=messages
+        )
+
+        <span class="cm"># stopping conditions ──────────────────────</span>
+        <span class="kw">if</span> resp.stop_reason == <span class="str">"end_turn"</span>: <span class="kw">break</span>
+        <span class="kw">if</span> turn == max_turns - <span class="val">1</span>: raise MaxTurnsError
+
+        <span class="cm"># tool dispatch ────────────────────────────</span>
+        tool_results = []
+        <span class="kw">for</span> block <span class="kw">in</span> resp.content:
+            <span class="kw">if</span> block.type == <span class="str">"tool_use"</span>:
+                result = <span class="fn">dispatch</span>(block.name, block.input)
+                tool_results.append({
+                    <span class="str">"type"</span>: <span class="str">"tool_result"</span>,
+                    <span class="str">"tool_use_id"</span>: block.id,
+                    <span class="str">"content"</span>: result.content,
+                    <span class="str">"is_error"</span>: result.is_error,
+                })
+
+        <span class="cm"># append assistant turn + results ──────────</span>
+        messages += [
+            {<span class="str">"role"</span>:<span class="str">"assistant"</span>,<span class="str">"content"</span>:resp.content},
+            {<span class="str">"role"</span>:<span class="str">"user"</span>,<span class="str">"content"</span>:tool_results},
+        ]
+
+    <span class="kw">return</span> resp</pre>
+  </div>
+
+  <!-- Stopping conditions -->
+  <div class="sec-label">Stopping conditions</div>
+  <div class="stop-grid">
+    <div class="stop-card">
+      <span class="stop-badge success">✓ Complete</span>
+      <div class="stop-title">Task satisfied</div>
+      <div class="stop-desc">Model returns <code style="font-family:var(--mono);font-size:10px">end_turn</code> with a final text response. Normal, happy exit.</div>
+    </div>
+    <div class="stop-card">
+      <span class="stop-badge danger">✗ Max turns</span>
+      <div class="stop-title">Turn budget exceeded</div>
+      <div class="stop-desc">Hard cap on loop iterations. Raise an error or return partial result to avoid runaway agents.</div>
+    </div>
+    <div class="stop-card">
+      <span class="stop-badge warning">⚠ Tool error</span>
+      <div class="stop-title">Unrecoverable failure</div>
+      <div class="stop-desc">Multiple retries failed. Agent surfaces the error to the user rather than looping infinitely.</div>
+    </div>
+    <div class="stop-card">
+      <span class="stop-badge info">? Ambiguous</span>
+      <div class="stop-title">Needs clarification</div>
+      <div class="stop-desc">Model asks the user a question instead of using a tool. Pause the loop, collect input, resume.</div>
+    </div>
+  </div>
+
+  <!-- Lecture timeline -->
+  <div class="sec-label">Lecture timeline · 1.5 hrs</div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body">
+        <div class="tl-head">0:00 — Multiple tool definitions</div>
+        <div class="tl-sub">Schema design, naming conventions, input validation with JSON Schema. How the model reads tool specs.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body">
+        <div class="tl-head">0:25 — Tool chaining in practice</div>
+        <div class="tl-sub">Building the agent loop. Sequential vs parallel dispatch. Passing results between tools.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body">
+        <div class="tl-head">0:50 — Handling tool errors</div>
+        <div class="tl-sub"><code style="font-family:var(--mono);font-size:11px">is_error</code> flag, retry strategies, fallback tools, graceful degradation patterns.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div><div class="tl-line"></div></div>
+      <div class="tl-body">
+        <div class="tl-head">1:10 — Stopping conditions</div>
+        <div class="tl-sub">Stop reasons, max-turn guards, ambiguity detection. When to pause vs abort vs complete.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-left"><div class="tl-dot"></div></div>
+      <div class="tl-body">
+        <div class="tl-head">1:20 — Live build: search + calc + file reader agent</div>
+        <div class="tl-sub">End-to-end demo. Assemble all three tools, run the agent loop, trigger each stopping condition.</div>
+      </div>
+    </div>
+  </div>
+</div>
