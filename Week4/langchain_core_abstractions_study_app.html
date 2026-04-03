@@ -1,0 +1,871 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Sora:wght@400;500;600&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --lc: #1a7f5f;
+    --lc-light: #e6f5f0;
+    --lc-mid: #5bb89a;
+    --accent: #f59e0b;
+    --accent-light: #fef3c7;
+    --blue: #3b82f6;
+    --blue-light: #eff6ff;
+    --red: #ef4444;
+    --red-light: #fef2f2;
+    --purple: #8b5cf6;
+    --purple-light: #f5f3ff;
+  }
+
+  body { font-family: 'Sora', var(--font-sans), sans-serif; }
+
+  .app {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 0 0 2rem;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--lc);
+    color: #fff;
+    padding: 1.5rem 1.75rem 1.25rem;
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    right: -30px; top: -30px;
+    width: 180px; height: 180px;
+    border: 32px solid rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
+  .header p  { font-size: 13px; opacity: .75; margin-top: 4px; }
+
+  .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  .badge {
+    font-size: 11px; font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    cursor: pointer;
+    border: none;
+    transition: background .15s;
+    font-family: inherit;
+  }
+  .badge:hover, .badge.active { background: rgba(255,255,255,0.3); }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex; gap: 4px;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 4px;
+    margin-bottom: 1.25rem;
+  }
+  .tab {
+    flex: 1; padding: 8px 4px;
+    font-size: 12px; font-weight: 500;
+    border: none; background: transparent;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    transition: all .15s;
+    font-family: inherit;
+  }
+  .tab.active {
+    background: var(--color-background-primary);
+    color: var(--color-text-primary);
+    border: 0.5px solid var(--color-border-secondary);
+  }
+
+  /* ── Concept cards ── */
+  .section { display: none; }
+  .section.visible { display: block; }
+
+  .concept-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  @media (max-width: 500px) { .concept-grid { grid-template-columns: 1fr; } }
+
+  .concept-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem 1.1rem;
+    cursor: pointer;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .concept-card:hover { border-color: var(--color-border-secondary); }
+  .concept-card.expanded { border-color: var(--lc); }
+
+  .concept-header { display: flex; align-items: center; gap: 10px; }
+  .concept-icon {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0;
+  }
+  .concept-title { font-size: 14px; font-weight: 500; }
+  .concept-subtitle { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .concept-body {
+    overflow: hidden; max-height: 0;
+    transition: max-height .3s ease, margin .3s;
+    font-size: 13px; color: var(--color-text-secondary); line-height: 1.6;
+  }
+  .concept-card.expanded .concept-body { max-height: 500px; margin-top: 12px; }
+
+  .concept-body code {
+    font-family: 'JetBrains Mono', var(--font-mono), monospace;
+    font-size: 11px;
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 4px;
+    padding: 2px 5px;
+    color: var(--lc);
+  }
+
+  .concept-body pre {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 10px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    overflow-x: auto;
+    line-height: 1.65;
+    color: var(--color-text-primary);
+  }
+  .concept-body pre .kw { color: #8b5cf6; }
+  .concept-body pre .str { color: #1a7f5f; }
+  .concept-body pre .cm { color: var(--color-text-secondary); }
+  .concept-body pre .fn { color: #3b82f6; }
+
+  /* ── LCEL pipeline viz ── */
+  .pipeline-viz {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+  }
+  .pipeline-title { font-size: 13px; font-weight: 500; margin-bottom: 14px; color: var(--color-text-secondary); }
+
+  .pipeline-flow {
+    display: flex; align-items: center;
+    gap: 0; flex-wrap: wrap;
+    row-gap: 10px;
+  }
+  .pipe-step {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer;
+    transition: all .15s;
+    position: relative;
+  }
+  .pipe-step:hover, .pipe-step.active {
+    border-color: var(--lc);
+    background: var(--lc-light);
+    color: var(--lc);
+  }
+  .pipe-arrow {
+    color: var(--color-text-secondary);
+    padding: 0 6px;
+    font-size: 16px;
+    font-weight: 300;
+  }
+  .pipe-desc {
+    margin-top: 12px;
+    padding: 10px 12px;
+    background: var(--lc-light);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--lc);
+    display: none;
+    line-height: 1.6;
+  }
+  .pipe-desc.visible { display: block; }
+
+  /* ── Chatbot rebuilder ── */
+  .chatbot-section {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+  }
+  .chatbot-header {
+    padding: 12px 1.25rem;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; gap: 10px;
+    background: var(--color-background-secondary);
+  }
+  .chatbot-toggle {
+    display: flex; gap: 4px;
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 6px;
+    padding: 3px;
+    margin-left: auto;
+  }
+  .toggle-btn {
+    padding: 4px 12px; font-size: 11px; font-weight: 500;
+    border: none; border-radius: 4px;
+    cursor: pointer; background: transparent;
+    color: var(--color-text-secondary);
+    font-family: inherit;
+    transition: all .15s;
+  }
+  .toggle-btn.active {
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+  }
+  .code-view {
+    padding: 1rem 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    line-height: 1.75;
+    overflow-x: auto;
+    display: none;
+  }
+  .code-view.visible { display: block; }
+  .code-view .kw { color: #8b5cf6; }
+  .code-view .str { color: #1a7f5f; }
+  .code-view .cm { color: var(--color-text-secondary); font-style: italic; }
+  .code-view .fn { color: #3b82f6; }
+  .code-view .cls { color: #f59e0b; }
+  .code-view .op { color: var(--lc); font-weight: 500; }
+
+  /* ── Pros/Cons ── */
+  .proscons-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  @media (max-width: 500px) { .proscons-grid { grid-template-columns: 1fr; } }
+
+  .pro-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem;
+  }
+  .pro-card-title {
+    font-size: 13px; font-weight: 500; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pro-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .pro-item {
+    font-size: 12px; color: var(--color-text-secondary);
+    padding: 6px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    line-height: 1.5;
+  }
+  .pro-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+  /* ── Quiz ── */
+  .quiz-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.25rem;
+    margin-bottom: 12px;
+  }
+  .quiz-q { font-size: 14px; font-weight: 500; margin-bottom: 14px; line-height: 1.5; }
+  .quiz-options { display: grid; gap: 8px; }
+  .quiz-opt {
+    padding: 9px 14px;
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    text-align: left;
+    font-family: inherit;
+    transition: all .15s;
+    line-height: 1.4;
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--lc); background: var(--lc-light); color: var(--lc); }
+  .quiz-opt.correct { background: #d1fae5; border-color: #34d399; color: #065f46; }
+  .quiz-opt.wrong   { background: #fee2e2; border-color: #f87171; color: #991b1b; }
+  .quiz-opt:disabled { cursor: default; }
+  .quiz-feedback {
+    margin-top: 10px; padding: 10px 12px;
+    border-radius: 8px; font-size: 12px; line-height: 1.6;
+    display: none;
+  }
+  .quiz-feedback.visible { display: block; }
+  .quiz-feedback.ok  { background: #d1fae5; color: #065f46; }
+  .quiz-feedback.bad { background: #fee2e2; color: #991b1b; }
+
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+  .quiz-btn {
+    padding: 8px 18px; border-radius: 8px;
+    font-size: 12px; font-weight: 500;
+    cursor: pointer; font-family: inherit;
+    border: 0.5px solid var(--color-border-secondary);
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    transition: all .15s;
+  }
+  .quiz-btn:hover { background: var(--lc); color: #fff; border-color: var(--lc); }
+  .quiz-btn:disabled { opacity: .4; cursor: default; }
+  .quiz-progress { font-size: 12px; color: var(--color-text-secondary); }
+
+  /* ── Cheat sheet ── */
+  .cheat-row {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-size: 12px;
+  }
+  .cheat-row:last-child { border-bottom: none; }
+  .cheat-term {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    color: var(--lc);
+    background: var(--lc-light);
+    border-radius: 5px;
+    padding: 3px 8px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 120px;
+    text-align: center;
+  }
+  .cheat-def { color: var(--color-text-secondary); line-height: 1.5; }
+</style>
+
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div style="font-size:11px;opacity:.6;letter-spacing:.5px;text-transform:uppercase;margin-bottom:6px">Study Guide</div>
+    <h1>LangChain Core Abstractions</h1>
+    <p>Chains · Runnables · LCEL · Prompts · Output Parsers · When it helps vs hurts</p>
+    <div class="badge-row">
+      <button class="badge active" onclick="switchTab('concepts')">Concepts</button>
+      <button class="badge" onclick="switchTab('lcel')">LCEL Pipeline</button>
+      <button class="badge" onclick="switchTab('chatbot')">Chatbot Rebuild</button>
+      <button class="badge" onclick="switchTab('tradeoffs')">Helps vs Hurts</button>
+      <button class="badge" onclick="switchTab('quiz')">Quiz</button>
+      <button class="badge" onclick="switchTab('cheatsheet')">Cheat Sheet</button>
+    </div>
+  </div>
+
+  <!-- Tabs (desktop-style) -->
+  <div class="tabs">
+    <button class="tab active" data-tab="concepts"    onclick="switchTab('concepts')">Concepts</button>
+    <button class="tab"        data-tab="lcel"        onclick="switchTab('lcel')">LCEL</button>
+    <button class="tab"        data-tab="chatbot"     onclick="switchTab('chatbot')">Chatbot</button>
+    <button class="tab"        data-tab="tradeoffs"   onclick="switchTab('tradeoffs')">Trade-offs</button>
+    <button class="tab"        data-tab="quiz"        onclick="switchTab('quiz')">Quiz</button>
+    <button class="tab"        data-tab="cheatsheet"  onclick="switchTab('cheatsheet')">Cheat Sheet</button>
+  </div>
+
+  <!-- ═══════════ CONCEPTS ═══════════ -->
+  <div class="section visible" id="sec-concepts">
+    <div class="concept-grid">
+
+      <div class="concept-card" onclick="toggleCard(this)">
+        <div class="concept-header">
+          <div class="concept-icon" style="background:#e6f5f0">🔗</div>
+          <div>
+            <div class="concept-title">Chains</div>
+            <div class="concept-subtitle">Sequential call sequences</div>
+          </div>
+        </div>
+        <div class="concept-body">
+          A <code>Chain</code> is the original LangChain primitive — it strings together LLM calls, tools, and transformations in a fixed sequence.<br><br>
+          Think of it like a Unix pipe: output of step N feeds input of step N+1.
+          <pre><span class="cm"># Classic LLMChain (legacy)</span>
+<span class="kw">from</span> langchain.chains <span class="kw">import</span> LLMChain
+chain = <span class="cls">LLMChain</span>(
+    llm=llm,
+    prompt=prompt_template
+)
+result = chain.<span class="fn">run</span>(<span class="str">"What is quantum computing?"</span>)</pre>
+          Chains are being superseded by LCEL Runnables, but you'll see them widely in older code.
+        </div>
+      </div>
+
+      <div class="concept-card" onclick="toggleCard(this)">
+        <div class="concept-header">
+          <div class="concept-icon" style="background:#eff6ff">▶</div>
+          <div>
+            <div class="concept-title">Runnables</div>
+            <div class="concept-subtitle">The universal interface</div>
+          </div>
+        </div>
+        <div class="concept-body">
+          Every modern LangChain component implements <code>Runnable</code> — a unified interface with <code>.invoke()</code>, <code>.stream()</code>, <code>.batch()</code>, and <code>.ainvoke()</code>.<br><br>
+          This means prompts, LLMs, retrievers, and output parsers are ALL Runnables and can be piped together.
+          <pre><span class="cm"># Any Runnable can be invoked the same way</span>
+result = runnable.<span class="fn">invoke</span>(input)
+<span class="cm"># Stream tokens as they arrive</span>
+<span class="kw">for</span> chunk <span class="kw">in</span> runnable.<span class="fn">stream</span>(input):
+    <span class="fn">print</span>(chunk, end=<span class="str">""</span>)
+<span class="cm"># Batch multiple inputs in parallel</span>
+results = runnable.<span class="fn">batch</span>([input1, input2])</pre>
+        </div>
+      </div>
+
+      <div class="concept-card" onclick="toggleCard(this)">
+        <div class="concept-header">
+          <div class="concept-icon" style="background:#fef3c7">|</div>
+          <div>
+            <div class="concept-title">LCEL</div>
+            <div class="concept-subtitle">LangChain Expression Language</div>
+          </div>
+        </div>
+        <div class="concept-body">
+          LCEL uses Python's pipe operator <code>|</code> to compose Runnables into pipelines. It provides streaming, async, batching, and tracing out of the box — all from one composition.
+          <pre><span class="cm"># LCEL chain with pipe operator</span>
+chain = prompt <span class="op">|</span> llm <span class="op">|</span> StrOutputParser()
+
+<span class="cm"># Invocation feels natural</span>
+result = chain.<span class="fn">invoke</span>({
+    <span class="str">"topic"</span>: <span class="str">"quantum computing"</span>
+})
+
+<span class="cm"># Streaming just works</span>
+<span class="kw">for</span> chunk <span class="kw">in</span> chain.<span class="fn">stream</span>({<span class="str">"topic"</span>: <span class="str">"..."</span>}):
+    <span class="fn">print</span>(chunk, end=<span class="str">""</span>)</pre>
+          The pipe <code>|</code> creates a <code>RunnableSequence</code> under the hood.
+        </div>
+      </div>
+
+      <div class="concept-card" onclick="toggleCard(this)">
+        <div class="concept-header">
+          <div class="concept-icon" style="background:#f5f3ff">📝</div>
+          <div>
+            <div class="concept-title">Prompts</div>
+            <div class="concept-subtitle">PromptTemplate & ChatPromptTemplate</div>
+          </div>
+        </div>
+        <div class="concept-body">
+          Prompt templates are reusable, parametrised message builders. LangChain has two main kinds:
+          <br><br>
+          <code>PromptTemplate</code> — single-string prompts with <code>{variables}</code><br>
+          <code>ChatPromptTemplate</code> — list of messages (system + human + AI roles)
+          <pre><span class="kw">from</span> langchain_core.prompts <span class="kw">import</span> ChatPromptTemplate
+
+prompt = <span class="cls">ChatPromptTemplate</span>.<span class="fn">from_messages</span>([
+    (<span class="str">"system"</span>, <span class="str">"You are a helpful {role}."</span>),
+    (<span class="str">"human"</span>,  <span class="str">"{question}"</span>),
+])
+
+<span class="cm"># Format to messages list</span>
+msgs = prompt.<span class="fn">format_messages</span>(
+    role=<span class="str">"tutor"</span>, question=<span class="str">"Explain LCEL"</span>
+)</pre>
+        </div>
+      </div>
+
+      <div class="concept-card" onclick="toggleCard(this)">
+        <div class="concept-header">
+          <div class="concept-icon" style="background:#fef2f2">⚙️</div>
+          <div>
+            <div class="concept-title">Output Parsers</div>
+            <div class="concept-subtitle">Structured output extraction</div>
+          </div>
+        </div>
+        <div class="concept-body">
+          Output parsers transform raw LLM text into structured data. Common ones:<br><br>
+          <code>StrOutputParser</code> — plain string<br>
+          <code>JsonOutputParser</code> — dict/JSON<br>
+          <code>PydanticOutputParser</code> — typed Pydantic model<br>
+          <code>CommaSeparatedListOutputParser</code> — list
+          <pre><span class="kw">from</span> langchain_core.output_parsers <span class="kw">import</span> JsonOutputParser
+<span class="kw">from</span> pydantic <span class="kw">import</span> BaseModel
+
+<span class="kw">class</span> <span class="cls">Movie</span>(BaseModel):
+    title: str
+    year: int
+    genre: str
+
+parser = <span class="cls">JsonOutputParser</span>(pydantic_object=<span class="cls">Movie</span>)
+chain = prompt <span class="op">|</span> llm <span class="op">|</span> parser
+movie = chain.<span class="fn">invoke</span>({<span class="str">"query"</span>: <span class="str">"Inception"</span>})
+<span class="cm"># → Movie(title='Inception', year=2010, ...)</span></pre>
+        </div>
+      </div>
+
+      <div class="concept-card" onclick="toggleCard(this)">
+        <div class="concept-header">
+          <div class="concept-icon" style="background:#f0fdf4">🔀</div>
+          <div>
+            <div class="concept-title">RunnableParallel</div>
+            <div class="concept-subtitle">Parallel branches</div>
+          </div>
+        </div>
+        <div class="concept-body">
+          Run multiple chains simultaneously and merge their outputs using <code>RunnableParallel</code> (or a plain dict <code>{}</code> shorthand in LCEL).
+          <pre><span class="kw">from</span> langchain_core.runnables <span class="kw">import</span> RunnableParallel
+
+<span class="cm"># Dict shorthand = RunnableParallel</span>
+parallel = {
+    <span class="str">"summary"</span>: summarize_chain,
+    <span class="str">"keywords"</span>: keywords_chain,
+}
+
+chain = parallel <span class="op">|</span> combine_chain
+result = chain.<span class="fn">invoke</span>({<span class="str">"text"</span>: document})
+<span class="cm"># result = {"summary": "...", "keywords": [...]}</span></pre>
+          Both branches run concurrently. LangChain handles threading automatically.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════ LCEL ═══════════ -->
+  <div class="section" id="sec-lcel">
+    <div class="pipeline-viz">
+      <div class="pipeline-title">Click any step to learn what it does</div>
+      <div class="pipeline-flow">
+        <div class="pipe-step" onclick="showPipeStep(this, 0)">Input dict</div>
+        <div class="pipe-arrow">|</div>
+        <div class="pipe-step" onclick="showPipeStep(this, 1)">ChatPromptTemplate</div>
+        <div class="pipe-arrow">|</div>
+        <div class="pipe-step" onclick="showPipeStep(this, 2)">ChatOpenAI</div>
+        <div class="pipe-arrow">|</div>
+        <div class="pipe-step" onclick="showPipeStep(this, 3)">StrOutputParser</div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-step" onclick="showPipeStep(this, 4)">str result</div>
+      </div>
+      <div class="pipe-desc" id="pipe-desc"></div>
+    </div>
+
+    <div class="chatbot-section">
+      <div class="chatbot-header">
+        LCEL Key Properties
+      </div>
+      <div style="padding: 1rem 1.25rem; display: grid; gap: 10px;">
+        <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--lc-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--lc);font-weight:600;font-size:14px">S</div>
+          <div><span style="font-weight:500">Streaming</span> — <span style="color:var(--color-text-secondary)">Call <code style="font-family:monospace;font-size:11px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:1px 4px">.stream()</code> on any chain and get tokens as they arrive. Zero extra code.</span></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--blue);font-weight:600;font-size:14px">A</div>
+          <div><span style="font-weight:500">Async</span> — <span style="color:var(--color-text-secondary)"><code style="font-family:monospace;font-size:11px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:1px 4px">.ainvoke()</code> and <code style="font-family:monospace;font-size:11px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:1px 4px">.astream()</code> work on every Runnable with no extra configuration.</span></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);font-weight:600;font-size:14px">B</div>
+          <div><span style="font-weight:500">Batching</span> — <span style="color:var(--color-text-secondary)"><code style="font-family:monospace;font-size:11px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:1px 4px">.batch([…])</code> processes many inputs in parallel with automatic concurrency control.</span></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--purple-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--purple);font-weight:600;font-size:14px">T</div>
+          <div><span style="font-weight:500">Tracing</span> — <span style="color:var(--color-text-secondary)">Every run is automatically traced in LangSmith when configured. No decorators needed.</span></div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;font-size:13px">
+          <div style="width:28px;height:28px;border-radius:6px;background:var(--red-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--red);font-weight:600;font-size:14px">F</div>
+          <div><span style="font-weight:500">Fallbacks</span> — <span style="color:var(--color-text-secondary)">Chain <code style="font-family:monospace;font-size:11px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:4px;padding:1px 4px">.with_fallbacks([backup_llm])</code> retries with alternatives on failure.</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ CHATBOT ═══════════ -->
+  <div class="section" id="sec-chatbot">
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px;line-height:1.6">
+      Here's how to rebuild a full chatbot (with memory) using LCEL. Toggle between a plain Python version and the LCEL version to see the difference.
+    </div>
+
+    <div class="chatbot-section">
+      <div class="chatbot-header">
+        Chatbot with Memory
+        <div class="chatbot-toggle">
+          <button class="toggle-btn active" onclick="showCode('plain', this)">Plain Python</button>
+          <button class="toggle-btn"        onclick="showCode('lcel', this)">LCEL</button>
+        </div>
+      </div>
+
+      <div class="code-view visible" id="code-plain">
+<span class="cm"># Plain Python chatbot — explicit loop, manual history</span>
+<span class="kw">from</span> openai <span class="kw">import</span> OpenAI
+
+client = <span class="cls">OpenAI</span>()
+history = []
+
+<span class="kw">def</span> <span class="fn">chat</span>(user_msg):
+    history.<span class="fn">append</span>({<span class="str">"role"</span>: <span class="str">"user"</span>, <span class="str">"content"</span>: user_msg})
+    response = client.chat.completions.<span class="fn">create</span>(
+        model=<span class="str">"gpt-4o"</span>,
+        messages=[
+            {<span class="str">"role"</span>: <span class="str">"system"</span>, <span class="str">"content"</span>: <span class="str">"You are a helpful assistant."</span>},
+            *history
+        ]
+    )
+    reply = response.choices[0].message.content
+    history.<span class="fn">append</span>({<span class="str">"role"</span>: <span class="str">"assistant"</span>, <span class="str">"content"</span>: reply})
+    <span class="kw">return</span> reply
+
+<span class="cm"># Usage</span>
+<span class="kw">while</span> <span class="cls">True</span>:
+    user = <span class="fn">input</span>(<span class="str">"You: "</span>)
+    <span class="fn">print</span>(<span class="str">"Bot:"</span>, <span class="fn">chat</span>(user))
+      </div>
+
+      <div class="code-view" id="code-lcel">
+<span class="cm"># LCEL chatbot — streaming, async, tracing built-in</span>
+<span class="kw">from</span> langchain_openai <span class="kw">import</span> ChatOpenAI
+<span class="kw">from</span> langchain_core.prompts <span class="kw">import</span> ChatPromptTemplate, MessagesPlaceholder
+<span class="kw">from</span> langchain_core.output_parsers <span class="kw">import</span> StrOutputParser
+<span class="kw">from</span> langchain_community.chat_message_histories <span class="kw">import</span> ChatMessageHistory
+<span class="kw">from</span> langchain_core.runnables.history <span class="kw">import</span> RunnableWithMessageHistory
+
+<span class="cm"># 1. Define prompt with history placeholder</span>
+prompt = <span class="cls">ChatPromptTemplate</span>.<span class="fn">from_messages</span>([
+    (<span class="str">"system"</span>, <span class="str">"You are a helpful assistant."</span>),
+    <span class="cls">MessagesPlaceholder</span>(<span class="str">"chat_history"</span>),
+    (<span class="str">"human"</span>, <span class="str">"{input}"</span>),
+])
+
+<span class="cm"># 2. Build the core LCEL chain</span>
+chain = prompt <span class="op">|</span> <span class="cls">ChatOpenAI</span>(model=<span class="str">"gpt-4o"</span>) <span class="op">|</span> <span class="cls">StrOutputParser</span>()
+
+<span class="cm"># 3. Wrap with session memory — one store, many sessions</span>
+store = {}
+<span class="kw">def</span> <span class="fn">get_session_history</span>(session_id: str):
+    <span class="kw">if</span> session_id <span class="kw">not in</span> store:
+        store[session_id] = <span class="cls">ChatMessageHistory</span>()
+    <span class="kw">return</span> store[session_id]
+
+chatbot = <span class="cls">RunnableWithMessageHistory</span>(
+    chain,
+    get_session_history,
+    input_messages_key=<span class="str">"input"</span>,
+    history_messages_key=<span class="str">"chat_history"</span>,
+)
+
+<span class="cm"># 4. Stream responses with session isolation</span>
+config = {<span class="str">"configurable"</span>: {<span class="str">"session_id"</span>: <span class="str">"user_42"</span>}}
+<span class="kw">for</span> chunk <span class="kw">in</span> chatbot.<span class="fn">stream</span>({<span class="str">"input"</span>: <span class="str">"Hello!"</span>}, config=config):
+    <span class="fn">print</span>(chunk, end=<span class="str">""</span>, flush=<span class="cls">True</span>)
+      </div>
+    </div>
+
+    <div style="background:var(--lc-light);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;font-size:12.5px;color:var(--lc);line-height:1.7;margin-top:12px">
+      <strong>What LCEL buys you here:</strong> streaming tokens land token-by-token, multiple user sessions are isolated automatically, async support requires zero extra code, and LangSmith traces every turn with one environment variable.
+    </div>
+  </div>
+
+  <!-- ═══════════ TRADE-OFFS ═══════════ -->
+  <div class="section" id="sec-tradeoffs">
+    <div class="proscons-grid">
+      <div class="pro-card">
+        <div class="pro-card-title">
+          <div class="pro-dot" style="background:#34d399"></div>
+          When LangChain helps
+        </div>
+        <div class="pro-item">Rapid prototyping — off-the-shelf chains for RAG, summarisation, Q&A</div>
+        <div class="pro-item">Streaming + async without boilerplate — LCEL handles it automatically</div>
+        <div class="pro-item">Multi-LLM swapping — change one class name to switch providers</div>
+        <div class="pro-item">Observability — LangSmith tracing with zero code change</div>
+        <div class="pro-item">Memory management — RunnableWithMessageHistory handles session state</div>
+        <div class="pro-item">Agent tooling — pre-built tools: web search, code exec, SQL, file I/O</div>
+        <div class="pro-item">Community integrations — 100+ vector stores, LLM providers, loaders</div>
+      </div>
+      <div class="pro-card">
+        <div class="pro-card-title">
+          <div class="pro-dot" style="background:#f87171"></div>
+          When LangChain hurts
+        </div>
+        <div class="pro-item">Simple one-shot calls — direct SDK is 5 lines vs 20 with LangChain overhead</div>
+        <div class="pro-item">Deep debugging — abstraction layers obscure where errors originate</div>
+        <div class="pro-item">Tight latency budgets — extra abstraction adds milliseconds</div>
+        <div class="pro-item">Team unfamiliar with LCEL — steep learning curve for the |  operator pattern</div>
+        <div class="pro-item">Unstable APIs — LangChain releases breaking changes frequently</div>
+        <div class="pro-item">Production fine-tuning — custom logic fights the abstraction boundaries</div>
+        <div class="pro-item">Dependency bloat — installs hundreds of packages even for basic use</div>
+      </div>
+    </div>
+
+    <div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;font-size:13px;line-height:1.7">
+      <strong>Rule of thumb:</strong> Use LangChain when you need RAG, agents, memory, or multi-step pipelines. Skip it for single-turn LLM calls, latency-critical paths, or when you want full control over every token.
+    </div>
+  </div>
+
+  <!-- ═══════════ QUIZ ═══════════ -->
+  <div class="section" id="sec-quiz">
+    <div class="quiz-card" id="quiz-container"></div>
+    <div class="quiz-nav">
+      <button class="quiz-btn" id="quiz-prev" onclick="quizNav(-1)" disabled>← Prev</button>
+      <span class="quiz-progress" id="quiz-prog">1 / 6</span>
+      <button class="quiz-btn" id="quiz-next" onclick="quizNav(1)">Next →</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ CHEAT SHEET ═══════════ -->
+  <div class="section" id="sec-cheatsheet">
+    <div class="chatbot-section">
+      <div class="chatbot-header">Quick Reference</div>
+      <div style="padding: 0.75rem 1.25rem;">
+        <div class="cheat-row"><div class="cheat-term">Runnable</div><div class="cheat-def">Universal interface with .invoke(), .stream(), .batch(), .ainvoke(). Everything in LCEL is a Runnable.</div></div>
+        <div class="cheat-row"><div class="cheat-term">LCEL |</div><div class="cheat-def">Pipe operator composes Runnables: <code style="font-family:monospace;font-size:11px">prompt | llm | parser</code> creates a RunnableSequence.</div></div>
+        <div class="cheat-row"><div class="cheat-term">ChatPromptTemplate</div><div class="cheat-def">Builds typed message lists (system, human, AI). Use MessagesPlaceholder for history injection.</div></div>
+        <div class="cheat-row"><div class="cheat-term">StrOutputParser</div><div class="cheat-def">Extracts .content string from an AIMessage. The simplest output parser.</div></div>
+        <div class="cheat-row"><div class="cheat-term">JsonOutputParser</div><div class="cheat-def">Parses LLM output to dict or Pydantic model. Adds format instructions to the prompt automatically.</div></div>
+        <div class="cheat-row"><div class="cheat-term">RunnableParallel</div><div class="cheat-def">Run multiple chains in parallel. Dict shorthand: <code style="font-family:monospace;font-size:11px">{"a": chain_a, "b": chain_b} | merger</code>.</div></div>
+        <div class="cheat-row"><div class="cheat-term">RunnableLambda</div><div class="cheat-def">Wrap any Python function as a Runnable: <code style="font-family:monospace;font-size:11px">RunnableLambda(my_fn)</code>.</div></div>
+        <div class="cheat-row"><div class="cheat-term">RunnableWithMessageHistory</div><div class="cheat-def">Adds session-scoped chat memory to any LCEL chain. Accepts a session_id in config.</div></div>
+        <div class="cheat-row"><div class="cheat-term">.with_fallbacks()</div><div class="cheat-def">Retry with backup Runnables on failure: <code style="font-family:monospace;font-size:11px">primary_llm.with_fallbacks([backup_llm])</code>.</div></div>
+        <div class="cheat-row"><div class="cheat-term">.with_retry()</div><div class="cheat-def">Automatic retry with exponential backoff: <code style="font-family:monospace;font-size:11px">llm.with_retry(stop_after_attempt=3)</code>.</div></div>
+        <div class="cheat-row"><div class="cheat-term">MessagesPlaceholder</div><div class="cheat-def">Slot in a ChatPromptTemplate where a list of messages (e.g., chat history) is injected at runtime.</div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Tab switching ──────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+  document.getElementById('sec-' + name).classList.add('visible');
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === name);
+  });
+  document.querySelectorAll('.badge').forEach(b => {
+    b.classList.toggle('active', b.onclick.toString().includes("'" + name + "'"));
+  });
+}
+
+// ── Concept card expand/collapse ──────────────────────────
+function toggleCard(card) {
+  const wasExpanded = card.classList.contains('expanded');
+  document.querySelectorAll('.concept-card').forEach(c => c.classList.remove('expanded'));
+  if (!wasExpanded) card.classList.add('expanded');
+}
+
+// ── LCEL pipeline step descriptions ──────────────────────
+const pipeDescs = [
+  "Input dict — you pass a plain Python dict like <code>{\"question\": \"What is AI?\"}</code> into the chain.",
+  "ChatPromptTemplate — formats your dict variables into a structured list of messages (system + human) ready for the LLM.",
+  "ChatOpenAI — the LLM call. Receives formatted messages, returns an AIMessage object with .content holding the response text.",
+  "StrOutputParser — unwraps the AIMessage to a plain Python string. Without this, you'd get the full message object.",
+  "str result — the final output: a plain string you can print, return, or pass to the next step."
+];
+function showPipeStep(el, idx) {
+  document.querySelectorAll('.pipe-step').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  const desc = document.getElementById('pipe-desc');
+  desc.innerHTML = pipeDescs[idx];
+  desc.classList.add('visible');
+}
+
+// ── Chatbot code toggle ───────────────────────────────────
+function showCode(which, btn) {
+  document.querySelectorAll('.code-view').forEach(c => c.classList.remove('visible'));
+  document.getElementById('code-' + which).classList.add('visible');
+  document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Quiz ──────────────────────────────────────────────────
+const quizData = [
+  {
+    q: "What Python operator does LCEL use to compose Runnables?",
+    opts: [">> (shift)", "| (pipe)", "+ (plus)", "& (ampersand)"],
+    correct: 1,
+    feedback: "Correct! The | pipe operator overrides Python's bitwise OR to create a RunnableSequence. It mirrors Unix pipes intentionally."
+  },
+  {
+    q: "Which method do you call to process multiple inputs in parallel on any LCEL chain?",
+    opts: [".parallel()", ".multi_invoke()", ".batch()", ".map()"],
+    correct: 2,
+    feedback: "Correct! .batch([input1, input2]) processes inputs concurrently with configurable max_concurrency."
+  },
+  {
+    q: "What does StrOutputParser do in an LCEL chain?",
+    opts: [
+      "Validates the output is a string",
+      "Extracts the .content string from an AIMessage",
+      "Converts the string to JSON",
+      "Truncates the output to a max length"
+    ],
+    correct: 1,
+    feedback: "Right! LLMs return AIMessage objects, not raw strings. StrOutputParser unwraps the .content field to give you a plain Python string."
+  },
+  {
+    q: "When does LangChain add more complexity than value?",
+    opts: [
+      "When building a RAG pipeline with retrieval",
+      "When orchestrating multi-step agent workflows",
+      "When making a single-turn LLM call with no memory or tools",
+      "When you need LangSmith tracing"
+    ],
+    correct: 2,
+    feedback: "Exactly. For a simple one-shot call, the direct OpenAI/Anthropic SDK is far simpler — LangChain's abstractions add overhead without benefit."
+  },
+  {
+    q: "What is RunnableWithMessageHistory used for?",
+    opts: [
+      "Logging all chain runs to a file",
+      "Adding session-scoped chat memory to an LCEL chain",
+      "Retrying failed chain runs automatically",
+      "Running multiple chains in parallel"
+    ],
+    correct: 1,
+    feedback: "Correct! RunnableWithMessageHistory wraps any chain and manages chat history per session_id, so each user gets isolated memory."
+  },
+  {
+    q: "What does the | operator create under the hood in LCEL?",
+    opts: ["RunnableParallel", "RunnableBranch", "RunnableSequence", "RunnableLambda"],
+    correct: 2,
+    feedback: "Right! prompt | llm | parser creates a RunnableSequence, which chains the .invoke() calls sequentially, passing output to the next step."
+  }
+];
+
+let qIdx = 0, answered = [];
+
+function renderQuiz() {
+  const q = quizData[qIdx];
+  const container = document.getElementById('quiz-container');
+  const isAnswered = answered[qIdx] !== undefined;
+  container.innerHTML = `
+    <div class="quiz-q">${qIdx + 1}. ${q.q}</div>
+    <div class="quiz-options">
+      ${q.opts.map((o, i) => `
+        <button class="quiz-opt ${isAnswered ? (i === q.correct ? 'correct' : (i === answered[qIdx] && i !== q.correct ? 'wrong' : '')) : ''}"
+          onclick="answerQuiz(${i})" ${isAnswered ? 'disabled' : ''}>
+          ${o}
+        </button>`).join('')}
+    </div>
+    <div class="quiz-feedback ${isAnswered ? 'visible ' + (answered[qIdx] === q.correct ? 'ok' : 'bad') : ''}">
+      ${isAnswered ? (answered[qIdx] === q.correct ? '✓ ' : '✗ ') + q.feedback : ''}
+    </div>
+  `;
+  document.getElementById('quiz-prog').textContent = (qIdx + 1) + ' / ' + quizData.length;
+  document.getElementById('quiz-prev').disabled = qIdx === 0;
+  document.getElementById('quiz-next').disabled = qIdx === quizData.length - 1;
+}
+
+function answerQuiz(i) {
+  if (answered[qIdx] !== undefined) return;
+  answered[qIdx] = i;
+  renderQuiz();
+}
+
+function quizNav(dir) {
+  qIdx = Math.max(0, Math.min(quizData.length - 1, qIdx + dir));
+  renderQuiz();
+}
+
+renderQuiz();
+</script>

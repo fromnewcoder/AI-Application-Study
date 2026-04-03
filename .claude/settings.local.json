@@ -3,7 +3,10 @@
     "allow": [
       "Bash(python EmbeddingsDemo.py)",
       "Bash(mv chunker.js embedder.js vectorStore.js rag.js rag.test.js src/)",
-      "Bash(mv example.js examples/)"
+      "Bash(mv example.js examples/)",
+      "WebSearch",
+      "Bash(pip show:*)",
+      "Bash(pip list:*)"
     ]
   }
 }
