@@ -1,0 +1,492 @@
+
+<style>
+  :root {
+    --purple-50: #EEEDFE; --purple-100: #CECBF6; --purple-200: #AFA9EC;
+    --purple-600: #534AB7; --purple-800: #3C3489; --purple-900: #26215C;
+    --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-200: #5DCAA5;
+    --teal-600: #0F6E56; --teal-800: #085041; --teal-900: #04342C;
+    --amber-50: #FAEEDA; --amber-100: #FAC775; --amber-200: #EF9F27;
+    --amber-600: #854F0B; --amber-800: #633806;
+    --coral-50: #FAECE7; --coral-100: #F5C4B3;
+    --coral-600: #993C1D; --coral-800: #712B13;
+    --gray-50: #F1EFE8; --gray-100: #D3D1C7; --gray-600: #5F5E5A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .page { padding: 1.5rem 0; }
+  .header { margin-bottom: 2rem; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 999px; letter-spacing: 0.04em; }
+  .badge-purple { background: var(--purple-50); color: var(--purple-800); border: 0.5px solid var(--purple-200); }
+  .badge-teal { background: var(--teal-50); color: var(--teal-800); border: 0.5px solid var(--teal-200); }
+  .badge-amber { background: var(--amber-50); color: var(--amber-800); border: 0.5px solid var(--amber-200); }
+  h1 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin: 10px 0 6px; }
+  .subtitle { font-size: 14px; color: var(--color-text-secondary); }
+
+  .nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 2rem; }
+  .nav-btn { font-size: 13px; padding: 6px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
+  .nav-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .nav-btn.active { background: var(--purple-50); border-color: var(--purple-200); color: var(--purple-800); font-weight: 500; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+  .card-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .card-body { font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; }
+
+  .concept-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dot-purple { background: var(--purple-600); }
+  .dot-teal { background: var(--teal-600); }
+  .dot-amber { background: var(--amber-200); }
+  .dot-coral { background: var(--coral-600); }
+
+  .code-block { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 1rem; margin-top: 10px; font-family: var(--font-mono); font-size: 12px; line-height: 1.8; color: var(--color-text-primary); overflow-x: auto; white-space: pre; }
+  .kw { color: var(--purple-600); }
+  .cm { color: var(--color-text-secondary); font-style: italic; }
+  .fn { color: var(--teal-600); }
+  .st { color: var(--coral-600); }
+  .nm { color: var(--amber-600); }
+
+  .flow-row { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 1rem 0; }
+  .flow-node { padding: 8px 14px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 500; text-align: center; min-width: 90px; }
+  .flow-node.start { background: var(--gray-50); border: 0.5px solid var(--gray-100); color: var(--gray-600); }
+  .flow-node.node-p { background: var(--purple-50); border: 0.5px solid var(--purple-200); color: var(--purple-800); }
+  .flow-node.node-t { background: var(--teal-50); border: 0.5px solid var(--teal-200); color: var(--teal-800); }
+  .flow-node.node-a { background: var(--amber-50); border: 0.5px solid var(--amber-100); color: var(--amber-800); }
+  .flow-node.end { background: var(--gray-50); border: 0.5px solid var(--gray-100); color: var(--gray-600); }
+  .flow-arrow { padding: 0 8px; color: var(--color-text-secondary); font-size: 16px; }
+  .flow-split { display: flex; flex-direction: column; gap: 6px; }
+
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 500px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .quiz-q { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; line-height: 1.5; }
+  .quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+  .quiz-opt { padding: 10px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); font-size: 14px; color: var(--color-text-primary); cursor: pointer; text-align: left; transition: all 0.15s; }
+  .quiz-opt:hover:not(:disabled) { background: var(--color-background-secondary); }
+  .quiz-opt.correct { background: var(--teal-50); border-color: var(--teal-200); color: var(--teal-800); }
+  .quiz-opt.wrong { background: var(--coral-50); border-color: var(--coral-100); color: var(--coral-600); }
+  .quiz-feedback { margin-top: 10px; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; }
+  .quiz-prog { font-size: 13px; color: var(--color-text-secondary); }
+  .btn-next { font-size: 13px; padding: 7px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-primary); cursor: pointer; }
+  .btn-next:hover { background: var(--color-background-secondary); }
+
+  .cheatsheet-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .cheatsheet-row:last-child { border-bottom: none; }
+  .cheat-term { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--purple-800); background: var(--purple-50); padding: 2px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; min-width: 140px; }
+  .cheat-def { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 1px; background: var(--color-border-tertiary); }
+  .tl-item { position: relative; margin-bottom: 1.25rem; }
+  .tl-dot { position: absolute; left: -20px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--purple-600); border: 2px solid var(--color-background-primary); }
+  .tl-time { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 3px; }
+  .tl-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+  .tl-desc { font-size: 13px; color: var(--color-text-secondary); margin-top: 3px; line-height: 1.5; }
+</style>
+
+<div class="page">
+  <div class="header">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+      <span class="badge badge-purple">LangGraph</span>
+      <span class="badge badge-teal">1 hr session</span>
+      <span class="badge badge-amber">Beginner</span>
+    </div>
+    <h1>LangGraph introduction</h1>
+    <p class="subtitle">Nodes · edges · state · conditional routing · compile + invoke · graph visualisation</p>
+  </div>
+
+  <div class="nav">
+    <button class="nav-btn active" onclick="show('concepts')">Concepts</button>
+    <button class="nav-btn" onclick="show('flow')">Graph flow</button>
+    <button class="nav-btn" onclick="show('code')">Code guide</button>
+    <button class="nav-btn" onclick="show('cheat')">Cheat sheet</button>
+    <button class="nav-btn" onclick="show('quiz')">Quiz</button>
+    <button class="nav-btn" onclick="show('plan')">Session plan</button>
+  </div>
+
+  <!-- CONCEPTS -->
+  <div id="concepts" class="section active">
+    <div class="card">
+      <div class="card-title"><span class="concept-dot dot-purple"></span>What is LangGraph?</div>
+      <div class="card-body">LangGraph is a library built on top of LangChain for building <strong style="color:var(--color-text-primary);font-weight:500;">stateful, multi-step agentic applications</strong> as explicit graphs. Instead of sequential chains, you model your logic as nodes connected by edges — giving you fine-grained control over branching, looping, and persistence.</div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title"><span class="concept-dot dot-purple"></span>State</div>
+        <div class="card-body">A <code>TypedDict</code> (or Pydantic model) that acts as shared memory across all nodes. Every node reads from it and returns a <em>partial update</em> — only the keys it changed.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="concept-dot dot-teal"></span>Nodes</div>
+        <div class="card-body">Plain Python functions (or async functions / runnables). Each node receives the full state and returns a dict of updated keys. Side-effectful work happens here: LLM calls, tool use, I/O.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="concept-dot dot-amber"></span>Edges</div>
+        <div class="card-body">Directed connections between nodes. A <strong style="font-weight:500;">normal edge</strong> always goes A → B. A <strong style="font-weight:500;">conditional edge</strong> routes to different nodes depending on a router function's return value.</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="concept-dot dot-coral"></span>Compile + invoke</div>
+        <div class="card-body"><code>graph.compile()</code> validates the graph and returns a <code>CompiledGraph</code>. Call <code>.invoke(state)</code> to run it synchronously, or <code>.stream()</code> for step-by-step updates.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="concept-dot dot-teal"></span>Conditional routing</div>
+      <div class="card-body">
+        <code>add_conditional_edges(source, path_fn, path_map)</code> registers a router. The <code>path_fn</code> inspects the current state and returns a string key; the <code>path_map</code> maps that key to the target node name. This is how you build branching logic without if/else scattered through your nodes.
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="concept-dot dot-amber"></span>Graph visualisation</div>
+      <div class="card-body">LangGraph can export a Mermaid diagram of your graph structure. After compiling, call <code>app.get_graph().draw_mermaid()</code> for the Mermaid source, or <code>.draw_mermaid_png()</code> to get PNG bytes directly. Great for debugging and documentation.</div>
+    </div>
+  </div>
+
+  <!-- FLOW -->
+  <div id="flow" class="section">
+    <div class="card">
+      <div class="card-title">Simple 2-node intent routing graph</div>
+      <div class="card-body" style="margin-bottom:1rem;">The demo graph below classifies user input by intent, then dispatches to one of three specialist handler nodes.</div>
+      <div class="flow-row" style="flex-wrap:nowrap;overflow-x:auto;gap:6px;padding-bottom:4px;">
+        <div class="flow-node start">START</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node node-p">detect_intent</div>
+        <div class="flow-arrow">→</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="flow-node node-t" style="font-size:12px;">handle_math</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node end" style="font-size:12px;">END</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="flow-node node-t" style="font-size:12px;">handle_weather</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node end" style="font-size:12px;">END</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="flow-node node-a" style="font-size:12px;">handle_unknown</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node end" style="font-size:12px;">END</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Step-by-step execution trace</div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;">
+          <div style="padding:10px;background:var(--gray-50);border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-tertiary);">
+            <div style="font-weight:500;color:var(--color-text-primary);margin-bottom:6px;">1. Initial state</div>
+            <code style="font-size:11px;color:var(--color-text-secondary);">{user_input: "add 3+4", intent: "", response: ""}</code>
+          </div>
+          <div style="padding:10px;background:var(--purple-50);border-radius:var(--border-radius-md);border:0.5px solid var(--purple-200);">
+            <div style="font-weight:500;color:var(--purple-800);margin-bottom:6px;">2. detect_intent runs</div>
+            <code style="font-size:11px;color:var(--purple-600);">returns {intent: "math"}</code>
+          </div>
+          <div style="padding:10px;background:var(--amber-50);border-radius:var(--border-radius-md);border:0.5px solid var(--amber-100);">
+            <div style="font-weight:500;color:var(--amber-800);margin-bottom:6px;">3. Router fires</div>
+            <code style="font-size:11px;color:var(--amber-600);">route_by_intent → "handle_math"</code>
+          </div>
+          <div style="padding:10px;background:var(--teal-50);border-radius:var(--border-radius-md);border:0.5px solid var(--teal-200);">
+            <div style="font-weight:500;color:var(--teal-800);margin-bottom:6px;">4. handle_math runs</div>
+            <code style="font-size:11px;color:var(--teal-600);">returns {response: "Math handler…"}</code>
+          </div>
+        </div>
+        <div style="margin-top:10px;padding:10px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);font-size:13px;color:var(--color-text-secondary);">
+          Graph reaches END. <code>app.invoke()</code> returns the final merged state.
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Key LangGraph concepts in this graph</div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px;align-items:start;">
+          <div style="font-weight:500;color:var(--purple-800);">State</div><div style="color:var(--color-text-secondary);">ChatState TypedDict with 3 keys flowing through all nodes</div>
+          <div style="font-weight:500;color:var(--purple-800);">Nodes</div><div style="color:var(--color-text-secondary);">4 plain Python functions — 1 classifier + 3 handlers</div>
+          <div style="font-weight:500;color:var(--purple-800);">Normal edge</div><div style="color:var(--color-text-secondary);">handlers → END (always)</div>
+          <div style="font-weight:500;color:var(--purple-800);">Conditional edge</div><div style="color:var(--color-text-secondary);">detect_intent → one of 3 handlers based on intent value</div>
+          <div style="font-weight:500;color:var(--purple-800);">Entry point</div><div style="color:var(--color-text-secondary);">set_entry_point("detect_intent")</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CODE GUIDE -->
+  <div id="code" class="section">
+    <div class="card">
+      <div class="card-title">1 — Define state</div>
+      <div class="card-body">State is the single source of truth. All nodes receive it and return partial updates.</div>
+      <div class="code-block"><span class="kw">from</span> typing <span class="kw">import</span> TypedDict
+
+<span class="kw">class</span> <span class="fn">ChatState</span>(TypedDict):
+    user_input: <span class="st">str</span>   <span class="cm"># raw user message</span>
+    intent:     <span class="st">str</span>   <span class="cm"># "math" | "weather" | "unknown"</span>
+    response:   <span class="st">str</span>   <span class="cm"># final reply</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">2 — Write nodes</div>
+      <div class="card-body">Each node is a function: state in → partial dict out.</div>
+      <div class="code-block"><span class="kw">def</span> <span class="fn">detect_intent</span>(state: ChatState) -> dict:
+    text = state[<span class="st">"user_input"</span>].lower()
+    intent = <span class="st">"math"</span> <span class="kw">if</span> <span class="st">"add"</span> <span class="kw">in</span> text <span class="kw">else</span> <span class="st">"unknown"</span>
+    <span class="kw">return</span> {<span class="st">"intent"</span>: intent}   <span class="cm"># only update intent key</span>
+
+<span class="kw">def</span> <span class="fn">handle_math</span>(state: ChatState) -> dict:
+    <span class="kw">return</span> {<span class="st">"response"</span>: <span class="st">f"Solving: {state['user_input']}"</span>}</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3 — Build + add conditional edges</div>
+      <div class="card-body">Register nodes, set the entry point, wire up conditional routing.</div>
+      <div class="code-block"><span class="kw">from</span> langgraph.graph <span class="kw">import</span> StateGraph, END
+
+graph = <span class="fn">StateGraph</span>(ChatState)
+graph.<span class="fn">add_node</span>(<span class="st">"detect_intent"</span>, detect_intent)
+graph.<span class="fn">add_node</span>(<span class="st">"handle_math"</span>, handle_math)
+graph.<span class="fn">set_entry_point</span>(<span class="st">"detect_intent"</span>)
+
+<span class="cm"># router function returns next node name</span>
+<span class="kw">def</span> <span class="fn">route</span>(state): <span class="kw">return</span> <span class="st">f"handle_{state['intent']}"</span>
+
+graph.<span class="fn">add_conditional_edges</span>(
+    <span class="st">"detect_intent"</span>, route,
+    {<span class="st">"handle_math"</span>: <span class="st">"handle_math"</span>, ...}
+)
+graph.<span class="fn">add_edge</span>(<span class="st">"handle_math"</span>, END)</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">4 — Compile, visualise, invoke</div>
+      <div class="card-body">Compile validates structure; invoke runs the graph to completion.</div>
+      <div class="code-block">app = graph.<span class="fn">compile</span>()
+
+<span class="cm"># visualise</span>
+png = app.<span class="fn">get_graph</span>().<span class="fn">draw_mermaid_png</span>()
+<span class="kw">with</span> <span class="fn">open</span>(<span class="st">"graph.png"</span>, <span class="st">"wb"</span>) <span class="kw">as</span> f: f.<span class="fn">write</span>(png)
+
+<span class="cm"># invoke</span>
+result = app.<span class="fn">invoke</span>({
+    <span class="st">"user_input"</span>: <span class="st">"add 3 + 4"</span>,
+    <span class="st">"intent"</span>: <span class="st">""</span>, <span class="st">"response"</span>: <span class="st">""</span>
+})
+<span class="fn">print</span>(result[<span class="st">"response"</span>])</div>
+    </div>
+  </div>
+
+  <!-- CHEAT SHEET -->
+  <div id="cheat" class="section">
+    <div class="card">
+      <div class="card-title">LangGraph quick reference</div>
+      <div class="card-body">
+        <div class="cheatsheet-row">
+          <div class="cheat-term">StateGraph(State)</div>
+          <div class="cheat-def">Create a new graph. Pass your TypedDict as the schema — LangGraph enforces key types at runtime.</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">add_node(name, fn)</div>
+          <div class="cheat-def">Register a node. The name is a string used in edge definitions. fn receives state and returns a partial dict.</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">set_entry_point(name)</div>
+          <div class="cheat-def">Mark which node runs first. Equivalent to adding an edge from the implicit START node.</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">add_edge(src, dst)</div>
+          <div class="cheat-def">Unconditional edge. After src completes, always go to dst. Use END as dst to terminate.</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">add_conditional_edges</div>
+          <div class="cheat-def">Takes (source, path_fn, path_map). path_fn(state) → key; path_map maps key → node name. Enables branching.</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">graph.compile()</div>
+          <div class="cheat-def">Validates the graph (checks for dangling nodes, missing edges) and returns a runnable CompiledGraph.</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">app.invoke(state)</div>
+          <div class="cheat-def">Run the graph synchronously from entry point to END. Returns the final merged state dict.</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">app.stream(state)</div>
+          <div class="cheat-def">Generator that yields {node_name: partial_state} after each node runs. Useful for debugging.</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">get_graph().draw_mermaid()</div>
+          <div class="cheat-def">Returns Mermaid diagram source as a string. Paste at mermaid.live to render.</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">draw_mermaid_png()</div>
+          <div class="cheat-def">Returns PNG bytes of the rendered graph. Requires Playwright (pip install playwright).</div>
+        </div>
+        <div class="cheatsheet-row">
+          <div class="cheat-term">END</div>
+          <div class="cheat-def">Sentinel imported from langgraph.graph. Adding an edge to END signals graph completion from that node.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="section">
+    <div class="card" id="quiz-card">
+      <div id="quiz-inner"></div>
+      <div class="quiz-nav">
+        <div class="quiz-prog" id="quiz-prog"></div>
+        <button class="btn-next" id="quiz-next" onclick="nextQ()" style="display:none;">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESSION PLAN -->
+  <div id="plan" class="section">
+    <div class="card">
+      <div class="card-title">1-hour session plan</div>
+      <div class="card-body">
+        <div class="timeline">
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">0:00 – 0:10</div>
+            <div class="tl-title">Why graphs? Motivation</div>
+            <div class="tl-desc">Compare sequential chains vs graph-based agents. Draw the analogy: nodes = functions, edges = wires, state = clipboard passed between them.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">0:10 – 0:20</div>
+            <div class="tl-title">Core primitives: state, nodes, edges</div>
+            <div class="tl-desc">Walk through the TypedDict state schema. Write a trivial 2-node graph (echo_node → format_node). Run it and inspect output.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">0:20 – 0:35</div>
+            <div class="tl-title">Conditional routing deep-dive</div>
+            <div class="tl-desc">Add detect_intent. Introduce add_conditional_edges + path_map. Add 3 handler nodes. Test with "add 3+4", "will it rain?", "tell me a joke".</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">0:35 – 0:45</div>
+            <div class="tl-title">Compile, invoke, stream</div>
+            <div class="tl-desc">Discuss what compile() validates. Compare invoke() vs stream(). Enable streaming to watch state evolve step-by-step.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot"></div>
+            <div class="tl-time">0:45 – 0:55</div>
+            <div class="tl-title">Visualisation + wrap-up</div>
+            <div class="tl-desc">Run draw_mermaid() and draw_mermaid_png(). Paste into mermaid.live. Discuss how this helps debug large graphs.</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-dot" style="background:var(--teal-600);"></div>
+            <div class="tl-time">0:55 – 1:00</div>
+            <div class="tl-title">Q&A + next steps</div>
+            <div class="tl-desc">Preview: adding memory (MemorySaver), tool nodes, multi-agent graphs, and human-in-the-loop patterns.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Setup checklist</div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:13px;">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox"> Python 3.10+ installed</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox"> <code>pip install langgraph langchain-openai pillow</code></label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox"> OPENAI_API_KEY set in environment</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox"> langgraph_demo.py downloaded and ready</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="checkbox"> mermaid.live open in browser tab</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const qs = [
+  {
+    q: "What does a LangGraph node return?",
+    opts: ["The full updated state dict","A partial dict with only the changed keys","A string message","Nothing — it mutates state in place"],
+    ans: 1,
+    explain: "Nodes return a partial dict. LangGraph merges it with the existing state, leaving unchanged keys intact."
+  },
+  {
+    q: "Which function registers a branching edge that chooses the next node based on state?",
+    opts: ["add_edge()","set_entry_point()","add_conditional_edges()","compile()"],
+    ans: 2,
+    explain: "add_conditional_edges(source, path_fn, path_map) is the correct call. path_fn inspects state and returns a key; path_map resolves that key to a node name."
+  },
+  {
+    q: "What does graph.compile() return?",
+    opts: ["A Mermaid diagram string","A validated, runnable CompiledGraph","The initial state dict","A list of node names"],
+    ans: 1,
+    explain: "compile() validates the graph structure (missing edges, orphaned nodes) and returns a CompiledGraph that exposes .invoke(), .stream(), and .get_graph()."
+  },
+  {
+    q: "How do you mark a node as the last step in a graph?",
+    opts: ["Call graph.set_exit_point()","Return None from the node","Add an edge from the node to END","Add a conditional edge to __end__"],
+    ans: 2,
+    explain: "Import END from langgraph.graph and call graph.add_edge('your_node', END). This signals that execution finishes after that node."
+  },
+  {
+    q: "Which method lets you watch state updates node-by-node as the graph runs?",
+    opts: ["app.invoke()","app.run()","app.stream()","app.debug()"],
+    ans: 2,
+    explain: "app.stream(initial_state) is a generator that yields {node_name: partial_state} after each node completes — perfect for debugging or building real-time UIs."
+  },
+  {
+    q: "In the intent-router demo, what does route_by_intent return?",
+    opts: ["A modified state dict","The string name of the next node to call","A boolean indicating success","An integer exit code"],
+    ans: 1,
+    explain: "Conditional edge path functions return a string key. LangGraph looks that key up in the path_map to find the target node name."
+  }
+];
+
+let cur = 0, answered = false;
+
+function renderQ() {
+  const q = qs[cur];
+  const inner = document.getElementById('quiz-inner');
+  inner.innerHTML = `
+    <div class="quiz-q">${cur+1}. ${q.q}</div>
+    <div class="quiz-opts">
+      ${q.opts.map((o,i) => `<button class="quiz-opt" onclick="answer(${i})">${o}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback" id="qfb" style="display:none;"></div>
+  `;
+  document.getElementById('quiz-prog').textContent = `${cur+1} / ${qs.length}`;
+  document.getElementById('quiz-next').style.display = 'none';
+  answered = false;
+}
+
+function answer(i) {
+  if (answered) return;
+  answered = true;
+  const q = qs[cur];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((o,idx) => {
+    o.disabled = true;
+    if (idx === q.ans) o.classList.add('correct');
+    else if (idx === i && i !== q.ans) o.classList.add('wrong');
+  });
+  const fb = document.getElementById('qfb');
+  fb.style.display = 'block';
+  fb.innerHTML = (i === q.ans ? '✓ Correct. ' : '✗ Not quite. ') + q.explain;
+  const nxt = document.getElementById('quiz-next');
+  nxt.style.display = 'inline-block';
+  nxt.textContent = cur < qs.length - 1 ? 'Next →' : 'Restart';
+}
+
+function nextQ() {
+  cur = (cur + 1) % qs.length;
+  renderQ();
+}
+
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+  if (id === 'quiz') renderQ();
+}
+
+renderQ();
+</script>
