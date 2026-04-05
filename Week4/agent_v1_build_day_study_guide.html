@@ -1,0 +1,481 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.p{padding:1.5rem 0}
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:3px 10px;border-radius:999px;letter-spacing:.04em}
+.b-coral{background:#FAECE7;color:#712B13;border:.5px solid #F0997B}
+.b-teal{background:#E1F5EE;color:#085041;border:.5px solid #5DCAA5}
+.b-amber{background:#FAEEDA;color:#633806;border:.5px solid #EF9F27}
+.b-purple{background:#EEEDFE;color:#3C3489;border:.5px solid #AFA9EC}
+.b-blue{background:#E6F1FB;color:#0C447C;border:.5px solid #85B7EB}
+h1{font-size:22px;font-weight:500;margin:10px 0 5px}
+.sub{font-size:14px;color:var(--color-text-secondary)}
+nav{display:flex;gap:6px;flex-wrap:wrap;margin:1.5rem 0 1.25rem}
+.nb{font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s}
+.nb:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.nb.on{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489;font-weight:500}
+.sec{display:none}.sec.on{display:block}
+.card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;margin-bottom:1rem}
+.ct{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.cb{font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.dp{background:#534AB7}.dt{background:#0F6E56}.da{background:#BA7517}.dc{background:#993C1D}
+code{font-family:var(--font-mono);font-size:11.5px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px}
+.pre{background:var(--color-background-secondary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:1rem;font-family:var(--font-mono);font-size:12px;line-height:1.9;color:var(--color-text-primary);overflow-x:auto;white-space:pre;margin-top:10px}
+.kw{color:#534AB7}.cm{color:var(--color-text-secondary);font-style:italic}.fn{color:#0F6E56}.st{color:#993C1D}.nm{color:#BA7517}.de{color:#378ADD}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:540px){.g2,.g3{grid-template-columns:1fr}}
+.tool-card{padding:1rem;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-tertiary);background:var(--color-background-primary)}
+.tool-name{font-size:14px;font-weight:500;margin-bottom:4px}
+.tool-desc{font-size:12px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.5}
+.tool-ex{font-family:var(--font-mono);font-size:11px;color:#0F6E56;background:#E1F5EE;border-radius:4px;padding:3px 7px}
+.tl{position:relative;padding-left:22px}
+.tl::before{content:'';position:absolute;left:7px;top:0;bottom:0;width:.5px;background:var(--color-border-tertiary)}
+.tli{position:relative;margin-bottom:1.2rem}
+.tldot{position:absolute;left:-18px;top:4px;width:9px;height:9px;border-radius:50%;background:#534AB7;border:2px solid var(--color-background-primary)}
+.tltime{font-size:11px;color:var(--color-text-secondary);margin-bottom:2px}
+.tltitle{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.tldesc{font-size:12px;color:var(--color-text-secondary);margin-top:3px;line-height:1.5}
+.flow-wrap{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding-bottom:4px;margin:1rem 0}
+.fnode{padding:8px 12px;border-radius:var(--border-radius-md);font-size:12px;font-weight:500;text-align:center;white-space:nowrap;border:.5px solid}
+.fstart{background:#F1EFE8;border-color:#D3D1C7;color:#5F5E5A}
+.fend{background:#F1EFE8;border-color:#D3D1C7;color:#5F5E5A}
+.fagent{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489}
+.ftools{background:#E1F5EE;border-color:#9FE1CB;color:#085041}
+.farr{display:flex;align-items:center;padding:0 6px;color:var(--color-text-secondary);font-size:14px}
+.fstack{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.fcond{font-size:10px;color:var(--color-text-secondary);padding:2px 6px;border-radius:999px;border:.5px solid var(--color-border-tertiary);white-space:nowrap}
+.state-key{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:.5px solid var(--color-border-tertiary)}
+.state-key:last-child{border-bottom:none}
+.sk-name{font-family:var(--font-mono);font-size:11.5px;font-weight:500;color:#3C3489;background:#EEEDFE;padding:2px 7px;border-radius:4px;white-space:nowrap;flex-shrink:0}
+.sk-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.55}
+.task-row{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:.5px solid var(--color-border-tertiary);cursor:pointer;transition:background .1s}
+.task-row:last-child{border-bottom:none}
+.task-row:hover{background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+.task-num{font-family:var(--font-mono);font-size:11px;font-weight:500;min-width:30px;color:var(--color-text-secondary);flex-shrink:0;padding-top:1px}
+.task-label{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.task-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.task-tools{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.t-pill{font-size:10px;padding:2px 8px;border-radius:999px;font-weight:500}
+.tp-purple{background:#EEEDFE;color:#3C3489}.tp-teal{background:#E1F5EE;color:#085041}
+.tp-amber{background:#FAEEDA;color:#633806}.tp-coral{background:#FAECE7;color:#712B13}
+.tp-blue{background:#E6F1FB;color:#0C447C}
+.qcard .qtext{font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:12px;line-height:1.5}
+.qopts{display:flex;flex-direction:column;gap:8px}
+.qopt{padding:9px 14px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:var(--color-background-primary);font-size:13px;color:var(--color-text-primary);cursor:pointer;text-align:left;transition:all .15s}
+.qopt:hover:not(:disabled){background:var(--color-background-secondary)}
+.qopt.ok{background:#E1F5EE;border-color:#9FE1CB;color:#085041}
+.qopt.no{background:#FAECE7;border-color:#F5C4B3;color:#712B13}
+.qfb{margin-top:10px;font-size:12px;color:var(--color-text-secondary);line-height:1.6;display:none}
+.qnav{display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem}
+.qprog{font-size:12px;color:var(--color-text-secondary)}
+.qnext{font-size:13px;padding:6px 14px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:var(--color-background-primary);cursor:pointer}
+.qnext:hover{background:var(--color-background-secondary)}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;text-align:center}
+.mval{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.mlbl{font-size:12px;color:var(--color-text-secondary);margin-top:3px}
+.chkrow{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;cursor:pointer}
+.chkrow input{cursor:pointer}
+</style>
+
+<div class="p">
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+  <span class="badge b-coral">Week 4</span>
+  <span class="badge b-teal">Build day</span>
+  <span class="badge b-amber">Agent v1</span>
+  <span class="badge b-purple">LangGraph</span>
+</div>
+<h1>Multi-tool agent — build day</h1>
+<p class="sub">Web search · calculator · file I/O · weather · state management · 10 test tasks</p>
+
+<nav>
+  <button class="nb on" onclick="show('arch')">Architecture</button>
+  <button class="nb" onclick="show('state')">State</button>
+  <button class="nb" onclick="show('tools')">Tools</button>
+  <button class="nb" onclick="show('code')">Code guide</button>
+  <button class="nb" onclick="show('tasks')">10 tasks</button>
+  <button class="nb" onclick="show('quiz')">Quiz</button>
+  <button class="nb" onclick="show('plan')">Build plan</button>
+</nav>
+
+<!-- ARCH -->
+<div id="arch" class="sec on">
+  <div class="card">
+    <div class="ct">Agent execution loop</div>
+    <div class="cb" style="margin-bottom:12px">The agent follows a <em>reason → act → observe</em> loop. The LLM decides which tool to call; the tool node executes it and returns results; the LLM reasons again — repeating until it has enough information to answer.</div>
+    <div class="flow-wrap">
+      <div class="fnode fstart">START</div>
+      <div class="farr">→</div>
+      <div class="fnode fagent">agent<br><span style="font-size:10px;font-weight:400;opacity:.75">LLM + tool binding</span></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:0 6px;gap:4px">
+        <div style="display:flex;align-items:center;gap:4px">
+          <div style="font-size:13px;color:var(--color-text-secondary)">→</div>
+          <div class="fcond">tool calls?</div>
+          <div style="font-size:13px;color:var(--color-text-secondary)">→</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div style="font-size:13px;color:var(--color-text-secondary)">→</div>
+          <div class="fcond">no calls</div>
+          <div style="font-size:13px;color:var(--color-text-secondary)">→</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:4px">
+          <div class="fnode ftools">tools<br><span style="font-size:10px;font-weight:400;opacity:.75">execute + log</span></div>
+          <div class="farr" style="font-size:11px;color:#0F6E56">↩ back to agent</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div class="fnode fend">END</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct"><span class="dot dp"></span>Why LangGraph?</div>
+      <div class="cb">LangGraph's explicit graph lets you control the loop: the agent can call multiple tools in sequence, observe results mid-conversation, and loop back to reason again — without hacking around a linear chain.</div>
+    </div>
+    <div class="card">
+      <div class="ct"><span class="dot dt"></span>ReAct pattern</div>
+      <div class="cb">This agent implements <em>ReAct</em>: Reason + Act. The LLM first reasons about which tool to use, then acts by invoking it, then observes the result before reasoning again. The loop runs until no tool calls are needed.</div>
+    </div>
+    <div class="card">
+      <div class="ct"><span class="dot da"></span>Tool binding</div>
+      <div class="cb"><code>llm.bind_tools(TOOLS)</code> attaches tool schemas to the LLM. When the model wants to call a tool it emits a structured <code>tool_calls</code> field on the <code>AIMessage</code> instead of plain text.</div>
+    </div>
+    <div class="card">
+      <div class="ct"><span class="dot dc"></span>Recursion limit</div>
+      <div class="cb">Always pass <code>recursion_limit</code> to <code>invoke()</code>. Without it, a confused agent can loop indefinitely. The default in these examples is 20 — enough for complex multi-tool chains without runaway costs.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Key design decisions</div>
+    <div class="cb">
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 14px;align-items:start">
+        <div style="font-weight:500;color:var(--color-text-primary);font-size:13px">Single agent node</div><div style="font-size:12px">One node for all LLM reasoning. Keeps the graph simple; add specialised nodes later if needed.</div>
+        <div style="font-weight:500;color:var(--color-text-primary);font-size:13px">Single tool node</div><div style="font-size:12px">Executes all tool calls from one LLM turn in parallel order, then returns all results at once.</div>
+        <div style="font-weight:500;color:var(--color-text-primary);font-size:13px">add_messages reducer</div><div style="font-size:12px">Appends new messages to history — never overwrites. This gives the LLM full context across all turns.</div>
+        <div style="font-weight:500;color:var(--color-text-primary);font-size:13px">tool_calls_log</div><div style="font-size:12px">A separate audit list (not in messages) tracks every tool invocation with timestamps and result previews.</div>
+        <div style="font-weight:500;color:var(--color-text-primary);font-size:13px">Safe calculator</div><div style="font-size:12px">Uses AST parsing to whitelist only known functions — no <code>eval()</code> on raw strings, no arbitrary code execution.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATE -->
+<div id="state" class="sec">
+  <div class="card">
+    <div class="ct">AgentState — the shared memory</div>
+    <div class="cb" style="margin-bottom:12px">Every node reads from and writes to this TypedDict. LangGraph merges partial updates automatically — nodes only return the keys they changed.</div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem">
+      <div class="state-key">
+        <div class="sk-name">messages</div>
+        <div class="sk-desc">Full conversation history: HumanMessage → AIMessage → ToolMessage → AIMessage → … <br>Uses the <code>add_messages</code> reducer so new messages are <em>appended</em>, not replaced.</div>
+      </div>
+      <div class="state-key">
+        <div class="sk-name">tool_calls_log</div>
+        <div class="sk-desc">Audit trail of every tool invocation. Each entry records timestamp, tool name, args, and a result preview. Separate from messages — the LLM never sees this directly.</div>
+      </div>
+      <div class="state-key">
+        <div class="sk-name">task_label</div>
+        <div class="sk-desc">Human-readable label for the current task. Used in logging and the summary table. Not sent to the LLM.</div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Message flow through a multi-tool task</div>
+    <div class="cb">
+      <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:#EEEDFE;border-radius:var(--border-radius-md)">
+          <span style="font-weight:500;color:#3C3489;min-width:110px">HumanMessage</span>
+          <span style="color:#534AB7">"Get Berlin weather then convert to Fahrenheit"</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:#E1F5EE;border-radius:var(--border-radius-md)">
+          <span style="font-weight:500;color:#085041;min-width:110px">AIMessage</span>
+          <span style="color:#0F6E56">tool_calls: [get_weather(city="Berlin")]</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:#FAEEDA;border-radius:var(--border-radius-md)">
+          <span style="font-weight:500;color:#633806;min-width:110px">ToolMessage</span>
+          <span style="color:#854F0B">name=get_weather → "Temperature: 12°C…"</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:#E1F5EE;border-radius:var(--border-radius-md)">
+          <span style="font-weight:500;color:#085041;min-width:110px">AIMessage</span>
+          <span style="color:#0F6E56">tool_calls: [calculator("12 * 9/5 + 32")]</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:#FAEEDA;border-radius:var(--border-radius-md)">
+          <span style="font-weight:500;color:#633806;min-width:110px">ToolMessage</span>
+          <span style="color:#854F0B">name=calculator → "Result: 53.6"</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-start;padding:8px;background:#EEEDFE;border-radius:var(--border-radius-md)">
+          <span style="font-weight:500;color:#3C3489;min-width:110px">AIMessage</span>
+          <span style="color:#534AB7">"Berlin is 12°C (53.6°F)…" ← final answer, no tool_calls</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">The add_messages reducer</div>
+    <div class="cb">Normally a LangGraph node returning <code>{"messages": new_list}</code> would <em>replace</em> the state. The <code>Annotated[list, add_messages]</code> type annotation changes this — LangGraph instead <em>appends</em> new messages, preserving the full history. This is what gives the agent memory across multiple tool calls in one session.</div>
+  </div>
+</div>
+
+<!-- TOOLS -->
+<div id="tools" class="sec">
+  <div class="g2">
+    <div class="tool-card">
+      <div class="tool-name" style="color:#3C3489">web_search</div>
+      <div class="tool-desc">DuckDuckGo search — no API key required. Returns titles, URLs, and snippets for up to N results.</div>
+      <div class="tool-ex">web_search("LangGraph tutorial 2025")</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name" style="color:#085041">calculator</div>
+      <div class="tool-desc">AST-safe expression evaluator. Supports math functions, constants, and standard operators. Never executes arbitrary code.</div>
+      <div class="tool-ex">calculator("sqrt(2**32)")</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name" style="color:#993C1D">file_read</div>
+      <div class="tool-desc">Read a file from disk by path. Returns text content or a descriptive error if the file doesn't exist.</div>
+      <div class="tool-ex">file_read("notes.txt")</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name" style="color:#993C1D">file_write</div>
+      <div class="tool-desc">Write or append content to a file. Creates parent directories automatically. Mode 'w' overwrites; 'a' appends.</div>
+      <div class="tool-ex">file_write("log.txt", "entry", "a")</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name" style="color:#993C1D">file_list</div>
+      <div class="tool-desc">List all files and subdirectories in a directory with sizes. Useful for verifying file writes succeeded.</div>
+      <div class="tool-ex">file_list("./output")</div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-name" style="color:#BA7517">get_weather</div>
+      <div class="tool-desc">Open-Meteo API — free, no API key. Geocodes the city name then returns temperature, humidity, wind, and condition.</div>
+      <div class="tool-ex">get_weather("Tokyo")</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:4px">
+    <div class="ct">Tool anatomy — how @tool works</div>
+    <div class="cb">The <code>@tool</code> decorator from LangChain converts a plain Python function into a <code>StructuredTool</code>. It extracts the function's name, docstring (as the tool description), and type annotations (as the input schema). The LLM sees only the description and schema — your implementation stays hidden. This schema is what <code>bind_tools()</code> sends to the model so it knows exactly how to call each tool.</div>
+  </div>
+  <div class="card">
+    <div class="ct">Safety: the calculator's AST guard</div>
+    <div class="cb">A naive <code>eval(expression)</code> would let the LLM execute any Python — including <code>os.system("rm -rf /")</code>. The calculator uses <code>ast.parse()</code> to walk the expression tree before evaluation and rejects any function call or name that isn't in an explicit whitelist of math functions. Only known safe names like <code>sqrt</code>, <code>factorial</code>, and <code>pi</code> are permitted.</div>
+  </div>
+</div>
+
+<!-- CODE GUIDE -->
+<div id="code" class="sec">
+  <div class="card">
+    <div class="ct">1 — Define state with add_messages</div>
+    <div class="pre"><span class="kw">from</span> typing <span class="kw">import</span> Annotated, TypedDict
+<span class="kw">from</span> langgraph.graph.message <span class="kw">import</span> add_messages
+
+<span class="kw">class</span> <span class="fn">AgentState</span>(TypedDict):
+    messages:       Annotated[list, add_messages]  <span class="cm"># appends, not replaces</span>
+    tool_calls_log: list[dict]                     <span class="cm"># audit trail</span>
+    task_label:     str                            <span class="cm"># for logging</span></div>
+  </div>
+  <div class="card">
+    <div class="ct">2 — Declare tools with @tool</div>
+    <div class="pre"><span class="kw">from</span> langchain_core.tools <span class="kw">import</span> tool
+
+<span class="de">@tool</span>
+<span class="kw">def</span> <span class="fn">calculator</span>(expression: str) -> str:
+    <span class="st">"""Safely evaluate a mathematical expression."""</span>
+    <span class="kw">import</span> ast, math
+    ALLOWED = {<span class="st">"sqrt"</span>: math.sqrt, <span class="st">"pi"</span>: math.pi, ...}
+    tree = ast.parse(expression, mode=<span class="st">"eval"</span>)
+    <span class="cm"># walk tree, reject unknown names...</span>
+    result = eval(compile(tree, <span class="st">"<expr>"</span>, <span class="st">"eval"</span>), {<span class="st">"__builtins__"</span>: {}}, ALLOWED)
+    <span class="kw">return</span> <span class="fn">f</span><span class="st">"Result: {result}"</span></div>
+  </div>
+  <div class="card">
+    <div class="ct">3 — Bind tools to the LLM</div>
+    <div class="pre">TOOLS = [web_search, calculator, file_read, file_write, file_list, get_weather]
+TOOL_MAP = {t.name: t <span class="kw">for</span> t <span class="kw">in</span> TOOLS}
+
+llm = <span class="fn">ChatOpenAI</span>(model=<span class="st">"gpt-4o-mini"</span>, temperature=<span class="nm">0</span>)
+llm_with_tools = llm.<span class="fn">bind_tools</span>(TOOLS)  <span class="cm"># schema → model</span></div>
+  </div>
+  <div class="card">
+    <div class="ct">4 — Agent node (reason)</div>
+    <div class="pre"><span class="kw">def</span> <span class="fn">agent_node</span>(state: AgentState) -> dict:
+    msgs = [<span class="fn">SystemMessage</span>(content=SYSTEM_PROMPT)] + state[<span class="st">"messages"</span>]
+    response = llm_with_tools.<span class="fn">invoke</span>(msgs)   <span class="cm"># may include tool_calls</span>
+    <span class="kw">return</span> {<span class="st">"messages"</span>: [response]}</div>
+  </div>
+  <div class="card">
+    <div class="ct">5 — Tool node (act + log)</div>
+    <div class="pre"><span class="kw">def</span> <span class="fn">tool_node</span>(state: AgentState) -> dict:
+    last_msg = state[<span class="st">"messages"</span>][-<span class="nm">1</span>]
+    tool_messages, log = [], list(state[<span class="st">"tool_calls_log"</span>])
+    <span class="kw">for</span> tc <span class="kw">in</span> last_msg.tool_calls:
+        result = TOOL_MAP[tc[<span class="st">"name"</span>]].<span class="fn">invoke</span>(tc[<span class="st">"args"</span>])
+        tool_messages.<span class="fn">append</span>(<span class="fn">ToolMessage</span>(
+            content=str(result), tool_call_id=tc[<span class="st">"id"</span>], name=tc[<span class="st">"name"</span>]))
+        log.<span class="fn">append</span>({<span class="st">"tool"</span>: tc[<span class="st">"name"</span>], <span class="st">"args"</span>: tc[<span class="st">"args"</span>], ...})
+    <span class="kw">return</span> {<span class="st">"messages"</span>: tool_messages, <span class="st">"tool_calls_log"</span>: log}</div>
+  </div>
+  <div class="card">
+    <div class="ct">6 — Router + compile</div>
+    <div class="pre"><span class="kw">def</span> <span class="fn">should_continue</span>(state) -> str:
+    last = state[<span class="st">"messages"</span>][-<span class="nm">1</span>]
+    <span class="kw">if</span> <span class="fn">hasattr</span>(last, <span class="st">"tool_calls"</span>) <span class="kw">and</span> last.tool_calls:
+        <span class="kw">return</span> <span class="st">"tools"</span>       <span class="cm"># keep looping</span>
+    <span class="kw">return</span> END             <span class="cm"># final answer reached</span>
+
+graph = <span class="fn">StateGraph</span>(AgentState)
+graph.<span class="fn">add_node</span>(<span class="st">"agent"</span>, agent_node)
+graph.<span class="fn">add_node</span>(<span class="st">"tools"</span>, tool_node)
+graph.<span class="fn">set_entry_point</span>(<span class="st">"agent"</span>)
+graph.<span class="fn">add_conditional_edges</span>(<span class="st">"agent"</span>, should_continue, {<span class="st">"tools"</span>: <span class="st">"tools"</span>, END: END})
+graph.<span class="fn">add_edge</span>(<span class="st">"tools"</span>, <span class="st">"agent"</span>)   <span class="cm"># loop back</span>
+app = graph.<span class="fn">compile</span>()</div>
+  </div>
+</div>
+
+<!-- TASKS -->
+<div id="tasks" class="sec">
+  <div class="card">
+    <div class="ct">10 real test tasks</div>
+    <div class="cb" style="margin-bottom:12px">Click any task to ask Claude to walk you through building it.</div>
+    <div id="task-list"></div>
+  </div>
+  <div class="g3" style="margin-top:4px">
+    <div class="metric"><div class="mval">10</div><div class="mlbl">total tasks</div></div>
+    <div class="metric"><div class="mval">6</div><div class="mlbl">tools covered</div></div>
+    <div class="metric"><div class="mval">4</div><div class="mlbl">multi-tool chains</div></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz" class="sec">
+  <div class="card qcard" id="qcard">
+    <div id="qinner"></div>
+    <div class="qnav"><div class="qprog" id="qprog"></div><button class="qnext" id="qnext" onclick="nextQ()" style="display:none">Next →</button></div>
+  </div>
+</div>
+
+<!-- PLAN -->
+<div id="plan" class="sec">
+  <div class="card">
+    <div class="ct">Build order — step by step</div>
+    <div class="cb">
+      <div class="tl">
+        <div class="tli"><div class="tldot"></div><div class="tltime">Step 1 — 15 min</div><div class="tltitle">Define state + scaffold</div><div class="tldesc">Create AgentState with add_messages. Write build_graph() skeleton. Confirm compile() works with an empty graph.</div></div>
+        <div class="tli"><div class="tldot"></div><div class="tltime">Step 2 — 20 min</div><div class="tltitle">Implement all 6 tools</div><div class="tldesc">Write each @tool function. Test each one in isolation with direct .invoke() calls before wiring into the graph.</div></div>
+        <div class="tli"><div class="tldot"></div><div class="tltime">Step 3 — 10 min</div><div class="tltitle">Wire agent + tool nodes</div><div class="tldesc">Write agent_node, tool_node, should_continue router. Add edges. Compile. Test the simplest task (T01 calculator).</div></div>
+        <div class="tli"><div class="tldot"></div><div class="tltime">Step 4 — 10 min</div><div class="tltitle">Add system prompt + logging</div><div class="tldesc">Write SYSTEM_PROMPT. Add tool_calls_log updates in tool_node. Print audit trail in run_task().</div></div>
+        <div class="tli"><div class="tldot"></div><div class="tltime">Step 5 — 20 min</div><div class="tltitle">Run all 10 test tasks</div><div class="tldesc">Execute each task. Debug tool errors, refine docstrings so the LLM calls tools correctly, check file I/O output.</div></div>
+        <div class="tli"><div class="tldot" style="background:#0F6E56"></div><div class="tltime">Step 6 — 10 min</div><div class="tltitle">Visualise + wrap up</div><div class="tldesc">Run draw_mermaid_png(). Print summary table. Discuss: what would you add for Agent v2? (memory, human-in-loop, streaming UI)</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Setup checklist</div>
+    <div class="cb">
+      <label class="chkrow"><input type="checkbox"> Python 3.10+ installed</label>
+      <label class="chkrow"><input type="checkbox"> <code>pip install langgraph langchain-openai duckduckgo-search requests</code></label>
+      <label class="chkrow"><input type="checkbox"> <code>OPENAI_API_KEY</code> set in environment</label>
+      <label class="chkrow"><input type="checkbox"> agent_v1.py downloaded and opened in editor</label>
+      <label class="chkrow"><input type="checkbox"> Test: <code>python -c "from langgraph.graph import StateGraph; print('ok')"</code></label>
+      <label class="chkrow"><input type="checkbox"> Run T01 (calculator only) to confirm LLM connection</label>
+      <label class="chkrow"><input type="checkbox"> Run all 10 tasks — check summary table</label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">Agent v2 ideas</div>
+    <div class="cb">
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:12px">
+        <div style="font-weight:500;color:var(--color-text-primary)">MemorySaver</div><div style="color:var(--color-text-secondary)">Add persistent memory across sessions with LangGraph's built-in checkpointing</div>
+        <div style="font-weight:500;color:var(--color-text-primary)">Human-in-loop</div><div style="color:var(--color-text-secondary)">Interrupt before destructive file writes to get approval from the user</div>
+        <div style="font-weight:500;color:var(--color-text-primary)">Streaming UI</div><div style="color:var(--color-text-secondary)">Pipe agent.stream() to a Gradio or FastAPI endpoint for real-time updates</div>
+        <div style="font-weight:500;color:var(--color-text-primary)">Code executor</div><div style="color:var(--color-text-secondary)">Add a sandboxed Python execution tool (E2B or subprocess) for dynamic data analysis</div>
+        <div style="font-weight:500;color:var(--color-text-primary)">Sub-agents</div><div style="color:var(--color-text-secondary)">Route to a specialised research agent or data agent depending on task type</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const TASKS = [
+  {num:"T01",label:"Compound interest",desc:"Calculate $5,000 at 7% monthly compound for 10 years",tools:["calculator"],tc:["purple"]},
+  {num:"T02",label:"Powers & roots",desc:"Compute 2³² and its square root using the calculator",tools:["calculator"],tc:["purple"]},
+  {num:"T03",label:"AI news search",desc:"Find 3 significant AI research announcements from the past week",tools:["web_search"],tc:["teal"]},
+  {num:"T04",label:"Currency conversion",desc:"Search EUR→JPY rate then calculate conversion for €750",tools:["web_search","calculator"],tc:["teal","purple"]},
+  {num:"T05",label:"Multi-city weather",desc:"Get weather for Tokyo, London, New York — which is warmest?",tools:["get_weather"],tc:["amber"]},
+  {num:"T06",label:"Weather report file",desc:"Get Sydney + Paris weather and write a briefing to weather_report.txt",tools:["get_weather","file_write"],tc:["amber","coral"]},
+  {num:"T07",label:"Write then read",desc:"Write a Fibonacci one-liner to fibonacci.py then read it back",tools:["file_write","file_read"],tc:["coral","coral"]},
+  {num:"T08",label:"Append log entry",desc:"Append a timestamped log entry to agent_log.txt then confirm",tools:["file_write","file_read"],tc:["coral","coral"]},
+  {num:"T09",label:"Research + summarise + save",desc:"Search LangGraph vs LangChain, summarise in 5 bullets, save as .md",tools:["web_search","file_write"],tc:["teal","coral"]},
+  {num:"T10",label:"Weather → calc → file chain",desc:"Get Berlin weather, convert °C to °F, write summary to file",tools:["get_weather","calculator","file_write"],tc:["amber","purple","coral"]},
+];
+
+const PILL_COL = {purple:"tp-purple",teal:"tp-teal",amber:"tp-amber",coral:"tp-coral",blue:"tp-blue"};
+
+function renderTasks(){
+  const el = document.getElementById("task-list");
+  el.innerHTML = TASKS.map(t=>`
+    <div class="task-row" onclick="sendPrompt('Walk me through building test task ${t.num}: ${t.label} for the LangGraph multi-tool agent')">
+      <div class="task-num">${t.num}</div>
+      <div style="flex:1">
+        <div class="task-label">${t.label}</div>
+        <div class="task-desc">${t.desc}</div>
+        <div class="task-tools">${t.tools.map((tool,i)=>`<span class="t-pill ${PILL_COL[t.tc[i]]||'tp-purple'}">${tool}</span>`).join('')}</div>
+      </div>
+      <div style="font-size:11px;color:var(--color-text-secondary);padding-top:2px;flex-shrink:0">↗</div>
+    </div>
+  `).join('');
+}
+
+const QS = [
+  {q:"What does the add_messages annotation do to AgentState.messages?",opts:["Replaces messages with each update","Appends new messages to the existing list","Validates message types","Compresses old messages to save tokens"],ans:1,ex:"add_messages is a LangGraph reducer. Instead of overwriting the list, it appends incoming messages. This preserves the full conversation history across all agent turns."},
+  {q:"When does the should_continue router return END?",opts:["After every tool call","When the LLM output has no tool_calls field","When recursion_limit is reached","When the state has more than 10 messages"],ans:1,ex:"The router inspects the last AIMessage. If it has tool_calls, we route to the tools node. If there are no tool_calls, the LLM has produced its final answer and we return END."},
+  {q:"Why does the calculator use ast.parse() before calling eval()?",opts:["To format the expression nicely","To check for syntax errors only","To whitelist safe functions and reject arbitrary code execution","To convert the expression to Polish notation"],ans:2,ex:"AST parsing lets us walk every node in the expression tree and reject any function or name not in our whitelist. This prevents the LLM from injecting code like os.system() into an eval() call."},
+  {q:"In the agent graph, what happens after the tools node completes?",opts:["The graph terminates","Control returns to the agent node for further reasoning","A new HumanMessage is requested","The tool_calls_log is flushed"],ans:1,ex:"graph.add_edge('tools', 'agent') sends execution back to the agent node after tool results arrive. The LLM then sees all ToolMessages in history and decides whether to call more tools or produce a final answer."},
+  {q:"Which state key acts as the structured audit trail (not part of the LLM conversation)?",opts:["messages","task_label","tool_calls_log","system_prompt"],ans:2,ex:"tool_calls_log is a plain list in AgentState that records every tool invocation with timestamps, args, and result previews. It's updated in tool_node but never added to the messages list, so the LLM never sees it."},
+  {q:"What does llm.bind_tools(TOOLS) actually send to the model?",opts:["The Python source code of each tool","The tool name, docstring, and input schema (JSON Schema)","A list of function pointers","The TOOL_MAP dictionary"],ans:1,ex:"bind_tools() converts each @tool into a JSON Schema describing its name, description (from the docstring), and parameter types. The LLM uses this schema to decide when and how to call each tool — it never sees the implementation."},
+  {q:"In T09 (research + summarise + save), how many different tools does the agent use?",opts:["1 — just web_search","2 — web_search and file_write","3 — web_search, calculator, and file_write","4 — all tools"],ans:1,ex:"T09 chains web_search (to find LangGraph vs LangChain info) and file_write (to save the summary as a .md file). The calculator and weather tools aren't needed for this task."},
+];
+
+let cur=0,answered=false;
+function renderQ(){
+  const q=QS[cur];
+  document.getElementById("qinner").innerHTML=`
+    <div class="qtext">${cur+1}. ${q.q}</div>
+    <div class="qopts">${q.opts.map((o,i)=>`<button class="qopt" onclick="answer(${i})">${o}</button>`).join('')}</div>
+    <div class="qfb" id="qfb"></div>`;
+  document.getElementById("qprog").textContent=`${cur+1} / ${QS.length}`;
+  document.getElementById("qnext").style.display="none";
+  answered=false;
+}
+function answer(i){
+  if(answered)return;answered=true;
+  const q=QS[cur];
+  document.querySelectorAll(".qopt").forEach((o,idx)=>{
+    o.disabled=true;
+    if(idx===q.ans)o.classList.add("ok");
+    else if(idx===i&&i!==q.ans)o.classList.add("no");
+  });
+  const fb=document.getElementById("qfb");
+  fb.style.display="block";
+  fb.innerHTML=(i===q.ans?"✓ Correct. ":"✗ Not quite. ")+q.ex;
+  const nx=document.getElementById("qnext");
+  nx.style.display="inline-block";
+  nx.textContent=cur<QS.length-1?"Next →":"Restart";
+}
+function nextQ(){cur=(cur+1)%QS.length;renderQ();}
+
+function show(id){
+  document.querySelectorAll(".sec").forEach(s=>s.classList.remove("on"));
+  document.querySelectorAll(".nb").forEach(b=>b.classList.remove("on"));
+  document.getElementById(id).classList.add("on");
+  event.target.classList.add("on");
+  if(id==="quiz")renderQ();
+  if(id==="tasks")renderTasks();
+}
+renderTasks();
+renderQ();
+</script>

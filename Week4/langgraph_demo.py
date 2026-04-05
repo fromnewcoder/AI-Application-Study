@@ -152,8 +152,9 @@ if __name__ == "__main__":
 
     # Test with several inputs
     test_inputs = [
+            "Will it rain in London tomorrow?",
         "Can you calculate 42 * 7 for me?",
-        "Will it rain in London tomorrow?",
+    
         "Tell me a joke.",
     ]
 

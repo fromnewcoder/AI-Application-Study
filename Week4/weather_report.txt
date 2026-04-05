@@ -1,0 +1,18 @@
+Weather Briefing - 21 January 2025
+==================================
+
+Sydney, Australia
+-----------------
+Condition: Partly cloudy
+Temperature: 19.9°C (feels like 19.2°C)
+Humidity: 64%
+Wind: 11.5 km/h
+
+Paris, France
+-------------
+Condition: Overcast
+Temperature: 12.9°C (feels like 10.5°C)
+Humidity: 73%
+Wind: 13.0 km/h
+
+==================================
