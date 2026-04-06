@@ -223,11 +223,10 @@ MINIMAX_API_KEY = os.getenv("MINIMAX_API_KEY", "YOUR_KEY_HERE")
 MINIMAX_BASE_URL = os.getenv("MINIMAX_BASE_URL", "https://api.minimax.chat/v1")
 MINIMAX_MODEL = os.getenv("MINIMAX_MODEL", "MiniMax-M2.7")
 llm = ChatOpenAI(
-    temperature=0.7,
-    model = MINIMAX_MODEL,
+    temperature=0,
+    model=MINIMAX_MODEL,
     api_key=MINIMAX_API_KEY,
     base_url=MINIMAX_BASE_URL,
- 
 )
 llm_with_tools = llm.bind_tools(TOOLS)
 
