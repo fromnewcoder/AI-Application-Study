@@ -1,0 +1,491 @@
+
+<style>
+:root {
+  --purple-50: #EEEDFE; --purple-200: #AFA9EC; --purple-600: #534AB7; --purple-800: #3C3489;
+  --teal-50: #E1F5EE; --teal-200: #5DCAA5; --teal-600: #0F6E56; --teal-800: #085041;
+  --amber-50: #FAEEDA; --amber-200: #EF9F27; --amber-600: #854F0B; --amber-800: #633806;
+  --coral-50: #FAECE7; --coral-200: #F0997B; --coral-600: #993C1D; --coral-800: #712B13;
+  --blue-50: #E6F1FB; --blue-200: #85B7EB; --blue-600: #185FA5; --blue-800: #0C447C;
+  --green-50: #EAF3DE; --green-200: #97C459; --green-600: #3B6D11; --green-800: #27500A;
+  --gray-50: #F1EFE8; --gray-600: #5F5E5A; --gray-800: #444441;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, system-ui, sans-serif); }
+
+.wrap { padding: 1.5rem 0; }
+
+.nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.nav-btn {
+  font-size: 13px; font-weight: 500; padding: 6px 14px;
+  border-radius: 20px; border: 0.5px solid var(--color-border-secondary, #ccc);
+  background: transparent; color: var(--color-text-secondary);
+  cursor: pointer; transition: all 0.15s;
+}
+.nav-btn.active {
+  background: var(--purple-600); color: #fff; border-color: var(--purple-600);
+}
+.nav-btn:hover:not(.active) { background: var(--color-background-secondary); }
+
+.section { display: none; }
+.section.active { display: block; }
+
+.section-title {
+  font-size: 11px; font-weight: 500; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+}
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 1.5rem; }
+
+.card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg, 12px);
+  padding: 1rem 1.25rem;
+}
+.card-icon { font-size: 16px; margin-bottom: 8px; }
+.card-label { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 4px; }
+.card-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.card-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+
+.pill {
+  display: inline-block; font-size: 11px; font-weight: 500;
+  padding: 2px 8px; border-radius: 10px; margin: 2px;
+}
+.pill-purple { background: var(--purple-50); color: var(--purple-800); }
+.pill-teal { background: var(--teal-50); color: var(--teal-800); }
+.pill-amber { background: var(--amber-50); color: var(--amber-800); }
+.pill-coral { background: var(--coral-50); color: var(--coral-800); }
+.pill-blue { background: var(--blue-50); color: var(--blue-800); }
+.pill-green { background: var(--green-50); color: var(--green-800); }
+
+.divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1.25rem 0; }
+
+.highlight-box {
+  border-left: 3px solid var(--purple-600);
+  background: var(--purple-50);
+  border-radius: 0 var(--border-radius-md, 8px) var(--border-radius-md, 8px) 0;
+  padding: 0.875rem 1rem;
+  margin-bottom: 1rem;
+  border-top: 0.5px solid var(--color-border-tertiary);
+  border-right: 0.5px solid var(--color-border-tertiary);
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.highlight-box p { font-size: 13px; color: var(--purple-800); line-height: 1.6; }
+.highlight-box strong { font-weight: 500; }
+
+.compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.compare-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg, 12px);
+  overflow: hidden;
+}
+.compare-header { padding: 10px 14px; font-size: 13px; font-weight: 500; }
+.compare-body { padding: 10px 14px; }
+.compare-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; padding: 5px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.compare-row:last-child { border-bottom: none; }
+.compare-key { font-size: 12px; color: var(--color-text-secondary); }
+.compare-val { font-size: 12px; color: var(--color-text-primary); text-align: right; max-width: 55%; }
+
+.fc-wrap { perspective: 900px; margin-bottom: 1.5rem; }
+.fc-inner {
+  position: relative; height: 180px;
+  transition: transform 0.5s ease;
+  transform-style: preserve-3d;
+}
+.fc-inner.flipped { transform: rotateY(180deg); }
+.fc-face {
+  position: absolute; inset: 0;
+  backface-visibility: hidden;
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg, 12px);
+  background: var(--color-background-primary);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 1.25rem; text-align: center; cursor: pointer;
+}
+.fc-back { transform: rotateY(180deg); background: var(--purple-50); }
+.fc-q { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.fc-a { font-size: 13px; color: var(--purple-800); line-height: 1.6; }
+.fc-hint { font-size: 11px; color: var(--color-text-secondary); margin-top: 8px; }
+.fc-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 1.5rem; }
+.fc-nav button {
+  font-size: 13px; padding: 5px 14px;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 6px; background: transparent;
+  color: var(--color-text-primary); cursor: pointer;
+}
+.fc-nav button:hover { background: var(--color-background-secondary); }
+.fc-counter { font-size: 13px; color: var(--color-text-secondary); min-width: 60px; text-align: center; }
+
+.criteria-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.criteria-table th {
+  text-align: left; font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--color-text-secondary);
+  padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-secondary);
+}
+.criteria-table td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); vertical-align: top; color: var(--color-text-primary); line-height: 1.5; }
+.criteria-table tr:last-child td { border-bottom: none; }
+
+.quiz-q { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; line-height: 1.5; }
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1rem; }
+.quiz-opt {
+  padding: 10px 14px; border-radius: var(--border-radius-md, 8px);
+  border: 0.5px solid var(--color-border-tertiary);
+  background: var(--color-background-primary);
+  font-size: 13px; color: var(--color-text-primary);
+  cursor: pointer; transition: all 0.12s; text-align: left;
+}
+.quiz-opt:hover { border-color: var(--color-border-secondary); background: var(--color-background-secondary); }
+.quiz-opt.correct { background: var(--green-50); border-color: var(--green-200); color: var(--green-800); }
+.quiz-opt.wrong { background: var(--coral-50); border-color: var(--coral-200); color: var(--coral-800); }
+.quiz-opt.reveal { background: var(--green-50); border-color: var(--green-200); color: var(--green-800); }
+.quiz-feedback { font-size: 13px; padding: 10px 14px; border-radius: var(--border-radius-md, 8px); margin-bottom: 1rem; line-height: 1.5; }
+.quiz-feedback.correct { background: var(--green-50); color: var(--green-800); }
+.quiz-feedback.wrong { background: var(--coral-50); color: var(--coral-800); }
+.quiz-next { font-size: 13px; padding: 7px 18px; border: 0.5px solid var(--color-border-secondary); border-radius: 6px; background: transparent; cursor: pointer; color: var(--color-text-primary); }
+.quiz-next:hover { background: var(--color-background-secondary); }
+.quiz-score { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; }
+.progress-bar-wrap { height: 4px; background: var(--color-background-secondary); border-radius: 2px; margin-bottom: 1rem; }
+.progress-bar { height: 4px; background: var(--purple-600); border-radius: 2px; transition: width 0.3s; }
+</style>
+
+<div class="wrap">
+  <div class="nav">
+    <button class="nav-btn active" onclick="showSection('overview')">Overview</button>
+    <button class="nav-btn" onclick="showSection('types')">Eval types</button>
+    <button class="nav-btn" onclick="showSection('criteria')">RAG criteria doc</button>
+    <button class="nav-btn" onclick="showSection('flashcards')">Flashcards</button>
+    <button class="nav-btn" onclick="showSection('quiz')">Quiz</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="section active" id="section-overview">
+    <p class="section-title">The eval mindset</p>
+    <div class="highlight-box">
+      <p><strong>Core idea:</strong> Evals are how you turn "I think this works" into "I can prove this works." Without them, you're flying blind — shipping LLM apps on vibes instead of evidence.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">Why evals matter</div>
+        <div class="card-title">Reproducible quality</div>
+        <div class="card-body">LLMs are stochastic. Evals give you a signal that survives prompt tweaks, model swaps, and retrieval changes.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Why evals matter</div>
+        <div class="card-title">Safe iteration</div>
+        <div class="card-body">You can't improve what you can't measure. Evals let you refactor confidently — regressions surface before users see them.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Why evals matter</div>
+        <div class="card-title">Stakeholder trust</div>
+        <div class="card-body">A score card beats a demo. Evals let you communicate quality to PMs, clients, and regulators in concrete terms.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Why evals matter</div>
+        <div class="card-title">Human baseline anchor</div>
+        <div class="card-body">Human-labeled "golden" examples define ground truth. Every automated eval is calibrated against what real humans consider correct.</div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <p class="section-title">What to measure</p>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">Dimension</div>
+        <div class="card-title">Correctness</div>
+        <div class="card-body">Does the answer match the ground truth or reference? Applies to extractive tasks.</div>
+        <div style="margin-top:8px"><span class="pill pill-purple">Exact match</span><span class="pill pill-purple">F1</span><span class="pill pill-purple">ROUGE</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Dimension</div>
+        <div class="card-title">Faithfulness</div>
+        <div class="card-body">Are claims grounded in retrieved context? No hallucinations or fabrications.</div>
+        <div style="margin-top:8px"><span class="pill pill-teal">Entailment check</span><span class="pill pill-teal">LLM judge</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Dimension</div>
+        <div class="card-title">Relevance</div>
+        <div class="card-body">Did retrieval surface the right chunks? Does the response actually answer the question?</div>
+        <div style="margin-top:8px"><span class="pill pill-amber">MRR</span><span class="pill pill-amber">NDCG</span><span class="pill pill-amber">Recall@k</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Dimension</div>
+        <div class="card-title">Completeness</div>
+        <div class="card-body">Does the answer cover all key facets of the question, not just part of it?</div>
+        <div style="margin-top:8px"><span class="pill pill-coral">LLM judge</span><span class="pill pill-coral">Human eval</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Dimension</div>
+        <div class="card-title">Latency & cost</div>
+        <div class="card-body">End-to-end response time and token spend. Quality at unacceptable cost ≠ shipped.</div>
+        <div style="margin-top:8px"><span class="pill pill-blue">P50 / P99</span><span class="pill pill-blue">$/1k queries</span></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Dimension</div>
+        <div class="card-title">Safety / refusals</div>
+        <div class="card-body">Does the system correctly handle out-of-scope, adversarial, or sensitive queries?</div>
+        <div style="margin-top:8px"><span class="pill pill-green">Rejection rate</span><span class="pill pill-green">False positive rate</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TYPES -->
+  <div class="section" id="section-types">
+    <p class="section-title">Three eval types</p>
+    <div class="compare-grid">
+      <div class="compare-card">
+        <div class="compare-header" style="background:var(--purple-50); color:var(--purple-800);">Unit evals</div>
+        <div class="compare-body">
+          <div class="compare-row"><span class="compare-key">What it tests</span><span class="compare-val">Single function / prompt in isolation</span></div>
+          <div class="compare-row"><span class="compare-key">Speed</span><span class="compare-val">Very fast (&lt;1s)</span></div>
+          <div class="compare-row"><span class="compare-key">Scope</span><span class="compare-val">One behavior at a time</span></div>
+          <div class="compare-row"><span class="compare-key">Good for</span><span class="compare-val">Prompt regression, parsing logic</span></div>
+          <div class="compare-row"><span class="compare-key">Example</span><span class="compare-val">"Does this chunk extractor split on sentences?"</span></div>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-header" style="background:var(--teal-50); color:var(--teal-800);">Integration evals</div>
+        <div class="compare-body">
+          <div class="compare-row"><span class="compare-key">What it tests</span><span class="compare-val">Full pipeline end-to-end</span></div>
+          <div class="compare-row"><span class="compare-key">Speed</span><span class="compare-val">Seconds to minutes</span></div>
+          <div class="compare-row"><span class="compare-key">Scope</span><span class="compare-val">Retrieval + generation together</span></div>
+          <div class="compare-row"><span class="compare-key">Good for</span><span class="compare-val">Catching cross-component failures</span></div>
+          <div class="compare-row"><span class="compare-key">Example</span><span class="compare-val">"Given Q, does RAG pipeline return a faithful A?"</span></div>
+        </div>
+      </div>
+      <div class="compare-card">
+        <div class="compare-header" style="background:var(--amber-50); color:var(--amber-800);">LLM-as-judge</div>
+        <div class="compare-body">
+          <div class="compare-row"><span class="compare-key">What it tests</span><span class="compare-val">Subjective quality at scale</span></div>
+          <div class="compare-row"><span class="compare-key">Speed</span><span class="compare-val">Fast but costs tokens</span></div>
+          <div class="compare-row"><span class="compare-key">Scope</span><span class="compare-val">Fluency, helpfulness, tone</span></div>
+          <div class="compare-row"><span class="compare-key">Good for</span><span class="compare-val">Open-ended generation quality</span></div>
+          <div class="compare-row"><span class="compare-key">Example</span><span class="compare-val">"Score this answer 1–5 for faithfulness, explain why"</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <p class="section-title">Human eval baselines</p>
+    <div class="highlight-box">
+      <p><strong>Human evals are the ground truth.</strong> Before automating anything, have real humans label a "golden set" of 50–200 Q&A pairs. These become: (1) your reference answers for automated metrics, (2) calibration data for your LLM judge, and (3) your regression test suite. Without a human baseline, your automated scores are meaningless.</p>
+    </div>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-label">Step 1</div>
+        <div class="card-title">Build golden set</div>
+        <div class="card-body">Diverse, representative queries. Include edge cases, ambiguous inputs, adversarial prompts.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Step 2</div>
+        <div class="card-title">Label carefully</div>
+        <div class="card-body">Define a rubric first. Use inter-annotator agreement (Cohen's κ) to catch label ambiguity.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Step 3</div>
+        <div class="card-title">Calibrate judge</div>
+        <div class="card-body">Validate that your LLM judge agrees with humans ≥80% of the time before trusting it for automated runs.</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Step 4</div>
+        <div class="card-title">Run continuously</div>
+        <div class="card-body">Re-run evals on every significant change: new model, new chunking, new prompt, new retriever.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRITERIA DOC -->
+  <div class="section" id="section-criteria">
+    <p class="section-title">Eval criteria doc — RAG application</p>
+    <div class="highlight-box">
+      <p>This is the structure you would submit as your Week 5 deliverable. Fill in the shaded cells for your specific RAG app.</p>
+    </div>
+    <table class="criteria-table">
+      <thead>
+        <tr>
+          <th style="width:18%">Criterion</th>
+          <th style="width:12%">Type</th>
+          <th style="width:22%">Measurement method</th>
+          <th style="width:18%">Target threshold</th>
+          <th style="width:30%">Notes / failure modes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Retrieval recall</strong></td>
+          <td><span class="pill pill-teal">Integration</span></td>
+          <td>Recall@k — fraction of golden chunks appearing in top-k results</td>
+          <td>Recall@5 ≥ 0.80</td>
+          <td>Low recall = wrong docs retrieved. Check embeddings, chunk size, query rewriting.</td>
+        </tr>
+        <tr>
+          <td><strong>Retrieval precision</strong></td>
+          <td><span class="pill pill-teal">Integration</span></td>
+          <td>Precision@k — fraction of retrieved chunks that are relevant</td>
+          <td>Precision@5 ≥ 0.60</td>
+          <td>Low precision = noisy context. Tune similarity threshold or reranker.</td>
+        </tr>
+        <tr>
+          <td><strong>Faithfulness</strong></td>
+          <td><span class="pill pill-amber">LLM judge</span></td>
+          <td>Judge scores whether every claim in the answer is supported by retrieved context</td>
+          <td>≥ 4.0 / 5.0 avg</td>
+          <td>Main failure: model adds plausible but ungrounded facts. Mitigate with "only use context" instruction.</td>
+        </tr>
+        <tr>
+          <td><strong>Answer relevance</strong></td>
+          <td><span class="pill pill-amber">LLM judge</span></td>
+          <td>Judge scores whether the answer directly addresses the user's query</td>
+          <td>≥ 4.0 / 5.0 avg</td>
+          <td>Failure: answer is technically correct but doesn't answer what was asked.</td>
+        </tr>
+        <tr>
+          <td><strong>Completeness</strong></td>
+          <td><span class="pill pill-amber">LLM judge</span></td>
+          <td>Judge checks if all key aspects of golden answer appear in response</td>
+          <td>≥ 3.5 / 5.0 avg</td>
+          <td>Failure: partial answers that omit critical steps or conditions.</td>
+        </tr>
+        <tr>
+          <td><strong>Exact match / F1</strong></td>
+          <td><span class="pill pill-purple">Unit</span></td>
+          <td>Token-level F1 between model answer and reference answer (for extractive Qs)</td>
+          <td>F1 ≥ 0.70</td>
+          <td>Only valid for questions with a definitive short answer. Not for open-ended generation.</td>
+        </tr>
+        <tr>
+          <td><strong>No-answer accuracy</strong></td>
+          <td><span class="pill pill-purple">Unit</span></td>
+          <td>When context lacks the answer, does model correctly abstain vs hallucinate?</td>
+          <td>Abstain rate ≥ 0.90</td>
+          <td>Critical safety metric. Hallucination on unanswerable Qs is high-risk.</td>
+        </tr>
+        <tr>
+          <td><strong>Latency (P99)</strong></td>
+          <td><span class="pill pill-blue">Integration</span></td>
+          <td>End-to-end wall-clock time from user query to first token (p99)</td>
+          <td>&lt; 3 seconds</td>
+          <td>Profile retrieval vs generation separately to isolate bottleneck.</td>
+        </tr>
+        <tr>
+          <td><strong>Human preference</strong></td>
+          <td><span class="pill pill-coral">Human eval</span></td>
+          <td>Side-by-side A/B rating by annotators; preference rate over baseline</td>
+          <td>≥ 60% preferred</td>
+          <td>Run on 50+ examples. Use as final gatekeeper before shipping changes.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div class="section" id="section-flashcards">
+    <p class="section-title">Flashcards — tap to flip</p>
+    <div class="fc-wrap">
+      <div class="fc-inner" id="fc" onclick="flipCard()">
+        <div class="fc-face fc-front">
+          <div class="fc-q" id="fc-q"></div>
+          <div class="fc-hint">Tap to reveal answer</div>
+        </div>
+        <div class="fc-face fc-back">
+          <div class="fc-a" id="fc-a"></div>
+        </div>
+      </div>
+    </div>
+    <div class="fc-nav">
+      <button onclick="prevCard()">← Prev</button>
+      <span class="fc-counter" id="fc-counter">1 / 8</span>
+      <button onclick="nextCard()">Next →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="section" id="section-quiz">
+    <p class="section-title">Knowledge check</p>
+    <div class="progress-bar-wrap"><div class="progress-bar" id="quiz-progress"></div></div>
+    <div id="quiz-area"></div>
+  </div>
+</div>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+const cards = [
+  { q: "What is the 'eval mindset'?", a: "Treating quality as a measurable, reproducible property — not a vibe. Every change to your LLM system gets verified against a defined test suite before shipping." },
+  { q: "What is a unit eval?", a: "A fast, isolated test of a single component — a prompt, a parser, a retrieval function — with a deterministic expected output. Like unit tests in software engineering." },
+  { q: "What is an integration eval?", a: "An end-to-end test of the full pipeline (retrieval + generation together) on representative queries. Catches cross-component failures unit evals miss." },
+  { q: "What is LLM-as-judge?", a: "Using a capable LLM (e.g. Claude or GPT-4) to score outputs on dimensions like faithfulness, relevance, or completeness — enabling automated quality assessment at scale." },
+  { q: "Why do you need a human eval baseline?", a: "Human labels define ground truth. All automated metrics and LLM judges must be calibrated against human judgments to be meaningful. Without a golden set, your scores are arbitrary." },
+  { q: "What does 'faithfulness' mean in RAG evaluation?", a: "Every claim in the generated answer is traceable to the retrieved context. The model adds no facts beyond what the retrieved documents say." },
+  { q: "What is Recall@k?", a: "The fraction of relevant documents (from the golden set) that appear in the top-k retrieved results. Measures how well retrieval finds the right context." },
+  { q: "What should a RAG eval criteria doc contain?", a: "For each criterion: the metric name, eval type (unit / integration / LLM-judge / human), how it's measured, the target threshold, and notes on failure modes and mitigations." },
+];
+
+let fcIdx = 0;
+function renderCard() {
+  document.getElementById('fc-q').textContent = cards[fcIdx].q;
+  document.getElementById('fc-a').textContent = cards[fcIdx].a;
+  document.getElementById('fc-counter').textContent = (fcIdx+1) + ' / ' + cards.length;
+  document.getElementById('fc').classList.remove('flipped');
+}
+function flipCard() { document.getElementById('fc').classList.toggle('flipped'); }
+function nextCard() { fcIdx = (fcIdx+1) % cards.length; renderCard(); }
+function prevCard() { fcIdx = (fcIdx-1+cards.length) % cards.length; renderCard(); }
+renderCard();
+
+const questions = [
+  { q: "Which eval type is fastest to run?", opts: ["Integration eval", "Unit eval", "LLM-as-judge", "Human eval"], ans: 1, exp: "Unit evals are isolated and deterministic — they run in milliseconds without LLM calls." },
+  { q: "What does 'no-answer accuracy' measure in a RAG system?", opts: ["How many queries get a response", "Whether the model correctly abstains when context lacks the answer", "Token count of responses", "Latency on unanswerable queries"], ans: 1, exp: "When the retrieved context doesn't contain the answer, a well-behaved RAG system should say so, not hallucinate. No-answer accuracy tracks this." },
+  { q: "Why should you validate an LLM judge against human labels?", opts: ["To reduce token costs", "To ensure the judge's scores correlate with human quality judgments", "To speed up evaluation runs", "LLM judges don't need validation"], ans: 1, exp: "An LLM judge is only trustworthy if it agrees with human raters ≥80% of the time. Without calibration, automated scores could diverge from what real users experience." },
+  { q: "Precision@k measures what?", opts: ["Fraction of relevant docs in top-k results", "Fraction of all relevant docs that appear in top-k", "Number of tokens per retrieved chunk", "Latency of retrieval step"], ans: 0, exp: "Precision@k = relevant docs in top-k / k. High precision means little noise in the context sent to the generator." },
+  { q: "What is the primary purpose of a human eval 'golden set'?", opts: ["To replace automated evals entirely", "To reduce annotation cost", "To define ground truth for calibrating all other evals", "To measure latency"], ans: 2, exp: "The golden set is the reference point — it defines what 'correct' looks like. Every other eval (automated metric, LLM judge) is validated against it." },
+];
+
+let qIdx = 0, score = 0, answered = false;
+
+function renderQuiz() {
+  if (qIdx >= questions.length) {
+    document.getElementById('quiz-area').innerHTML = `
+      <div class="card" style="text-align:center; padding: 2rem;">
+        <div class="quiz-score">You scored ${score} / ${questions.length}</div>
+        <div class="card-body" style="margin-bottom:1rem">${score === questions.length ? 'Perfect! You nailed it.' : score >= 3 ? 'Good work — review any you missed.' : 'Keep studying — you\'ve got this.'}</div>
+        <button class="quiz-next" onclick="resetQuiz()">Retake quiz</button>
+      </div>`;
+    document.getElementById('quiz-progress').style.width = '100%';
+    return;
+  }
+  const q = questions[qIdx];
+  document.getElementById('quiz-progress').style.width = Math.round((qIdx/questions.length)*100) + '%';
+  answered = false;
+  document.getElementById('quiz-area').innerHTML = `
+    <div class="quiz-q">${qIdx+1}. ${q.q}</div>
+    <div class="quiz-opts" id="quiz-opts">
+      ${q.opts.map((o,i) => `<button class="quiz-opt" onclick="selectOpt(${i})">${o}</button>`).join('')}
+    </div>
+    <div id="quiz-fb"></div>
+  `;
+}
+
+function selectOpt(i) {
+  if (answered) return;
+  answered = true;
+  const q = questions[qIdx];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts[i].classList.add(i === q.ans ? 'correct' : 'wrong');
+  if (i !== q.ans) opts[q.ans].classList.add('reveal');
+  if (i === q.ans) score++;
+  document.getElementById('quiz-fb').innerHTML = `
+    <div class="quiz-feedback ${i === q.ans ? 'correct' : 'wrong'}">${i === q.ans ? '✓ Correct — ' : '✗ Not quite — '}${q.exp}</div>
+    <button class="quiz-next" onclick="advanceQuiz()">${qIdx+1 < questions.length ? 'Next question' : 'See results'}</button>
+  `;
+}
+
+function advanceQuiz() { qIdx++; renderQuiz(); }
+function resetQuiz() { qIdx = 0; score = 0; renderQuiz(); }
+renderQuiz();
+</script>
