@@ -1,0 +1,696 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:'IBM Plex Sans',sans-serif;
+  --mono:'IBM Plex Mono',monospace;
+  --bg:var(--color-background-primary);
+  --bg2:var(--color-background-secondary);
+  --bg3:var(--color-background-tertiary);
+  --border:var(--color-border-tertiary);
+  --border2:var(--color-border-secondary);
+  --txt:var(--color-text-primary);
+  --txt2:var(--color-text-secondary);
+  --txt3:var(--color-text-tertiary);
+  --pass:#1D9E75;--pass-bg:#E1F5EE;
+  --fail:#E24B4A;--fail-bg:#FCEBEB;
+  --warn:#BA7517;--warn-bg:#FAEEDA;
+  --info:#185FA5;--info-bg:#E6F1FB;
+  --radius:8px;--radius-lg:12px;
+}
+body{font-family:var(--font);color:var(--txt);font-size:14px;line-height:1.5;background:transparent}
+h2{font-size:18px;font-weight:500;color:var(--txt)}
+h3{font-size:15px;font-weight:500;color:var(--txt);margin-bottom:8px}
+
+/* Layout */
+#app{display:flex;flex-direction:column;gap:0;min-height:600px}
+.tab-bar{display:flex;gap:2px;padding:0 0 0 0;border-bottom:0.5px solid var(--border);margin-bottom:20px}
+.tab{padding:8px 16px;border:none;background:transparent;font-family:var(--font);font-size:13px;font-weight:500;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-0.5px;transition:color .15s,border-color .15s}
+.tab:hover{color:var(--txt)}
+.tab.active{color:var(--txt);border-bottom-color:var(--txt)}
+.panel{display:none}.panel.active{display:block}
+
+/* Cards */
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:16px 20px;margin-bottom:12px}
+.card-sm{background:var(--bg2);border-radius:var(--radius);padding:12px 16px;margin-bottom:8px}
+
+/* Metrics row */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.metric{background:var(--bg2);border-radius:var(--radius);padding:12px 14px}
+.metric-val{font-size:22px;font-weight:500;line-height:1.1;margin-bottom:2px}
+.metric-lbl{font-size:12px;color:var(--txt2)}
+.metric.pass .metric-val{color:var(--pass)}
+.metric.fail .metric-val{color:var(--fail)}
+.metric.warn .metric-val{color:var(--warn)}
+.metric.info .metric-val{color:var(--info)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:500;font-family:var(--mono)}
+.badge.pass{background:var(--pass-bg);color:var(--pass)}
+.badge.fail{background:var(--fail-bg);color:var(--fail)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.info{background:var(--info-bg);color:var(--info)}
+.badge.gray{background:var(--bg2);color:var(--txt2)}
+
+/* Test list */
+.test-row{display:grid;grid-template-columns:28px 1fr 56px 56px 80px 80px;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--radius);cursor:pointer;transition:background .12s;border:0.5px solid transparent}
+.test-row:hover{background:var(--bg2)}
+.test-row.selected{background:var(--bg2);border-color:var(--border2)}
+.test-row.running{opacity:.6}
+.test-num{font-family:var(--mono);font-size:12px;color:var(--txt3);text-align:right}
+.test-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.test-cat{font-size:11px;color:var(--txt2)}
+.score-cell{font-family:var(--mono);font-size:13px;font-weight:500;text-align:center}
+.score-cell.pass{color:var(--pass)}
+.score-cell.fail{color:var(--fail)}
+.score-cell.warn{color:var(--warn)}
+.score-cell.pending{color:var(--txt3)}
+.status-cell{display:flex;justify-content:center}
+
+/* Progress bar */
+.prog-track{height:6px;background:var(--bg3);border-radius:3px;overflow:hidden;margin:4px 0}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s ease;background:var(--pass)}
+.prog-fill.warn{background:var(--warn)}
+.prog-fill.fail{background:var(--fail)}
+
+/* Detail pane */
+.detail{background:var(--bg2);border-radius:var(--radius-lg);padding:16px 20px;margin-top:4px}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.detail-block{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.detail-block label{font-size:11px;font-weight:500;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:6px}
+.detail-block p{font-size:13px;color:var(--txt);line-height:1.55}
+.criteria-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.criteria-list li{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--txt2)}
+.crit-dot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.crit-dot.pass{background:var(--pass)}
+.crit-dot.fail{background:var(--fail)}
+.crit-dot.neutral{background:var(--txt3)}
+.reasoning-block{font-family:var(--mono);font-size:12px;color:var(--txt2);line-height:1.6;white-space:pre-wrap;background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px;margin-top:8px;max-height:140px;overflow-y:auto}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:var(--radius);border:0.5px solid var(--border2);background:transparent;font-family:var(--font);font-size:13px;font-weight:500;color:var(--txt);cursor:pointer;transition:background .12s,transform .08s}
+.btn:hover{background:var(--bg2)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--txt);color:var(--bg);border-color:var(--txt)}
+.btn.primary:hover{opacity:.88}
+.btn.danger{border-color:var(--fail);color:var(--fail)}
+.btn.danger:hover{background:var(--fail-bg)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* Spinner */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:14px;height:14px;border:1.5px solid var(--border2);border-top-color:var(--txt2);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+
+/* Regression chart */
+.reg-chart{position:relative;height:110px;margin-top:8px}
+.reg-axis{position:absolute;left:0;bottom:0;width:100%;height:100%;display:flex;align-items:flex-end;gap:6px}
+.reg-bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.reg-bar{width:100%;border-radius:4px 4px 0 0;transition:height .3s ease}
+.reg-bar-val{font-family:var(--mono);font-size:10px;color:var(--txt2)}
+.reg-bar-lbl{font-size:10px;color:var(--txt3);white-space:nowrap}
+.reg-ref-line{position:absolute;left:0;right:0;border-top:1px dashed var(--border2);pointer-events:none}
+.reg-ref-label{position:absolute;right:4px;font-size:10px;color:var(--txt3)}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:11px;font-weight:500;color:var(--txt2);padding:0 10px 8px;border-bottom:0.5px solid var(--border)}
+.tbl td{padding:10px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--bg2)}
+
+/* Diff */
+.diff-pill{display:inline-flex;align-items:center;gap:3px;font-family:var(--mono);font-size:11px;padding:1px 6px;border-radius:3px}
+.diff-pill.up{background:var(--pass-bg);color:var(--pass)}
+.diff-pill.down{background:var(--fail-bg);color:var(--fail)}
+.diff-pill.flat{background:var(--bg2);color:var(--txt3)}
+
+/* Score bar */
+.score-bar{height:4px;border-radius:2px;background:var(--bg3);overflow:hidden}
+.score-bar-fill{height:100%;border-radius:2px}
+
+/* Input */
+textarea{width:100%;font-family:var(--mono);font-size:12px;color:var(--txt);background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:10px 12px;resize:vertical;line-height:1.5;outline:none;transition:border-color .15s}
+textarea:focus{border-color:var(--border2)}
+
+select,input[type=text]{font-family:var(--font);font-size:13px;color:var(--txt);background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:6px 10px;outline:none;transition:border-color .15s}
+select:focus,input[type=text]:focus{border-color:var(--border2)}
+
+.header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.divider{height:0.5px;background:var(--border);margin:16px 0}
+.empty-state{text-align:center;padding:40px 20px;color:var(--txt3);font-size:13px}
+
+.flash{animation:flash .3s ease}
+@keyframes flash{0%{opacity:.5}100%{opacity:1}}
+</style>
+
+<div id="app">
+<div class="tab-bar">
+  <button class="tab active" onclick="switchTab('suite')">Test Suite</button>
+  <button class="tab" onclick="switchTab('run')">Run Eval</button>
+  <button class="tab" onclick="switchTab('regression')">Regression</button>
+  <button class="tab" onclick="switchTab('report')">Report</button>
+</div>
+
+<!-- ========== PANEL: SUITE ========== -->
+<div id="panel-suite" class="panel active">
+  <div class="header-row">
+    <div>
+      <h2>Eval Suite — Ph 223</h2>
+      <p style="font-size:12px;color:var(--txt2);margin-top:3px">10 questions · LLM-as-judge scoring · automated regression</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="switchTab('run')">Run all ↗</button>
+      <button class="btn" onclick="openAddModal()">+ Add question</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+    <div class="metric"><div class="metric-val info" id="suite-total">10</div><div class="metric-lbl">Questions</div></div>
+    <div class="metric"><div class="metric-val" id="suite-cats">5</div><div class="metric-lbl">Categories</div></div>
+    <div class="metric"><div class="metric-val" id="suite-runs">0</div><div class="metric-lbl">Runs completed</div></div>
+  </div>
+
+  <!-- Column headers -->
+  <div style="display:grid;grid-template-columns:28px 1fr 56px 56px 80px 80px;gap:8px;padding:0 14px 6px;font-size:11px;font-weight:500;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em">
+    <span>#</span><span>Question</span><span style="text-align:center">Weight</span><span style="text-align:center">Last</span><span style="text-align:center">Avg</span><span style="text-align:center">Status</span>
+  </div>
+  <div id="suite-list"></div>
+
+  <!-- Detail pane -->
+  <div id="suite-detail" style="display:none"></div>
+</div>
+
+<!-- ========== PANEL: RUN ========== -->
+<div id="panel-run" class="panel">
+  <div class="header-row">
+    <div>
+      <h2>Run Eval</h2>
+      <p style="font-size:12px;color:var(--txt2);margin-top:3px">Runs each question through the model, then judges with Claude</p>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <select id="model-select" onchange="state.runModel=this.value">
+        <option value="claude-sonnet-4-20250514">claude-sonnet-4</option>
+        <option value="claude-haiku-4-5-20251001">claude-haiku-4-5</option>
+      </select>
+      <button class="btn primary" id="run-btn" onclick="runAllEvals()">Run all 10 questions ↗</button>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric pass"><div class="metric-val" id="run-passed">—</div><div class="metric-lbl">Passed</div></div>
+    <div class="metric fail"><div class="metric-val" id="run-failed">—</div><div class="metric-lbl">Failed</div></div>
+    <div class="metric warn"><div class="metric-val" id="run-score">—</div><div class="metric-lbl">Avg score</div></div>
+    <div class="metric info"><div class="metric-val" id="run-time">—</div><div class="metric-lbl">Run time</div></div>
+  </div>
+
+  <!-- Progress -->
+  <div id="run-progress-wrap" style="display:none;margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--txt2);margin-bottom:4px">
+      <span id="run-prog-label">Running…</span>
+      <span id="run-prog-pct">0 / 10</span>
+    </div>
+    <div class="prog-track" style="height:8px"><div class="prog-fill" id="run-prog-bar" style="width:0%"></div></div>
+  </div>
+
+  <div id="run-results"></div>
+</div>
+
+<!-- ========== PANEL: REGRESSION ========== -->
+<div id="panel-regression" class="panel">
+  <div class="header-row">
+    <h2>Regression Detection</h2>
+    <button class="btn" onclick="simulateHistory()">Simulate history ↗</button>
+  </div>
+
+  <div class="metrics">
+    <div class="metric pass"><div class="metric-val" id="reg-baseline">—</div><div class="metric-lbl">Baseline score</div></div>
+    <div class="metric" id="reg-current-card"><div class="metric-val" id="reg-current">—</div><div class="metric-lbl">Current score</div></div>
+    <div class="metric" id="reg-delta-card"><div class="metric-val" id="reg-delta">—</div><div class="metric-lbl">Δ vs baseline</div></div>
+    <div class="metric"><div class="metric-val" id="reg-alerts">0</div><div class="metric-lbl">Regressions</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Score history</h3>
+    <div id="reg-chart-area"><div class="empty-state">No runs yet — run the eval suite or simulate history.</div></div>
+  </div>
+
+  <div class="card" id="reg-alerts-card" style="display:none">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <h3 style="margin-bottom:0">Regression alerts</h3>
+      <span class="badge fail" id="reg-alert-count">0</span>
+    </div>
+    <div id="reg-alerts-list"></div>
+  </div>
+
+  <div class="card">
+    <h3>Per-question trend</h3>
+    <div id="reg-question-trend"><div class="empty-state">Run the suite at least twice to see trends.</div></div>
+  </div>
+</div>
+
+<!-- ========== PANEL: REPORT ========== -->
+<div id="panel-report" class="panel">
+  <div class="header-row">
+    <h2>Report</h2>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="generateReport()">Generate report ↗</button>
+      <button class="btn" onclick="copyReport()" id="copy-btn" disabled>Copy</button>
+    </div>
+  </div>
+  <div id="report-area"><div class="empty-state">Run the eval suite first, then generate a report here.</div></div>
+</div>
+</div>
+
+<!-- Add Modal -->
+<div id="modal-bg" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center">
+  <div style="background:var(--bg);border-radius:var(--radius-lg);padding:24px;width:min(500px,90vw);border:0.5px solid var(--border2)">
+    <h3 style="margin-bottom:16px">Add eval question</h3>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div>
+        <label style="font-size:12px;color:var(--txt2);display:block;margin-bottom:4px">Question prompt</label>
+        <textarea id="modal-prompt" rows="3" placeholder="e.g. Explain the Heisenberg uncertainty principle"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div>
+          <label style="font-size:12px;color:var(--txt2);display:block;margin-bottom:4px">Category</label>
+          <select id="modal-cat" style="width:100%">
+            <option>Concept</option><option>Derivation</option><option>Problem solving</option>
+            <option>Application</option><option>Comparison</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;color:var(--txt2);display:block;margin-bottom:4px">Passing threshold</label>
+          <select id="modal-thresh" style="width:100%">
+            <option value="60">60%</option><option value="70">70%</option>
+            <option value="75" selected>75%</option><option value="80">80%</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--txt2);display:block;margin-bottom:4px">Ideal answer / key criteria</label>
+        <textarea id="modal-ideal" rows="3" placeholder="Describe what a good answer should include…"></textarea>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn" onclick="closeModal()">Cancel</button>
+      <button class="btn primary" onclick="addQuestion()">Add question</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {id:1,prompt:"Explain the Heisenberg uncertainty principle and its physical significance.",category:"Concept",weight:1,threshold:75,ideal:"Should mention conjugate pairs (position/momentum), ℏ/2 bound, wave packet interpretation, not measurement disturbance myth."},
+  {id:2,prompt:"Derive the energy levels of a particle in an infinite square well.",category:"Derivation",weight:2,threshold:80,ideal:"Boundary conditions, standing-wave solutions, quantized k, E_n = n²π²ℏ²/2mL², normalization."},
+  {id:3,prompt:"What is the Born rule? Give the probability interpretation of the wavefunction.",category:"Concept",weight:1,threshold:75,ideal:"|ψ(x)|² is probability density, normalization, ensemble interpretation, connection to measurement."},
+  {id:4,prompt:"Solve the quantum harmonic oscillator using ladder operators.",category:"Derivation",weight:2,threshold:80,ideal:"Define a,a†, [a,a†]=1, H = ℏω(N+½), ground state a|0⟩=0, Gaussian ground state, equally spaced levels."},
+  {id:5,prompt:"Describe the double-slit experiment and what it reveals about quantum mechanics.",category:"Application",weight:1,threshold:70,ideal:"Wave-particle duality, interference pattern, which-path info destroys interference, Copenhagen vs MWI brief mention."},
+  {id:6,prompt:"What is quantum entanglement? How does it differ from classical correlation?",category:"Concept",weight:1,threshold:75,ideal:"Non-separable joint state, EPR paradox, Bell inequalities, no-faster-than-light signaling, not classical correlation."},
+  {id:7,prompt:"Write down the time-independent Schrödinger equation and explain each term.",category:"Concept",weight:1,threshold:75,ideal:"Ĥψ=Eψ, kinetic -ℏ²/2m ∇², potential V(x), eigenvalue equation, stationary states, superposition."},
+  {id:8,prompt:"Explain the concept of spin-½ and how it relates to the Pauli matrices.",category:"Concept",weight:1,threshold:70,ideal:"Two-state system, SU(2), σ_x,σ_y,σ_z, commutation relations, spinors, Stern-Gerlach connection."},
+  {id:9,prompt:"Compare the Copenhagen and Many-Worlds interpretations of quantum mechanics.",category:"Comparison",weight:1,threshold:70,ideal:"Collapse vs branching, role of observer, ontology, both empirically equivalent, Occam's razor debate."},
+  {id:10,prompt:"Describe quantum tunneling and give a real-world application.",category:"Application",weight:1,threshold:70,ideal:"Classically forbidden region, exponential decay of |ψ| inside barrier, transmission probability, alpha decay, STM, tunnel diode."}
+];
+
+const state = {
+  runs:[],
+  runModel:'claude-sonnet-4-20250514',
+  history:[],
+  selected:null,
+  questions:[...QUESTIONS],
+  runCount:0
+};
+
+// ---- Tabs ----
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['suite','run','regression','report'][i]===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+// ---- Suite ----
+function renderSuite(){
+  const list = document.getElementById('suite-list');
+  list.innerHTML = state.questions.map(q=>{
+    const run = state.runs.find(r=>r.id===q.id);
+    const last = run ? run.score : null;
+    const avg = avgForQ(q.id);
+    const status = last===null?'gray':last>=q.threshold?'pass':'fail';
+    const sel = state.selected===q.id;
+    return `<div class="test-row${sel?' selected':''}" onclick="selectQ(${q.id})">
+      <span class="test-num">${q.id}</span>
+      <div><div class="test-name">${q.prompt.length>52?q.prompt.slice(0,52)+'…':q.prompt}</div><div class="test-cat">${q.category}</div></div>
+      <div class="score-cell info" style="font-size:12px">${q.weight}×</div>
+      <div class="score-cell ${last===null?'pending':status}">${last===null?'—':last+'%'}</div>
+      <div class="score-cell ${avg===null?'pending':avg>=q.threshold?'pass':'fail'}">${avg===null?'—':avg+'%'}</div>
+      <div class="status-cell"><span class="badge ${status}">${status==='gray'?'pending':status}</span></div>
+    </div>`;
+  }).join('');
+  document.getElementById('suite-runs').textContent=state.history.length;
+  if(state.selected) renderDetail();
+}
+
+function avgForQ(id){
+  const scores=state.history.map(h=>h.results?.find(r=>r.id===id)?.score).filter(s=>s!=null);
+  return scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null;
+}
+
+function selectQ(id){
+  state.selected=state.selected===id?null:id;
+  renderSuite();
+  const det=document.getElementById('suite-detail');
+  if(!state.selected){det.style.display='none';return;}
+  det.style.display='block';
+  renderDetail();
+}
+
+function renderDetail(){
+  const q=state.questions.find(x=>x.id===state.selected);
+  const run=state.runs.find(r=>r.id===q.id);
+  const det=document.getElementById('suite-detail');
+  const hist=state.history.map(h=>h.results?.find(r=>r.id===q.id)?.score).filter(s=>s!=null);
+  det.innerHTML=`<div class="detail">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div><div class="test-name" style="font-size:14px;margin-bottom:3px">Q${q.id}: ${q.prompt}</div>
+        <div style="display:flex;gap:8px;margin-top:6px">
+          <span class="badge info">${q.category}</span>
+          <span class="badge gray">weight ${q.weight}×</span>
+          <span class="badge gray">threshold ${q.threshold}%</span>
+        </div>
+      </div>
+      ${run?`<span class="badge ${run.score>=q.threshold?'pass':'fail'}" style="font-size:14px;padding:4px 12px">${run.score}%</span>`:''}
+    </div>
+    <div class="detail-grid">
+      <div class="detail-block"><label>Ideal answer criteria</label><p style="font-size:12px;color:var(--txt2)">${q.ideal}</p></div>
+      <div class="detail-block"><label>Score history</label>
+        ${hist.length?`<div style="display:flex;align-items:flex-end;gap:4px;height:48px">${hist.slice(-8).map(s=>{const h=Math.round((s/100)*48);const cl=s>=q.threshold?'var(--pass)':s>=q.threshold-10?'var(--warn)':'var(--fail)';return`<div style="flex:1;height:${h}px;background:${cl};border-radius:3px 3px 0 0;opacity:.8" title="${s}%"></div>`;}).join('')}</div><div style="font-size:11px;color:var(--txt3);margin-top:4px">${hist.length} run(s) · avg ${Math.round(hist.reduce((a,b)=>a+b,0)/hist.length)}%</div>`:'<div style="color:var(--txt3);font-size:12px">No history yet</div>'}
+      </div>
+    </div>
+    ${run&&run.response?`<div style="margin-top:10px"><label style="font-size:11px;font-weight:500;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:6px">Last model response</label><div class="reasoning-block">${esc(run.response.slice(0,500))+(run.response.length>500?'…':'')}</div></div>`:''}
+    ${run&&run.reasoning?`<div style="margin-top:10px"><label style="font-size:11px;font-weight:500;color:var(--txt2);letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:6px">Judge reasoning</label><div class="reasoning-block">${esc(run.reasoning)}</div></div>`:''}
+  </div>`;
+}
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+// ---- Run Eval ----
+async function runAllEvals(){
+  const btn=document.getElementById('run-btn');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span> Running…';
+  state.runs=[];
+  const start=Date.now();
+  const progWrap=document.getElementById('run-progress-wrap');
+  progWrap.style.display='block';
+  const progBar=document.getElementById('run-prog-bar');
+  const progPct=document.getElementById('run-prog-pct');
+  const progLbl=document.getElementById('run-prog-label');
+  document.getElementById('run-results').innerHTML='';
+
+  const resultsDiv=document.getElementById('run-results');
+  let passed=0,failed=0,totalScore=0;
+
+  for(let i=0;i<state.questions.length;i++){
+    const q=state.questions[i];
+    progLbl.textContent=`Scoring Q${q.id}: ${q.prompt.slice(0,40)}…`;
+    progPct.textContent=`${i} / ${state.questions.length}`;
+    progBar.style.width=`${(i/state.questions.length)*100}%`;
+
+    // Step 1: get model response
+    let response='';
+    try{
+      const r=await callClaude(q.prompt,state.runModel);
+      response=r;
+    }catch(e){response='[Error getting response: '+e.message+']';}
+
+    // Step 2: judge
+    let score=0,reasoning='',criteria=[];
+    try{
+      const judgeResult=await judgeResponse(q,response);
+      score=judgeResult.score;
+      reasoning=judgeResult.reasoning;
+      criteria=judgeResult.criteria||[];
+    }catch(e){score=0;reasoning='Judge error: '+e.message;}
+
+    const pass=score>=q.threshold;
+    if(pass)passed++;else failed++;
+    totalScore+=score;
+    state.runs.push({id:q.id,score,response,reasoning,criteria,pass});
+
+    // Render row
+    const row=document.createElement('div');
+    row.className='card-sm flash';
+    row.style.display='grid';
+    row.style.gridTemplateColumns='28px 1fr auto';
+    row.style.alignItems='start';
+    row.style.gap='12px';
+    row.innerHTML=`<span class="badge ${pass?'pass':'fail'}" style="margin-top:2px">Q${q.id}</span>
+    <div>
+      <div style="font-size:12px;font-weight:500;color:var(--txt);margin-bottom:3px">${q.prompt.slice(0,70)}${q.prompt.length>70?'…':''}</div>
+      <div class="reasoning-block" style="margin-top:6px;max-height:70px">${esc(response.slice(0,300)+(response.length>300?'…':''))}</div>
+      ${reasoning?`<div style="font-size:11px;color:var(--txt2);margin-top:5px;font-style:italic">${esc(reasoning.slice(0,120)+(reasoning.length>120?'…':''))}</div>`:''}
+    </div>
+    <div style="text-align:right"><div class="score-cell ${pass?'pass':'fail'}" style="font-size:16px">${score}%</div><div style="font-size:10px;color:var(--txt3);margin-top:2px">threshold ${q.threshold}%</div></div>`;
+    resultsDiv.prepend(row);
+
+    // Update metrics live
+    const avg=Math.round(totalScore/(i+1));
+    document.getElementById('run-passed').textContent=passed;
+    document.getElementById('run-failed').textContent=failed;
+    document.getElementById('run-score').textContent=avg+'%';
+  }
+
+  const elapsed=((Date.now()-start)/1000).toFixed(1)+'s';
+  progBar.style.width='100%';
+  progPct.textContent='10 / 10';
+  progLbl.textContent='Complete';
+  document.getElementById('run-time').textContent=elapsed;
+  state.runCount++;
+  document.getElementById('suite-runs').textContent=state.history.length;
+
+  // Save to history
+  const runResult={
+    timestamp:new Date().toISOString(),
+    model:state.runModel,
+    results:state.runs.map(r=>({id:r.id,score:r.score,pass:r.pass})),
+    avg:Math.round(totalScore/state.questions.length),
+    passed,failed
+  };
+  state.history.push(runResult);
+
+  btn.disabled=false;
+  btn.innerHTML='Run all 10 questions ↗';
+  renderSuite();
+  updateRegressionTab();
+  document.getElementById('copy-btn').disabled=false;
+}
+
+async function callClaude(prompt,model){
+  const sys=`You are an expert physics professor in quantum mechanics (Ph 223 course). Answer the student's question clearly and accurately. Be concise but complete — 3–5 paragraphs maximum.`;
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model,max_tokens:1000,system:sys,messages:[{role:'user',content:prompt}]})});
+  if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||resp.statusText);}
+  const data=await resp.json();
+  return data.content?.filter(b=>b.type==='text').map(b=>b.text).join('') || '';
+}
+
+async function judgeResponse(q,response){
+  const judgePrompt=`You are an expert physics professor evaluating a student or AI response to a quantum mechanics question.
+
+Question: ${q.prompt}
+
+Ideal answer criteria: ${q.ideal}
+
+Model response to evaluate:
+${response}
+
+Score this response from 0 to 100 based on:
+- Correctness and accuracy of physics content (40 points)
+- Coverage of key concepts from the criteria (30 points) 
+- Clarity and depth of explanation (20 points)
+- No significant misconceptions or errors (10 points)
+
+Respond ONLY with valid JSON in this exact format:
+{"score": <integer 0-100>, "reasoning": "<2-3 sentences explaining the score>", "criteria": ["<met criterion 1>", "<met criterion 2>", "MISSING: <missing criterion>"]}`; 
+
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:judgePrompt}]})});
+  if(!resp.ok){const e=await resp.json();throw new Error(e.error?.message||resp.statusText);}
+  const data=await resp.json();
+  const text=data.content?.filter(b=>b.type==='text').map(b=>b.text).join('')||'{}';
+  try{
+    const clean=text.replace(/```json|```/g,'').trim();
+    return JSON.parse(clean);
+  }catch(e){
+    const m=text.match(/"score"\s*:\s*(\d+)/);
+    return{score:m?parseInt(m[1]):50,reasoning:text.slice(0,200),criteria:[]};
+  }
+}
+
+// ---- Regression ----
+function simulateHistory(){
+  const base=[88,82,90,76,85,79,91,84,72,87];
+  for(let run=0;run<4;run++){
+    const noise=(run===3)?-8:0;
+    state.history.push({
+      timestamp:new Date(Date.now()-(4-run)*86400000*3).toISOString(),
+      model:'claude-sonnet-4-20250514',
+      results:state.questions.map((q,i)=>({id:q.id,score:Math.min(100,Math.max(0,base[i]+Math.round((Math.random()-0.5)*12)+noise)),pass:true})),
+      avg:Math.round(base.reduce((a,b)=>a+b,0)/base.length+noise),
+      passed:noise<-5?8:10,failed:noise<-5?2:0
+    });
+  }
+  updateRegressionTab();
+  renderSuite();
+}
+
+function updateRegressionTab(){
+  const h=state.history;
+  if(!h.length) return;
+  const baseline=h[0].avg;
+  const current=h[h.length-1].avg;
+  const delta=current-baseline;
+  document.getElementById('reg-baseline').textContent=baseline+'%';
+  document.getElementById('reg-current').textContent=current+'%';
+  const dc=document.getElementById('reg-current-card');
+  dc.className='metric '+(current>=baseline?'pass':'fail');
+  const deltaEl=document.getElementById('reg-delta');
+  deltaEl.textContent=(delta>=0?'+':'')+delta+'%';
+  const dd=document.getElementById('reg-delta-card');
+  dd.className='metric '+(delta>=0?'pass':'fail');
+
+  // Check regressions (>10% drop on any question)
+  const regressions=[];
+  if(h.length>=2){
+    const prev=h[h.length-2].results;
+    const curr=h[h.length-1].results;
+    curr.forEach(r=>{
+      const p=prev.find(x=>x.id===r.id);
+      if(p&&p.score-r.score>=10) regressions.push({id:r.id,prev:p.score,curr:r.score,drop:p.score-r.score});
+    });
+  }
+  document.getElementById('reg-alerts').textContent=regressions.length;
+  const alertsCard=document.getElementById('reg-alerts-card');
+  if(regressions.length){
+    alertsCard.style.display='block';
+    document.getElementById('reg-alert-count').textContent=regressions.length;
+    document.getElementById('reg-alerts-list').innerHTML=regressions.map(r=>{
+      const q=state.questions.find(x=>x.id===r.id);
+      return`<div class="card-sm" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div><div style="font-size:13px;font-weight:500;color:var(--txt)">Q${r.id}: ${q.prompt.slice(0,55)}…</div><div style="font-size:12px;color:var(--txt2);margin-top:2px">${r.prev}% → ${r.curr}%</div></div>
+        <span class="diff-pill down">-${r.drop}%</span>
+      </div>`;
+    }).join('');
+  }else{alertsCard.style.display='none';}
+
+  // Bar chart
+  const maxH=80;
+  const chartEl=document.getElementById('reg-chart-area');
+  const sliced=h.slice(-8);
+  const minS=Math.min(...sliced.map(r=>r.avg))-5;
+  const maxS=100;
+  const barsHtml=sliced.map((r,i)=>{
+    const h2=Math.max(4,Math.round(((r.avg-minS)/(maxS-minS))*maxH));
+    const cl=r.avg>=80?'var(--pass)':r.avg>=65?'var(--warn)':'var(--fail)';
+    const label=new Date(r.timestamp).toLocaleDateString('en',{month:'short',day:'numeric'});
+    return`<div class="reg-bar-wrap"><div class="reg-bar-val">${r.avg}%</div><div class="reg-bar" style="height:${h2}px;background:${cl}"></div><div class="reg-bar-lbl">${label}</div></div>`;
+  }).join('');
+  const refY=Math.round(((baseline-minS)/(maxS-minS))*maxH);
+  chartEl.innerHTML=`<div style="position:relative;height:${maxH+40}px">
+    <div style="position:absolute;bottom:${refY+20}px;left:0;right:0;border-top:1px dashed var(--border2)"></div>
+    <div style="position:absolute;bottom:${refY+22}px;right:0;font-size:10px;color:var(--txt3)">baseline ${baseline}%</div>
+    <div class="reg-axis" style="position:absolute;bottom:20px;left:0;width:100%">${barsHtml}</div>
+  </div>`;
+
+  // Per-question trend table
+  const trendEl=document.getElementById('reg-question-trend');
+  if(h.length>=2){
+    const rows=state.questions.map(q=>{
+      const scores=h.map(run=>run.results?.find(r=>r.id===q.id)?.score).filter(s=>s!=null);
+      const first=scores[0];const last=scores[scores.length-1];
+      const delta2=last-first;
+      const cl=delta2>=0?'up':'down';
+      const avg=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+      const barW=Math.round((avg/100)*80);
+      const barCl=avg>=q.threshold?'var(--pass)':avg>=q.threshold-10?'var(--warn)':'var(--fail)';
+      return`<tr><td><span class="badge gray">Q${q.id}</span></td><td style="max-width:160px;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${q.prompt.slice(0,45)}…</td><td><div class="score-bar" style="width:80px"><div class="score-bar-fill" style="width:${barW}px;background:${barCl}"></div></div></td><td class="score-cell ${avg>=q.threshold?'pass':'fail'}">${avg}%</td><td><span class="diff-pill ${cl}">${delta2>=0?'+':''}${delta2}%</span></td></tr>`;
+    }).join('');
+    trendEl.innerHTML=`<table class="tbl"><thead><tr><th>#</th><th>Question</th><th>Avg</th><th></th><th>Trend</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+}
+
+// ---- Report ----
+function generateReport(){
+  const h=state.history;
+  if(!h.length){document.getElementById('report-area').innerHTML='<div class="empty-state">No run data — complete at least one eval run first.</div>';return;}
+  const latest=h[h.length-1];
+  const avg=latest.avg;
+  const status=avg>=80?'PASS':avg>=70?'WARN':'FAIL';
+  const statusCl=avg>=80?'pass':avg>=70?'warn':'fail';
+  const regressions=h.length>=2?checkRegressions(h):[]; 
+  const ts=new Date(latest.timestamp).toLocaleString();
+  const model=latest.model||'unknown';
+
+  const rowsHtml=state.questions.map(q=>{
+    const r=latest.results?.find(x=>x.id===q.id);
+    if(!r) return '';
+    const pass=r.score>=q.threshold;
+    return`<tr><td><span class="badge gray">Q${q.id}</span></td><td style="font-size:12px;max-width:200px">${q.prompt.slice(0,55)}…</td><td><span class="badge ${q.category==='Concept'?'info':q.category==='Derivation'?'warn':'gray'}">${q.category}</span></td><td class="score-cell ${pass?'pass':'fail'}">${r.score}%</td><td style="font-size:12px;color:var(--txt2)">${q.threshold}%</td><td><span class="badge ${pass?'pass':'fail'}">${pass?'pass':'fail'}</span></td></tr>`;
+  }).join('');
+
+  document.getElementById('report-area').innerHTML=`<div class="card">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px">
+      <div><h3 style="font-size:16px;margin-bottom:4px">Ph 223 Eval Report</h3>
+        <div style="font-size:12px;color:var(--txt2)">Generated ${ts} · Model: <code style="font-size:11px">${model}</code></div>
+      </div>
+      <span class="badge ${statusCl}" style="font-size:15px;padding:6px 14px">${status} · ${avg}%</span>
+    </div>
+    <div class="metrics" style="grid-template-columns:repeat(4,1fr);margin-bottom:0">
+      <div class="metric pass"><div class="metric-val">${latest.passed}</div><div class="metric-lbl">Passed</div></div>
+      <div class="metric fail"><div class="metric-val">${latest.failed}</div><div class="metric-lbl">Failed</div></div>
+      <div class="metric warn"><div class="metric-val">${avg}%</div><div class="metric-lbl">Avg score</div></div>
+      <div class="metric ${regressions.length?'fail':'pass'}"><div class="metric-val">${regressions.length}</div><div class="metric-lbl">Regressions</div></div>
+    </div>
+    <div class="divider"></div>
+    ${regressions.length?`<div style="background:var(--fail-bg);border:0.5px solid var(--fail);border-radius:var(--radius);padding:12px;margin-bottom:12px"><div style="font-weight:500;color:var(--fail);font-size:13px;margin-bottom:6px">Regressions detected</div>${regressions.map(r=>{const q=state.questions.find(x=>x.id===r.id);return`<div style="font-size:12px;color:var(--txt);margin-bottom:2px">Q${r.id}: ${q.prompt.slice(0,50)}… — dropped ${r.drop}% (${r.prev}%→${r.curr}%)</div>`;}).join('')}</div>`:''}
+    <table class="tbl"><thead><tr><th>#</th><th>Question</th><th>Category</th><th>Score</th><th>Threshold</th><th>Result</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+    <div class="divider"></div>
+    <div style="font-size:12px;color:var(--txt2)"><strong style="font-weight:500;color:var(--txt)">Scoring method:</strong> LLM-as-judge (Claude) evaluates each response on correctness (40 pts), criteria coverage (30 pts), clarity (20 pts), and absence of misconceptions (10 pts). Weighted pass threshold applied per question.</div>
+  </div>`;
+  document.getElementById('copy-btn').disabled=false;
+}
+
+function checkRegressions(h){
+  if(h.length<2) return[];
+  const prev=h[h.length-2].results;const curr=h[h.length-1].results;
+  return curr.filter(r=>{const p=prev.find(x=>x.id===r.id);return p&&p.score-r.score>=10;}).map(r=>{const p=prev.find(x=>x.id===r.id);return{id:r.id,prev:p.score,curr:r.score,drop:p.score-r.score};});
+}
+
+function copyReport(){
+  const el=document.getElementById('report-area');
+  const text=el.innerText||el.textContent;
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const btn=document.getElementById('copy-btn');
+  btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500);
+}
+
+// ---- Add question modal ----
+function openAddModal(){
+  document.getElementById('modal-bg').style.display='flex';
+}
+function closeModal(){
+  document.getElementById('modal-bg').style.display='none';
+}
+function addQuestion(){
+  const prompt=document.getElementById('modal-prompt').value.trim();
+  const ideal=document.getElementById('modal-ideal').value.trim();
+  if(!prompt){alert('Enter a question prompt.');return;}
+  const id=state.questions.length+1;
+  state.questions.push({id,prompt,category:document.getElementById('modal-cat').value,weight:1,threshold:parseInt(document.getElementById('modal-thresh').value),ideal:ideal||'No ideal answer specified.'});
+  document.getElementById('suite-total').textContent=state.questions.length;
+  closeModal();
+  renderSuite();
+}
+
+// ---- Init ----
+renderSuite();
+</script>

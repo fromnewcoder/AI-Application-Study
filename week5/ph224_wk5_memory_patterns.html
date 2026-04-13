@@ -1,0 +1,313 @@
+
+<style>
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font-sans)}
+  .tabs{display:flex;gap:4px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem}
+  .tab{padding:8px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.active{color:var(--color-text-primary);border-bottom:2px solid var(--color-text-primary);font-weight:500}
+  .page{display:none}.page.active{display:block}
+  .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+  .pattern-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
+  .pattern-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;border:0.5px solid var(--color-border-tertiary)}
+  .pattern-card.highlight{border-color:#1D9E75;background:#E1F5EE}
+  .badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:var(--border-radius-md);margin-bottom:6px}
+  .badge-teal{background:#9FE1CB;color:#085041}
+  .badge-gray{background:#D3D1C7;color:#444441}
+  .badge-blue{background:#B5D4F4;color:#0C447C}
+  .badge-amber{background:#FAC775;color:#633806}
+  .label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+  .value{font-size:14px;color:var(--color-text-primary)}
+  .tradeoff-row{display:flex;gap:12px;margin-bottom:8px;align-items:flex-start}
+  .pro{color:#085041;font-size:13px}.con{color:#A32D2D;font-size:13px}
+  .icon{font-size:14px;margin-right:4px;width:16px;display:inline-block}
+  .chat-area{height:320px;overflow-y:auto;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px;margin-bottom:12px;border:0.5px solid var(--color-border-tertiary)}
+  .msg{margin-bottom:10px;display:flex;gap:8px;align-items:flex-start}
+  .msg-role{font-size:11px;font-weight:500;white-space:nowrap;padding-top:2px;min-width:48px}
+  .msg-user .msg-role{color:#185FA5}
+  .msg-assistant .msg-role{color:#3C3489}
+  .msg-system .msg-role{color:#854F0B;font-style:italic}
+  .msg-text{font-size:13px;line-height:1.6;color:var(--color-text-primary)}
+  .input-row{display:flex;gap:8px}
+  .input-row input{flex:1;padding:8px 12px;font-size:14px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
+  .input-row button{padding:8px 16px;font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
+  .input-row button:hover{background:var(--color-background-secondary)}
+  .summary-box{background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:var(--border-radius-md);padding:10px 14px;margin-bottom:12px;font-size:12px;color:#085041;line-height:1.5}
+  .summary-label{font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;color:#0F6E56}
+  .meta-row{display:flex;gap:12px;margin-bottom:12px}
+  .meta-pill{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 10px;font-size:12px;color:var(--color-text-secondary)}
+  .meta-pill span{color:var(--color-text-primary);font-weight:500}
+  .code-block{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px;font-family:var(--font-mono);font-size:12px;line-height:1.7;color:var(--color-text-primary);overflow-x:auto;white-space:pre;margin-bottom:1rem}
+  .step-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;margin:1rem 0 6px}
+  .clear-btn{font-size:12px;color:#A32D2D;border:none;background:none;cursor:pointer;padding:0;margin-left:auto;display:block}
+  .thinking{color:var(--color-text-secondary);font-style:italic;font-size:13px}
+  h3{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:8px}
+  p{font-size:14px;line-height:1.7;color:var(--color-text-secondary);margin-bottom:8px}
+  ul{padding-left:18px;margin-bottom:8px}
+  li{font-size:14px;line-height:1.8;color:var(--color-text-secondary)}
+</style>
+
+<h2 class="sr-only">Week 5 — Memory Patterns in LLM Chatbots: interactive reference and summarisation memory lab</h2>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('theory')">Theory</button>
+  <button class="tab" onclick="showPage('lab')">Lab: summarisation memory</button>
+  <button class="tab" onclick="showPage('code')">Code walkthrough</button>
+</div>
+
+<div id="theory" class="page active">
+  <div class="pattern-grid">
+    <div class="pattern-card">
+      <span class="badge badge-gray">1</span>
+      <h3>In-context memory</h3>
+      <p>Raw conversation history appended to every prompt. Simple, zero extra work.</p>
+      <div class="tradeoff-row">
+        <div class="pro"><span class="icon">+</span>Exact recall, trivial to implement</div>
+      </div>
+      <div class="tradeoff-row">
+        <div class="con"><span class="icon">−</span>Hits token limit fast; cost grows linearly</div>
+      </div>
+    </div>
+    <div class="pattern-card highlight">
+      <span class="badge badge-teal">2 ← Lab focus</span>
+      <h3>Summarisation memory</h3>
+      <p>After N turns, compress older messages into a rolling summary. Keep recent turns verbatim.</p>
+      <div class="tradeoff-row">
+        <div class="pro"><span class="icon">+</span>Bounded token usage; long conversations</div>
+      </div>
+      <div class="tradeoff-row">
+        <div class="con"><span class="icon">−</span>Detail loss on summarised turns</div>
+      </div>
+    </div>
+    <div class="pattern-card">
+      <span class="badge badge-blue">3</span>
+      <h3>Entity memory</h3>
+      <p>Extract named entities (people, places, facts) and maintain a structured entity store.</p>
+      <div class="tradeoff-row">
+        <div class="pro"><span class="icon">+</span>Precise recall of facts about specific entities</div>
+      </div>
+      <div class="tradeoff-row">
+        <div class="con"><span class="icon">−</span>Extraction errors; engineering complexity</div>
+      </div>
+    </div>
+    <div class="pattern-card">
+      <span class="badge badge-amber">4</span>
+      <h3>External stores (Redis)</h3>
+      <p>Persist memory outside the model — vector DB, Redis, or SQL. Retrieve relevant chunks at query time.</p>
+      <div class="tradeoff-row">
+        <div class="pro"><span class="icon">+</span>Unlimited history; multi-session; multi-user</div>
+      </div>
+      <div class="tradeoff-row">
+        <div class="con"><span class="icon">−</span>Infrastructure overhead; retrieval quality</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>How summarisation memory works</h3>
+    <div style="display:flex;gap:32px;margin-top:8px;flex-wrap:wrap">
+      <div style="flex:1;min-width:200px">
+        <div class="step-label">Each turn</div>
+        <p>Append the new user/assistant pair to a <code>recentTurns</code> buffer.</p>
+        <div class="step-label">After threshold (e.g. 6 turns)</div>
+        <p>Send the oldest half to the model with a "summarise this" prompt. Store the result as <code>rollingSum</code>. Drop those messages.</p>
+        <div class="step-label">System prompt injection</div>
+        <p>Prepend <code>rollingSum</code> to every new call as part of the system message. The model sees: summary + recent turns.</p>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div class="step-label">Token budget comparison</div>
+        <div style="margin-top:4px">
+          <div style="margin-bottom:8px">
+            <div class="label">In-context (10 turns)</div>
+            <div style="height:12px;background:#D3D1C7;border-radius:4px;width:100%"></div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">~4 000 tokens</div>
+          </div>
+          <div>
+            <div class="label">Summarisation (10 turns)</div>
+            <div style="height:12px;background:#5DCAA5;border-radius:4px;width:55%"></div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:2px">~2 200 tokens</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="lab" class="page">
+  <p style="margin-bottom:1rem">Chat with the bot below. After every <strong>4 turns</strong> the older half gets compressed into a rolling summary. Watch the summary panel update in real time.</p>
+
+  <div id="summarySection" style="display:none">
+    <div class="summary-box">
+      <div class="summary-label">Rolling summary</div>
+      <div id="summaryText"></div>
+    </div>
+  </div>
+
+  <div class="meta-row">
+    <div class="meta-pill">Turns: <span id="turnCount">0</span></div>
+    <div class="meta-pill">Recent in context: <span id="recentCount">0</span></div>
+    <div class="meta-pill">Summary: <span id="hasSummary">none</span></div>
+    <button class="clear-btn" onclick="resetChat()">Reset conversation</button>
+  </div>
+
+  <div class="chat-area" id="chatArea"></div>
+
+  <div class="input-row">
+    <input id="userInput" type="text" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendMsg()">
+    <button onclick="sendMsg()">Send ↗</button>
+  </div>
+</div>
+
+<div id="code" class="page">
+  <h3 style="margin-bottom:8px">Core logic — annotated</h3>
+  <p>Three variables drive everything:</p>
+
+  <div class="code-block">// State
+let recentTurns = [];   // verbatim recent messages
+let rollingSum  = "";   // compressed older context
+const THRESHOLD = 4;    // summarise when recentTurns.length >= this
+const KEEP      = 2;    // keep this many recent turns after summarising</div>
+
+  <div class="step-label">Sending a message</div>
+  <div class="code-block">async function chat(userText) {
+  recentTurns.push({ role:"user", content: userText });
+
+  // Build system message — inject summary if we have one
+  const systemMsg = rollingSum
+    ? `You are a helpful assistant.\n\nConversation so far (summary):\n${rollingSum}`
+    : "You are a helpful assistant.";
+
+  const response = await callClaude(systemMsg, recentTurns);
+  recentTurns.push({ role:"assistant", content: response });
+
+  // Trigger summarisation if threshold reached
+  if (recentTurns.length >= THRESHOLD) await summarise();
+
+  return response;
+}</div>
+
+  <div class="step-label">Summarisation step</div>
+  <div class="code-block">async function summarise() {
+  // Split: compress everything except the last KEEP pairs
+  const toCompress = recentTurns.slice(0, -KEEP);
+  recentTurns      = recentTurns.slice(-KEEP);
+
+  const prevContext = rollingSum
+    ? `Previous summary:\n${rollingSum}\n\n`
+    : "";
+
+  const prompt = prevContext +
+    "New conversation segment:\n" +
+    toCompress.map(m => `${m.role}: ${m.content}`).join("\n") +
+    "\n\nWrite a concise summary that preserves key facts, decisions, and names.";
+
+  rollingSum = await callClaude("You are a summariser.", [
+    { role:"user", content: prompt }
+  ]);
+}</div>
+
+  <div class="step-label">Key insight</div>
+  <div class="card" style="margin-top:4px">
+    <p>The rolling summary is <strong>cumulative</strong> — when you summarise again, you pass the <em>old</em> summary + the new segment. This prevents info loss across multiple compression rounds.</p>
+  </div>
+</div>
+
+<script>
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+let recentTurns=[];
+let rollingSum="";
+let totalTurns=0;
+const THRESHOLD=4;
+const KEEP=2;
+
+function updateMeta(){
+  document.getElementById('turnCount').textContent=totalTurns;
+  document.getElementById('recentCount').textContent=recentTurns.length;
+  document.getElementById('hasSummary').textContent=rollingSum?'yes':'none';
+  if(rollingSum){
+    document.getElementById('summarySection').style.display='block';
+    document.getElementById('summaryText').textContent=rollingSum;
+  }
+}
+
+function addMsg(role,text,cls){
+  const area=document.getElementById('chatArea');
+  const d=document.createElement('div');
+  d.className='msg msg-'+(cls||role);
+  d.innerHTML=`<span class="msg-role">${role==='user'?'You':role==='assistant'?'Claude':role}</span><span class="msg-text">${text}</span>`;
+  area.appendChild(d);
+  area.scrollTop=area.scrollHeight;
+  return d;
+}
+
+function resetChat(){
+  recentTurns=[];rollingSum="";totalTurns=0;
+  document.getElementById('chatArea').innerHTML='';
+  document.getElementById('summarySection').style.display='none';
+  updateMeta();
+}
+
+async function callClaude(system,messages){
+  const r=await fetch("https://api.anthropic.com/v1/messages",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system,messages})
+  });
+  const d=await r.json();
+  return d.content?.[0]?.text||"(no response)";
+}
+
+async function summarise(){
+  const toCompress=recentTurns.slice(0,-KEEP);
+  recentTurns=recentTurns.slice(-KEEP);
+  const prevCtx=rollingSum?`Previous summary:\n${rollingSum}\n\n`:"";
+  const prompt=prevCtx+"New conversation segment:\n"+
+    toCompress.map(m=>`${m.role}: ${m.content}`).join("\n")+
+    "\n\nWrite a concise summary that preserves key facts, decisions, names, and preferences mentioned.";
+  const thinking=addMsg('system','Summarising older turns…','system');
+  rollingSum=await callClaude("You are a concise summariser. Return only the summary, no preamble.",[{role:"user",content:prompt}]);
+  thinking.remove();
+  addMsg('system','Summary updated — older turns compressed','system');
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('userInput');
+  const text=inp.value.trim();
+  if(!text)return;
+  inp.value='';
+  addMsg('user',text);
+  recentTurns.push({role:"user",content:text});
+  totalTurns++;
+  updateMeta();
+
+  const system=rollingSum
+    ?"You are a helpful assistant.\n\nEarlier conversation (summary):\n"+rollingSum
+    :"You are a helpful assistant.";
+
+  const thinking=addMsg('assistant','…','assistant');
+  thinking.querySelector('.msg-text').classList.add('thinking');
+
+  let reply;
+  try{
+    reply=await callClaude(system,recentTurns);
+  }catch(e){
+    reply="API error: "+e.message;
+  }
+  thinking.querySelector('.msg-text').classList.remove('thinking');
+  thinking.querySelector('.msg-text').textContent=reply;
+  recentTurns.push({role:"assistant",content:reply});
+  totalTurns++;
+  updateMeta();
+
+  if(recentTurns.length>=THRESHOLD){
+    await summarise();
+    updateMeta();
+  }
+}
+</script>
