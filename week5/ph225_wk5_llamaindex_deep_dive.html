@@ -1,0 +1,349 @@
+
+<style>
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  .tabs{display:flex;gap:4px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem;flex-wrap:wrap}
+  .tab{padding:8px 14px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+  .tab.active{color:var(--color-text-primary);border-bottom:2px solid var(--color-text-primary);font-weight:500}
+  .page{display:none}.page.active{display:block}
+  .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+  .surface{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.875rem 1rem;margin-bottom:.75rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1rem}
+  .badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px;margin-bottom:5px}
+  .b-purple{background:#CECBF6;color:#3C3489}
+  .b-teal{background:#9FE1CB;color:#085041}
+  .b-amber{background:#FAC775;color:#633806}
+  .b-coral{background:#F5C4B3;color:#712B13}
+  .b-blue{background:#B5D4F4;color:#0C447C}
+  .b-green{background:#C0DD97;color:#27500A}
+  .b-winner{background:#1D9E75;color:#fff;font-size:10px;padding:2px 7px}
+  h3{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px}
+  p,li{font-size:13px;line-height:1.7;color:var(--color-text-secondary)}
+  ul{padding-left:16px;margin-bottom:6px}
+  code{font-family:var(--font-mono);font-size:12px;background:var(--color-background-secondary);padding:1px 5px;border-radius:4px;color:var(--color-text-primary)}
+  .step-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;margin:1rem 0 5px}
+  .codebox{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;font-family:var(--font-mono);font-size:12px;line-height:1.7;color:var(--color-text-primary);overflow-x:auto;white-space:pre;margin-bottom:1rem}
+  .pro{color:#085041;font-size:12px;margin-top:4px}
+  .con{color:#A32D2D;font-size:12px}
+  .vs-row{display:grid;grid-template-columns:1fr 36px 1fr;gap:8px;align-items:start;margin-bottom:10px}
+  .vs-label{font-size:11px;font-weight:500;text-align:center;padding:4px 0;border-radius:4px;background:var(--color-background-secondary);color:var(--color-text-secondary)}
+  .vs-cell{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 10px;font-size:12px;color:var(--color-text-secondary);line-height:1.6}
+  .vs-mid{display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--color-text-tertiary);font-weight:500;padding-top:6px}
+  .winner-cell{border:1px solid #1D9E75;background:#E1F5EE}
+  .winner-cell p,.winner-cell li{color:#085041}
+  .flow-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .flow-box{padding:5px 12px;border-radius:var(--border-radius-md);font-size:12px;font-weight:500;border:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);color:var(--color-text-primary);white-space:nowrap}
+  .flow-arr{color:var(--color-text-tertiary);font-size:14px}
+  .index-btn{padding:5px 10px;font-size:12px;cursor:pointer;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary);margin:3px}
+  .index-btn.active,.index-btn:hover{background:var(--color-background-secondary)}
+  .detail-panel{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 14px;min-height:80px;font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+  button{padding:7px 14px;font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
+  button:hover{background:var(--color-background-secondary)}
+</style>
+
+<h2 class="sr-only">Week 5 Ph225 — LlamaIndex deep dive: index types, query engines, routers, and LangChain comparison for RAG</h2>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('indexes',event)">Index types</button>
+  <button class="tab" onclick="show('qe',event)">Query engines</button>
+  <button class="tab" onclick="show('routers',event)">Routers</button>
+  <button class="tab" onclick="show('compare',event)">vs LangChain</button>
+  <button class="tab" onclick="show('snippets',event)">Code snippets</button>
+</div>
+
+<div id="indexes" class="page active">
+  <p style="margin-bottom:12px">Click an index type to see when to use it and what it stores internally.</p>
+  <div style="margin-bottom:12px;display:flex;flex-wrap:wrap">
+    <button class="index-btn active" onclick="showIndex('vector',this)">VectorStoreIndex</button>
+    <button class="index-btn" onclick="showIndex('summary',this)">SummaryIndex</button>
+    <button class="index-btn" onclick="showIndex('keyword',this)">KeywordTableIndex</button>
+    <button class="index-btn" onclick="showIndex('kg',this)">KnowledgeGraphIndex</button>
+    <button class="index-btn" onclick="showIndex('tree',this)">TreeIndex</button>
+  </div>
+  <div class="detail-panel" id="index-detail"></div>
+
+  <div class="step-label" style="margin-top:1.2rem">How all indexes share the same build/query interface</div>
+  <div class="flow-row">
+    <div class="flow-box">Documents</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489">SimpleNodeParser</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489">Index.from_documents()</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box" style="background:#E1F5EE;border-color:#5DCAA5;color:#085041">as_query_engine()</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">Response</div>
+  </div>
+  <p style="margin-top:6px">The pipeline is identical regardless of index type — only the internal retrieval strategy differs. Swapping index type is a one-line change.</p>
+</div>
+
+<div id="qe" class="page">
+  <div class="grid2">
+    <div class="surface">
+      <span class="badge b-purple">RetrieverQueryEngine</span>
+      <h3>Standard retrieval</h3>
+      <p>Retrieves top-k nodes by similarity, feeds them to an LLM for synthesis. The default. Use for most Q&A.</p>
+      <div class="codebox" style="margin-top:8px">engine = index.as_query_engine(
+  similarity_top_k=5,
+  response_mode="compact"
+)</div>
+    </div>
+    <div class="surface">
+      <span class="badge b-teal">CitationQueryEngine</span>
+      <h3>With source citations</h3>
+      <p>Wraps each retrieved node in a citation. The LLM is prompted to reference sources by number — great for auditable answers.</p>
+      <div class="codebox" style="margin-top:8px">from llama_index.core.query_engine import (
+  CitationQueryEngine)
+engine = CitationQueryEngine.from_args(
+  index, similarity_top_k=5)</div>
+    </div>
+  </div>
+  <div class="grid2">
+    <div class="surface">
+      <span class="badge b-amber">SubQuestionQueryEngine</span>
+      <h3>Decompose complex queries</h3>
+      <p>Breaks a hard question into sub-questions, runs each against a separate index, then synthesises. Ideal for multi-document comparison.</p>
+    </div>
+    <div class="surface">
+      <span class="badge b-coral">TransformQueryEngine</span>
+      <h3>Query transformation</h3>
+      <p>Wraps any engine with a pre-processor (HyDE, step-back prompting, query rewriting) before hitting the underlying retriever.</p>
+    </div>
+  </div>
+
+  <div class="step-label">Response modes</div>
+  <div class="grid3">
+    <div class="surface" style="margin-bottom:0">
+      <code>compact</code>
+      <p style="margin-top:4px">Stuffs as many nodes as fit into one LLM call. Fast, cheap.</p>
+    </div>
+    <div class="surface" style="margin-bottom:0">
+      <code>refine</code>
+      <p style="margin-top:4px">Iterates through nodes, refining the answer. Higher quality, more calls.</p>
+    </div>
+    <div class="surface" style="margin-bottom:0">
+      <code>tree_summarize</code>
+      <p style="margin-top:4px">Recursively merges node summaries. Best for large context / summaries.</p>
+    </div>
+  </div>
+</div>
+
+<div id="routers" class="page">
+  <p style="margin-bottom:12px">A <strong style="font-weight:500;color:var(--color-text-primary)">router</strong> sits in front of multiple query engines or retrievers and picks which one(s) to call based on the query. This is LlamaIndex's answer to multi-index RAG.</p>
+
+  <div class="grid2">
+    <div class="surface">
+      <span class="badge b-purple">RouterQueryEngine</span>
+      <h3>Single best match</h3>
+      <p>Selects exactly one query engine from a list. The LLM reads tool descriptions and picks the most relevant. Equivalent to an intent classifier backed by the LLM.</p>
+      <div class="pro">+ Fast, one retrieval path</div>
+      <div class="con">− Wrong if query spans multiple indexes</div>
+    </div>
+    <div class="surface">
+      <span class="badge b-teal">SelectorQueryEngine</span>
+      <h3>Multi-select</h3>
+      <p>Can select multiple engines and merge results. Use when a query legitimately draws from more than one data source (e.g. "compare our Q3 report vs analyst notes").</p>
+      <div class="pro">+ Handles cross-index queries</div>
+      <div class="con">− More LLM calls, harder to synthesise</div>
+    </div>
+  </div>
+
+  <div class="step-label">Router setup pattern</div>
+  <div class="codebox">from llama_index.core.query_engine import RouterQueryEngine
+from llama_index.core.selectors import LLMSingleSelector
+from llama_index.core.tools import QueryEngineTool
+
+tools = [
+    QueryEngineTool.from_defaults(
+        query_engine=vector_engine,
+        description="Useful for specific factual questions"
+    ),
+    QueryEngineTool.from_defaults(
+        query_engine=summary_engine,
+        description="Useful for summarising large documents"
+    ),
+]
+
+router = RouterQueryEngine(
+    selector=LLMSingleSelector.from_defaults(),
+    query_engine_tools=tools,
+)</div>
+
+  <div class="step-label" style="margin-top:.5rem">How the selector works at query time</div>
+  <div class="flow-row">
+    <div class="flow-box">User query</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489">LLM reads tool descriptions</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box" style="background:#EEEDFE;border-color:#AFA9EC;color:#3C3489">Selects tool index(es)</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box" style="background:#E1F5EE;border-color:#5DCAA5;color:#085041">Chosen engine(s) run</div>
+    <div class="flow-arr">→</div>
+    <div class="flow-box">Synthesised response</div>
+  </div>
+</div>
+
+<div id="compare" class="page">
+  <p style="margin-bottom:12px;font-size:13px;color:var(--color-text-secondary)">Both frameworks build RAG pipelines. The differences are architectural philosophy, not capability. Green border = better fit for that criterion.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 36px 1fr;gap:6px;margin-bottom:6px">
+    <div class="vs-label" style="background:#EEEDFE;color:#3C3489">LlamaIndex</div>
+    <div></div>
+    <div class="vs-label" style="background:#E1F5EE;color:#085041">LangChain</div>
+  </div>
+
+  <div class="vs-row">
+    <div class="vs-cell winner-cell"><p><strong style="color:#085041;font-weight:500">RAG-first design</strong> — every primitive (index, retriever, query engine) is purpose-built for document Q&A. Less setup friction for RAG use cases.</p></div>
+    <div class="vs-mid">RAG</div>
+    <div class="vs-cell"><p>RAG is one of many use cases. More boilerplate to assemble the same pipeline — but extremely flexible.</p></div>
+  </div>
+
+  <div class="vs-row">
+    <div class="vs-cell"><p>Index types are first-class citizens: swap <code>VectorStoreIndex</code> for <code>KnowledgeGraphIndex</code> in one line. Easy multi-index routing.</p></div>
+    <div class="vs-mid">Indexes</div>
+    <div class="vs-cell winner-cell"><p><strong style="color:#085041;font-weight:500">More vector store integrations</strong> (Pinecone, Weaviate, Chroma, Qdrant, Milvus…). Better for teams already invested in a specific store.</p></div>
+  </div>
+
+  <div class="vs-row">
+    <div class="vs-cell winner-cell"><p><strong style="color:#085041;font-weight:500">Query engines are composable</strong> — SubQuestion, Citation, Transform all wrap each other cleanly. Router pattern is built-in.</p></div>
+    <div class="vs-mid">Query logic</div>
+    <div class="vs-cell"><p>Chains and agents are more powerful but require more explicit wiring. LCEL (LangChain Expression Language) is expressive but has a learning curve.</p></div>
+  </div>
+
+  <div class="vs-row">
+    <div class="vs-cell"><p>Agents exist (<code>ReActAgent</code>) but tool ecosystem is narrower. Best for retrieval-centric agents.</p></div>
+    <div class="vs-mid">Agents</div>
+    <div class="vs-cell winner-cell"><p><strong style="color:#085041;font-weight:500">Richer agent ecosystem</strong> — LangGraph for stateful agents, broader tool integrations (SQL, APIs, Python REPL, web search).</p></div>
+  </div>
+
+  <div class="vs-row">
+    <div class="vs-cell"><p>LlamaTrace / Arize for observability. Logging is straightforward.</p></div>
+    <div class="vs-mid">Observability</div>
+    <div class="vs-cell winner-cell"><p><strong style="color:#085041;font-weight:500">LangSmith</strong> is best-in-class for tracing, evaluation, and prompt management. Significant advantage in production.</p></div>
+  </div>
+
+  <div class="vs-row">
+    <div class="vs-cell winner-cell"><p><strong style="color:#085041;font-weight:500">Cleaner abstractions for RAG</strong> — fewer concepts to learn before being productive. Node parsers, postprocessors, and response synthesisers map directly to RAG stages.</p></div>
+    <div class="vs-mid">DX</div>
+    <div class="vs-cell"><p>Steeper initial curve. Pays off with more control over complex pipelines and agent behaviour.</p></div>
+  </div>
+
+  <div class="card" style="margin-top:4px">
+    <h3 style="margin-bottom:6px">Decision rule</h3>
+    <p>Build a document Q&A product, knowledge base, or retrieval-heavy app → <strong style="font-weight:500;color:var(--color-text-primary)">LlamaIndex</strong>. Build a complex agent, multi-step workflow, or production system needing deep observability → <strong style="font-weight:500;color:var(--color-text-primary)">LangChain</strong>. Many teams use both: LlamaIndex for retrieval, LangChain for orchestration.</p>
+  </div>
+  <button onclick="sendPrompt('Show me how to use LlamaIndex retrievers inside a LangChain chain')">Hybrid usage pattern ↗</button>
+</div>
+
+<div id="snippets" class="page">
+  <div class="step-label">Minimal VectorStoreIndex RAG</div>
+  <div class="codebox">from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms.anthropic import Anthropic
+
+llm = Anthropic(model="claude-sonnet-4-20250514")
+docs = SimpleDirectoryReader("./data").load_data()
+index = VectorStoreIndex.from_documents(docs)
+engine = index.as_query_engine(llm=llm, similarity_top_k=5)
+response = engine.query("What is the refund policy?")
+print(response)</div>
+
+  <div class="step-label">SummaryIndex for long-doc summarisation</div>
+  <div class="codebox">from llama_index.core import SummaryIndex
+
+summary_index = SummaryIndex.from_documents(docs)
+summary_engine = summary_index.as_query_engine(
+    response_mode="tree_summarize",
+    use_async=True,
+)
+response = await summary_engine.aquery("Summarise the entire document")</div>
+
+  <div class="step-label">Postprocessor pipeline (reranking + similarity threshold)</div>
+  <div class="codebox">from llama_index.core.postprocessor import (
+    SimilarityPostprocessor,
+    SentenceTransformerRerank,
+)
+
+reranker = SentenceTransformerRerank(
+    model="cross-encoder/ms-marco-MiniLM-L-6-v2",
+    top_n=5,
+)
+sim_filter = SimilarityPostprocessor(similarity_cutoff=0.7)
+
+engine = index.as_query_engine(
+    similarity_top_k=20,
+    node_postprocessors=[sim_filter, reranker],
+)</div>
+
+  <div class="step-label">Hybrid BM25 + vector with custom retriever</div>
+  <div class="codebox">from llama_index.retrievers.bm25 import BM25Retriever
+from llama_index.core.retrievers import QueryFusionRetriever
+
+bm25 = BM25Retriever.from_defaults(index=index, similarity_top_k=10)
+vector = index.as_retriever(similarity_top_k=10)
+
+hybrid = QueryFusionRetriever(
+    retrievers=[bm25, vector],
+    similarity_top_k=5,
+    mode="reciprocal_rerank",   # RRF fusion built in
+    use_async=True,
+)
+from llama_index.core.query_engine import RetrieverQueryEngine
+engine = RetrieverQueryEngine.from_args(hybrid, llm=llm)</div>
+
+  <button onclick="sendPrompt('Show me a complete LlamaIndex RAG pipeline with evaluation using RAGAS')">Add RAGAS evaluation ↗</button>
+</div>
+
+<script>
+const INDEX_DATA = {
+  vector: {
+    badge:"b-purple", label:"Best for: semantic Q&A",
+    desc:"Embeds each node with a text embedding model and stores vectors. Retrieval = ANN nearest-neighbour search. The standard choice for open-ended question answering over a corpus.",
+    use:"Dense retrieval, semantic search, conversational Q&A",
+    internal:"nodes → embeddings → vector store (FAISS / ChromaDB / etc)"
+  },
+  summary: {
+    badge:"b-teal", label:"Best for: summarisation",
+    desc:"Chains all nodes sequentially and uses the LLM to produce a running summary during query time. No vector search — synthesises an answer by iterating through every node.",
+    use:"Summarise entire documents, long-form synthesis",
+    internal:"nodes stored as a flat list; response_mode=tree_summarize at query time"
+  },
+  keyword: {
+    badge:"b-amber", label:"Best for: keyword lookup",
+    desc:"Extracts keywords from each node during indexing. At query time, matches query keywords to node keywords. Fast, interpretable, no embeddings required.",
+    use:"Technical docs, exact-term lookup, low-latency retrieval",
+    internal:"keyword → [node_ids] inverted index, stored in dict"
+  },
+  kg: {
+    badge:"b-coral", label:"Best for: relationship Q&A",
+    desc:"Extracts (subject, predicate, object) triples from nodes using an LLM. Builds a graph. At query time, traverses the graph to retrieve relevant triples.",
+    use:"Entity-relationship questions, knowledge bases, causal reasoning",
+    internal:"NetworkX graph of SPO triples; Neo4j backend optional"
+  },
+  tree: {
+    badge:"b-blue", label:"Best for: hierarchical docs",
+    desc:"Builds a tree of summaries bottom-up. Leaf nodes = raw chunks. Parent nodes = LLM-generated summaries of their children. Query traverses from root, pruning branches.",
+    use:"Structured reports, hierarchical documents, top-down drill-down",
+    internal:"Tree of Node objects; summary at each level generated at build time"
+  }
+};
+
+function showIndex(key, btn){
+  document.querySelectorAll('.index-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const d=INDEX_DATA[key];
+  document.getElementById('index-detail').innerHTML=`
+    <span class="badge ${d.badge}" style="margin-bottom:8px">${d.label}</span>
+    <p style="margin-bottom:6px">${d.desc}</p>
+    <p><strong style="font-weight:500;color:var(--color-text-primary)">Use when:</strong> ${d.use}</p>
+    <p style="margin-top:4px"><strong style="font-weight:500;color:var(--color-text-primary)">Internal structure:</strong> <code>${d.internal}</code></p>`;
+}
+showIndex('vector', document.querySelector('.index-btn.active'));
+
+function show(id,e){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  e.target.classList.add('active');
+}
+</script>
