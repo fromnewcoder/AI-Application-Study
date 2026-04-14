@@ -1,0 +1,336 @@
+
+<style>
+  h2.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+  *{box-sizing:border-box;margin:0;padding:0}
+  .tabs{display:flex;gap:4px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:1.5rem}
+  .tab{padding:8px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--color-text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px}
+  .tab.active{color:var(--color-text-primary);border-bottom:2px solid var(--color-text-primary);font-weight:500}
+  .page{display:none}.page.active{display:block}
+  .card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:1rem}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1rem}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1rem}
+  .surface{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:.875rem 1rem}
+  .badge{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:var(--border-radius-md);margin-bottom:5px}
+  .b-teal{background:#9FE1CB;color:#085041}
+  .b-purple{background:#CECBF6;color:#3C3489}
+  .b-amber{background:#FAC775;color:#633806}
+  .b-blue{background:#B5D4F4;color:#0C447C}
+  .b-coral{background:#F5C4B3;color:#712B13}
+  h3{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:6px}
+  p,li{font-size:13px;line-height:1.7;color:var(--color-text-secondary)}
+  ul{padding-left:16px;margin-bottom:6px}
+  .pro{color:#085041;font-size:12px}.con{color:#A32D2D;font-size:12px}
+  .step-label{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.5px;margin:1rem 0 5px}
+  .code{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 12px;font-family:var(--font-mono);font-size:12px;line-height:1.7;color:var(--color-text-primary);overflow-x:auto;white-space:pre;margin-bottom:1rem}
+  .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:20px;margin:2px}
+  .tag-g{background:#EAF3DE;color:#27500A}.tag-p{background:#EEEDFE;color:#26215C}
+  .tag-a{background:#FAEEDA;color:#412402}.tag-t{background:#E1F5EE;color:#04342C}
+  .result-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+  .result-row:last-child{border-bottom:none}
+  .rank-num{font-size:12px;font-weight:500;color:var(--color-text-secondary);min-width:18px}
+  .result-title{font-size:13px;color:var(--color-text-primary);flex:1}
+  .score-bar{height:6px;border-radius:3px;background:#9FE1CB}
+  .score-val{font-size:11px;color:var(--color-text-secondary);min-width:30px;text-align:right}
+  select,input[type=range]{font-size:13px}
+  button{padding:7px 14px;font-size:13px;cursor:pointer;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);background:var(--color-background-primary);color:var(--color-text-primary)}
+  button:hover{background:var(--color-background-secondary)}
+  .slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .slider-row label{font-size:12px;color:var(--color-text-secondary);min-width:80px}
+  .slider-row input{flex:1}
+  .slider-row span{font-size:12px;font-weight:500;color:var(--color-text-primary);min-width:32px;text-align:right}
+  .highlight{background:#FAEEDA;border-left:2px solid #EF9F27;padding:8px 12px;border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;font-size:13px;color:#412402;margin-bottom:8px}
+  .flow-step{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+  .flow-num{width:22px;height:22px;border-radius:50%;background:#EEEDFE;color:#3C3489;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+  .flow-text{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+  .flow-text strong{color:var(--color-text-primary);font-weight:500}
+</style>
+
+<h2 class="sr-only">Week 5 Ph225 — Retrieval improvements: hybrid search, reranking, HyDE, MMR, and metadata filtering reference and demo</h2>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('concepts',event)">Concepts</button>
+  <button class="tab" onclick="showPage('pipeline',event)">Pipeline</button>
+  <button class="tab" onclick="showPage('demo',event)">Interactive demo</button>
+  <button class="tab" onclick="showPage('code',event)">Python snippets</button>
+</div>
+
+<div id="concepts" class="page active">
+  <div class="grid2">
+    <div class="surface">
+      <span class="badge b-teal">BM25</span>
+      <h3>Sparse / keyword search</h3>
+      <p>Term-frequency scoring (TF-IDF variant). Exact word matching with length normalisation. Fast, interpretable, no GPU.</p>
+      <div style="margin-top:6px"><span class="pro">+ Precise for rare technical terms</span></div>
+      <div><span class="con">− Misses synonyms; no semantic understanding</span></div>
+    </div>
+    <div class="surface">
+      <span class="badge b-purple">Vector</span>
+      <h3>Dense / semantic search</h3>
+      <p>Embed query and docs into high-dimensional space. Cosine/dot-product similarity. Captures paraphrase and concepts.</p>
+      <div style="margin-top:6px"><span class="pro">+ Handles synonyms, intent, cross-lingual</span></div>
+      <div><span class="con">− Misses exact rare terms; slow w/o ANN index</span></div>
+    </div>
+  </div>
+
+  <div class="surface" style="margin-bottom:1rem">
+    <span class="badge b-teal">Hybrid = BM25 + Vector</span>
+    <h3>Reciprocal Rank Fusion (RRF)</h3>
+    <p>Merge two ranked lists without needing normalised scores. Each document gets <code>score = Σ 1/(k + rank_i)</code> across both lists (k=60 is standard). Best of both worlds — exact matches and semantic matches both surface.</p>
+  </div>
+
+  <div class="grid3">
+    <div class="surface">
+      <span class="badge b-coral">Reranking</span>
+      <h3>Cross-encoder</h3>
+      <p>Pass (query, doc) pairs through a full transformer. Much more accurate than bi-encoder but slow — run on top-K only (e.g. top 50 → top 5).</p>
+    </div>
+    <div class="surface">
+      <span class="badge b-amber">HyDE</span>
+      <h3>Hypothetical doc embedding</h3>
+      <p>Generate a fake answer with an LLM, embed that. Query space shifts from question-space to answer-space, matching real docs better.</p>
+    </div>
+    <div class="surface">
+      <span class="badge b-blue">MMR</span>
+      <h3>Maximal marginal relevance</h3>
+      <p>Balance relevance vs diversity. Penalise docs too similar to already-selected ones. Prevents returning 5 near-duplicate chunks.</p>
+    </div>
+  </div>
+
+  <div class="surface">
+    <span class="badge b-teal">Metadata filtering</span>
+    <h3>Pre-filter before retrieval</h3>
+    <p>Attach structured metadata to chunks (date, source, author, topic). Filter at the vector DB level before similarity search — dramatically reduces noise without sacrificing speed. Always apply before reranking, not after.</p>
+    <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">
+      <span class="tag tag-g">year: 2024</span>
+      <span class="tag tag-p">source: arxiv</span>
+      <span class="tag tag-a">topic: rag</span>
+      <span class="tag tag-t">lang: en</span>
+    </div>
+  </div>
+</div>
+
+<div id="pipeline" class="page">
+  <div class="highlight">The retrieval pipeline runs in stages. Each stage reduces the candidate set — retrieval casts wide, reranking narrows precisely.</div>
+
+  <div class="flow-step">
+    <div class="flow-num">1</div>
+    <div class="flow-text"><strong>Metadata pre-filter</strong> — query the vector DB with structured filters (date range, source, language). Candidate set: full corpus → filtered subset.</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-num">2</div>
+    <div class="flow-text"><strong>HyDE (optional)</strong> — generate hypothetical answer with LLM, embed it. Use this embedding as query instead of raw question embedding. Shifts query to answer-space.</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-num">3</div>
+    <div class="flow-text"><strong>BM25 retrieval</strong> — keyword search over filtered subset. Returns top-N ranked list (e.g. top 100). Fast.</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-num">4</div>
+    <div class="flow-text"><strong>Vector retrieval</strong> — ANN search over filtered subset. Returns top-N ranked list (e.g. top 100). Runs in parallel with BM25.</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-num">5</div>
+    <div class="flow-text"><strong>RRF fusion</strong> — merge both lists into a single ranking using <code>1/(k+rank)</code>. Candidates: union of both lists.</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-num">6</div>
+    <div class="flow-text"><strong>Cross-encoder reranking</strong> — score (query, doc) pairs together. Expensive but accurate. Takes top-50, returns top-5.</div>
+  </div>
+  <div class="flow-step">
+    <div class="flow-num">7</div>
+    <div class="flow-text"><strong>MMR selection (optional)</strong> — from reranked results, greedily pick docs balancing relevance and diversity. Final context: 3–5 diverse, high-relevance chunks.</div>
+  </div>
+
+  <div class="card" style="margin-top:1rem">
+    <div style="display:flex;gap:32px;flex-wrap:wrap">
+      <div>
+        <div class="step-label">Candidate sizes (typical)</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);line-height:2">
+          Full corpus&nbsp;&nbsp;<strong style="color:var(--color-text-primary)">100k docs</strong><br>
+          After metadata filter&nbsp;&nbsp;<strong style="color:var(--color-text-primary)">~5k</strong><br>
+          BM25 + vector each&nbsp;&nbsp;<strong style="color:var(--color-text-primary)">100</strong><br>
+          After RRF&nbsp;&nbsp;<strong style="color:var(--color-text-primary)">~150</strong><br>
+          After cross-encoder&nbsp;&nbsp;<strong style="color:var(--color-text-primary)">5–10</strong><br>
+          After MMR&nbsp;&nbsp;<strong style="color:var(--color-text-primary)">3–5</strong>
+        </div>
+      </div>
+      <div style="flex:1;min-width:180px">
+        <div class="step-label">When to use HyDE</div>
+        <p>Questions where the query phrasing differs a lot from how the answer is written. E.g. "how do I X" → docs contain "to X, you should…" HyDE bridges the linguistic gap.</p>
+        <div class="step-label" style="margin-top:8px">When to skip HyDE</div>
+        <p>Low-latency apps (extra LLM call costs ~200ms), or when the query already sounds like a document (e.g. "transformer self-attention mechanism").</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="demo" class="page">
+  <p style="margin-bottom:12px;font-size:13px;color:var(--color-text-secondary)">Adjust the sliders to see how RRF fusion re-ranks results. BM25 score = keyword match, vector score = semantic match. The fused rank drives the final order.</p>
+
+  <div class="slider-row">
+    <label>RRF k value</label>
+    <input type="range" id="k-val" min="1" max="120" value="60" step="1" oninput="recompute()">
+    <span id="k-out">60</span>
+  </div>
+  <div class="slider-row">
+    <label>BM25 weight</label>
+    <input type="range" id="bm25-w" min="0" max="100" value="50" step="1" oninput="recompute()">
+    <span id="bm25-out">0.50</span>
+  </div>
+
+  <div class="grid2" style="margin-top:8px">
+    <div class="surface">
+      <div class="step-label">BM25 ranking</div>
+      <div id="bm25-list"></div>
+    </div>
+    <div class="surface">
+      <div class="step-label">Vector ranking</div>
+      <div id="vec-list"></div>
+    </div>
+  </div>
+  <div class="surface" style="border:2px solid #1D9E75;margin-bottom:8px">
+    <div class="step-label" style="color:#085041">Fused ranking (RRF)</div>
+    <div id="fused-list"></div>
+  </div>
+  <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:8px">Formula: score = (bm25_weight / (k + bm25_rank)) + ((1-bm25_weight) / (k + vec_rank))</div>
+  <button onclick="sendPrompt('Show me the Python code for RRF fusion')">See Python RRF code ↗</button>
+</div>
+
+<div id="code" class="page">
+  <div class="step-label">1 — BM25 (rank_bm25)</div>
+  <div class="code">from rank_bm25 import BM25Okapi
+
+corpus = [doc.split() for doc in documents]
+bm25 = BM25Okapi(corpus)
+bm25_scores = bm25.get_scores(query.split())
+bm25_ranked = sorted(enumerate(bm25_scores),
+                     key=lambda x: x[1], reverse=True)[:100]</div>
+
+  <div class="step-label">2 — Vector search (sentence-transformers)</div>
+  <div class="code">from sentence_transformers import SentenceTransformer
+import faiss, numpy as np
+
+model = SentenceTransformer("BAAI/bge-base-en-v1.5")
+doc_embs = model.encode(documents, normalize_embeddings=True)
+index = faiss.IndexFlatIP(doc_embs.shape[1])
+index.add(doc_embs)
+
+q_emb = model.encode([query], normalize_embeddings=True)
+_, vec_ids = index.search(q_emb, 100)  # top 100</div>
+
+  <div class="step-label">3 — RRF fusion</div>
+  <div class="code">def rrf_fuse(bm25_ids, vec_ids, k=60):
+    scores = {}
+    for rank, idx in enumerate(bm25_ids):
+        scores[idx] = scores.get(idx,0) + 1/(k + rank + 1)
+    for rank, idx in enumerate(vec_ids):
+        scores[idx] = scores.get(idx,0) + 1/(k + rank + 1)
+    return sorted(scores, key=scores.get, reverse=True)
+
+fused = rrf_fuse(
+    [i for i,_ in bm25_ranked],
+    vec_ids[0].tolist()
+)</div>
+
+  <div class="step-label">4 — Cross-encoder reranking</div>
+  <div class="code">from sentence_transformers import CrossEncoder
+
+reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+pairs = [(query, documents[i]) for i in fused[:50]]
+ce_scores = reranker.predict(pairs)
+reranked = [fused[i] for i in np.argsort(ce_scores)[::-1][:10]]</div>
+
+  <div class="step-label">5 — MMR selection</div>
+  <div class="code">def mmr(query_emb, doc_embs, doc_ids, k=5, lam=0.5):
+    selected, remaining = [], list(doc_ids)
+    while len(selected) < k and remaining:
+        rel = doc_embs[remaining] @ query_emb
+        if selected:
+            red = (doc_embs[remaining] @ doc_embs[selected].T).max(axis=1)
+        else:
+            red = np.zeros(len(remaining))
+        mmr_scores = lam * rel - (1 - lam) * red
+        best = remaining[np.argmax(mmr_scores)]
+        selected.append(best)
+        remaining.remove(best)
+    return selected</div>
+
+  <div class="step-label">6 — HyDE</div>
+  <div class="code">import anthropic
+
+client = anthropic.Anthropic()
+
+def hyde_embed(query, model):
+    # Generate hypothetical answer
+    resp = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=200,
+        messages=[{"role":"user",
+                   "content":f"Write a short paragraph answering: {query}"}]
+    )
+    hyp_doc = resp.content[0].text
+    # Embed hypothetical answer instead of raw query
+    return model.encode([hyp_doc], normalize_embeddings=True)</div>
+
+  <button style="margin-top:4px" onclick="sendPrompt('Show me a complete RAG pipeline combining all these techniques in Python')">Get full pipeline code ↗</button>
+</div>
+
+<script>
+function showPage(id,e){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  e.target.classList.add('active');
+}
+
+const DOCS = [
+  {title:"RAG with dense retrieval"},
+  {title:"BM25 for keyword search"},
+  {title:"Cross-encoder reranking guide"},
+  {title:"Semantic chunking strategies"},
+  {title:"Metadata filtering in Pinecone"},
+  {title:"MMR for diverse results"},
+];
+
+const BM25_RANKS = [1,0,4,2,5,3];
+const VEC_RANKS  = [0,3,1,4,2,5];
+
+function renderList(containerId, ranks, color){
+  const el=document.getElementById(containerId);
+  const ordered=ranks.map((docIdx,rank)=>({docIdx,rank})).sort((a,b)=>a.rank-b.rank);
+  el.innerHTML=ordered.map(({docIdx,rank})=>`
+    <div class="result-row">
+      <span class="rank-num">${rank+1}</span>
+      <span class="result-title">${DOCS[docIdx].title}</span>
+      <div class="score-bar" style="width:${Math.round((5-rank)/5*60)+10}px;background:${color}"></div>
+    </div>`).join('');
+}
+
+function recompute(){
+  const k=+document.getElementById('k-val').value;
+  const bw=document.getElementById('bm25-w').value/100;
+  document.getElementById('k-out').textContent=k;
+  document.getElementById('bm25-out').textContent=bw.toFixed(2);
+
+  renderList('bm25-list',BM25_RANKS,'#5DCAA5');
+  renderList('vec-list',VEC_RANKS,'#AFA9EC');
+
+  const scores={};
+  BM25_RANKS.forEach((docIdx,rank)=>{
+    scores[docIdx]=(scores[docIdx]||0)+bw/(k+rank+1);
+  });
+  VEC_RANKS.forEach((docIdx,rank)=>{
+    scores[docIdx]=(scores[docIdx]||0)+(1-bw)/(k+rank+1);
+  });
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const el=document.getElementById('fused-list');
+  el.innerHTML=sorted.map(([docIdx,score],rank)=>`
+    <div class="result-row">
+      <span class="rank-num">${rank+1}</span>
+      <span class="result-title">${DOCS[docIdx].title}</span>
+      <div class="score-bar" style="width:${Math.round(score*k*60)}px;background:#1D9E75"></div>
+      <span class="score-val">${score.toFixed(4)}</span>
+    </div>`).join('');
+}
+recompute();
+</script>
