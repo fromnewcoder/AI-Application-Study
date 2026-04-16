@@ -1,0 +1,97 @@
+%% Research Assistant - Architecture & Flow
+%% Paste into mermaid.live or render with mmdc
+
+flowchart TB
+    subgraph MAIN["main() CLI Entry Point"]
+        A([python research_agent.py]) --> B{Args}
+        B -->|topic| C[run_agent]
+        B -->|eval| D[run_eval_suite]
+        B -->|interactive| E[interactive_repl]
+    end
+
+    subgraph AGENT["run_agent Core Loop (max 12 turns)"]
+        C --> P[print_result]
+
+        G0[Initial_user_message] --> G[messages_create]
+        G -->|end_turn| G5[synthesis_output]
+        G -->|tool_use| G2{Execute_tool_calls}
+
+        G2 -->|search_web| S[search_web]
+        G2 -->|fetch_document| FD[fetch_document]
+
+        S --> ST[tool_result_JSON]
+        FD --> FDT[tool_result_content]
+        ST --> G3[Append_to_messages]
+        FDT --> G3
+        G3 --> G
+
+        G5 --> P
+    end
+
+    subgraph SEARCH["search_web Search Backend"]
+        SH{TAVILY_API_KEY_set}
+        SH -->|yes| STV[search_tavily]
+        SH -->|no| SM[search_mock]
+        STV --> SR1[SearchResult_x_N]
+        SM --> SR2[SearchResult_x_N_topic_aware]
+    end
+
+    subgraph FETCH["fetch_document Document Fetcher"]
+        FH{httpx_available}
+        FH -->|yes| FH2{HTTP_OK}
+        FH2 -->|yes| FH3[BeautifulSoup_parse]
+        FH2 -->|no| FM[Mock_content]
+        FH3 --> FR[FetchedDocument_content]
+        FH -->|no| FM
+        FM --> FR
+    end
+
+    subgraph EVAL["run_eval_suite Eval Suite"]
+        EV[make_eval_suite] --> E01[E01_quantum]
+        EV --> E02[E02_climate]
+        EV --> E03[E03_RAG]
+        EV --> E04[E04_CRISPR]
+        E01 --> R01[Result]
+        E02 --> R02[Result]
+        E03 --> R03[Result]
+        E04 --> R04[Result]
+        R01 --> RP[Overall_PASS_at_80_percent]
+        R02 --> RP
+        R03 --> RP
+        R04 --> RP
+    end
+
+    subgraph TOOLDEF["TOOL Definitions"]
+        T1[search_web_query_max_results]
+        T2[fetch_document_url_title]
+    end
+
+    subgraph DATACLASSES["Dataclasses"]
+        DC1[AgentResult_topic_synthesis_sources_steps_latency_error]
+        DC2[SearchResult_title_url_snippet_domain]
+        DC3[FetchedDocument_url_title_content_word_count]
+        DC4[EvalCase_id_topic_checks]
+        DC5[EvalResult_case_id_passed_total_details_agent_result]
+    end
+
+    S -.-> SEARCH
+    FD -.-> FETCH
+    G -.-> TOOLDEF
+    D -.-> E01
+    D -.-> E02
+    D -.-> E03
+    D -.-> E04
+    E -.-> run_agent
+
+    classDef entry fill:#1f1,color:#000
+    classDef core fill:#58f,color:#fff
+    classDef io fill:#f85,color:#fff
+    classDef data fill:#fd4,color:#000
+    classDef eval fill:#f7f,color:#fff
+
+    class A,C,E entry
+    class G,G0,G2,G3,G5 core
+    class S,FD,ST,FDT,FR io
+    class SH,SM,STV,FH,FH2,FH3,FM io
+    class DC1,DC2,DC3,DC4,DC5 data
+    class D,E01,E02,E03,E04,EV,R01,R02,R03,R04 eval
