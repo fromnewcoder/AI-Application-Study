@@ -240,7 +240,8 @@ tagged_pipeline("Explain observability in one sentence.", ab_variant="B")
 
 section("4 · Prompt Versioning")
 
-PROMPT_NAME = f"{client.settings.tenant_handle}/demo-rag-prompt"
+# Replace with your LangSmith username/handle, e.g. "myusername/demo-rag-prompt"
+PROMPT_NAME = "demo-rag-prompt"
 
 # ── 4a. Push a prompt to the Hub ──────────────────────────────────────────────
 rag_prompt_v1 = ChatPromptTemplate.from_messages([
@@ -278,8 +279,7 @@ except Exception as exc:
 # ── 4c. Pull latest vs pinned ─────────────────────────────────────────────────
 step("Pulling latest prompt (dev)")
 try:
-    from langchainhub import pull as hub_pull
-    prompt_latest = hub_pull(PROMPT_NAME)
+    prompt_latest = client.pull_prompt(PROMPT_NAME)
     step("Latest prompt variables", str(prompt_latest.input_variables))
 except Exception as exc:
     step("Pull skipped", str(exc)[:80])
@@ -288,7 +288,7 @@ except Exception as exc:
 if commit_v1 != "SKIPPED":
     step(f"Pulling pinned prompt (commit={commit_v1[:8]}…) for production")
     try:
-        prompt_pinned = hub_pull(f"{PROMPT_NAME}:{commit_v1}")
+        prompt_pinned = client.pull_prompt(f"{PROMPT_NAME}:{commit_v1}")
         step("Pinned prompt variables", str(prompt_pinned.input_variables))
     except Exception as exc:
         step("Pin pull skipped", str(exc)[:80])

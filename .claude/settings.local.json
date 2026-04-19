@@ -6,7 +6,9 @@
       "Bash(mv example.js examples/)",
       "WebSearch",
       "Bash(pip show:*)",
-      "Bash(pip list:*)"
+      "Bash(pip list:*)",
+      "Bash(python -c \"from langsmith import Client; c = Client\\(\\); print\\('workspace_id:', c.workspace_id\\); print\\('api_url:', c.api_url\\)\")",
+      "Bash(python -c \"from langsmith import Client; c = Client\\(\\); prompts = list\\(c.list_prompts\\(limit=3\\)\\); print\\(prompts\\)\")"
     ]
   }
 }
