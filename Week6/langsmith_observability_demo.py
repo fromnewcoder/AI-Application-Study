@@ -12,7 +12,7 @@
 QUICK START
 -----------
 1. Install dependencies:
-   pip install langsmith langchain langchain-openai python-dotenv
+   pip install langsmith langchain langchain-openai langchainhub python-dotenv
 
 2. Create a .env file (or export directly):
    LANGCHAIN_TRACING_V2=true
@@ -44,7 +44,6 @@ if missing:
 
 # ── Core imports ──────────────────────────────────────────────────────────────
 from langsmith import Client, traceable, get_current_run_tree
-from langchain import hub
 from langchain_openai import ChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -75,7 +74,39 @@ section("1 · Tracing Setup")
 # LangChain auto-traces whenever LANGCHAIN_TRACING_V2=true.
 # The Client is used for programmatic access (feedback, datasets, prompts).
 client = Client()
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+llm = ChatOpenAI(model="MiniMax-M2.7", temperature=0)
+
+# from langchain_core.runnables import RunnableLambda, RunnableParallel
+
+# def llm_for_lcel(prompt_value) -> str:
+#     MINIMAX_API_KEY = os.getenv("MINIMAX_API_KEY", "YOUR_KEY_HERE")
+#     MINIMAX_BASE_URL = os.getenv("MINIMAX_BASE_URL", "https://api.minimax.chat/v1")
+#     MINIMAX_MODEL = os.getenv("MINIMAX_MODEL", "MiniMax-M2.7")
+
+#     from openai import OpenAI
+
+#     client = OpenAI(
+#         api_key=MINIMAX_API_KEY,
+#         base_url=MINIMAX_BASE_URL,
+#     )
+#     messages = prompt_value.to_messages()
+   
+#     formatted = [
+#         {"role": "system" if m.type == "system" else "user", "content": m.content}
+#         for m in messages
+#     ]
+#     #print(formatted)
+#     response = client.chat.completions.create(
+#         model=MINIMAX_MODEL,
+#         messages=formatted,
+#         temperature=0.7,
+#     )
+#     print(response.choices[0].message.content)
+#     return response.choices[0].message.content
+
+# llm = RunnableLambda(llm_for_lcel)
+
+
 
 step("LangSmith client", f"endpoint={client._host_url}")
 step("Project", os.getenv("LANGCHAIN_PROJECT", "default"))
@@ -247,7 +278,8 @@ except Exception as exc:
 # ── 4c. Pull latest vs pinned ─────────────────────────────────────────────────
 step("Pulling latest prompt (dev)")
 try:
-    prompt_latest = hub.pull(PROMPT_NAME)
+    from langchainhub import pull as hub_pull
+    prompt_latest = hub_pull(PROMPT_NAME)
     step("Latest prompt variables", str(prompt_latest.input_variables))
 except Exception as exc:
     step("Pull skipped", str(exc)[:80])
@@ -256,7 +288,7 @@ except Exception as exc:
 if commit_v1 != "SKIPPED":
     step(f"Pulling pinned prompt (commit={commit_v1[:8]}…) for production")
     try:
-        prompt_pinned = hub.pull(f"{PROMPT_NAME}:{commit_v1}")
+        prompt_pinned = hub_pull(f"{PROMPT_NAME}:{commit_v1}")
         step("Pinned prompt variables", str(prompt_pinned.input_variables))
     except Exception as exc:
         step("Pin pull skipped", str(exc)[:80])
