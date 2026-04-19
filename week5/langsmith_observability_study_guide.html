@@ -1,0 +1,654 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ls-orange: #E8593C;
+  --ls-orange-dim: #F0997B;
+  --ls-orange-bg: #FAECE7;
+  --ls-blue: #185FA5;
+  --ls-blue-dim: #378ADD;
+  --ls-blue-bg: #E6F1FB;
+  --ls-teal: #0F6E56;
+  --ls-teal-bg: #E1F5EE;
+  --ls-amber: #BA7517;
+  --ls-amber-bg: #FAEEDA;
+  --ls-green: #3B6D11;
+  --ls-green-bg: #EAF3DE;
+  --ls-red: #A32D2D;
+  --ls-red-bg: #FCEBEB;
+  --ls-purple: #534AB7;
+  --ls-purple-bg: #EEEDFE;
+}
+
+body { font-family: 'Syne', var(--font-sans), sans-serif; background: transparent; }
+
+.guide { max-width: 760px; margin: 0 auto; padding: 1rem 0 2rem; }
+
+.nav {
+  display: flex; gap: 6px; flex-wrap: wrap;
+  margin-bottom: 1.5rem; padding-bottom: 1rem;
+  border-bottom: 0.5px solid var(--color-border-tertiary);
+}
+.nav-btn {
+  padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  border: 0.5px solid var(--color-border-secondary); cursor: pointer;
+  background: var(--color-background-primary); color: var(--color-text-secondary);
+  font-family: inherit; transition: all .15s; letter-spacing: .03em;
+}
+.nav-btn.active { background: #E8593C; color: #fff; border-color: #E8593C; }
+.nav-btn:hover:not(.active) { background: var(--color-background-secondary); color: var(--color-text-primary); }
+
+.section { display: none; }
+.section.active { display: block; }
+
+/* ── Overview ── */
+.hero-title { font-size: 26px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 4px; }
+.hero-sub { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+.concept-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 12px; padding: 14px 16px;
+  cursor: pointer; transition: border-color .15s, transform .1s;
+}
+.concept-card:hover { border-color: var(--color-border-primary); transform: translateY(-1px); }
+.concept-card .cc-icon { font-size: 20px; margin-bottom: 8px; }
+.concept-card .cc-title { font-size: 13px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 3px; }
+.concept-card .cc-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.cc-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-bottom: 8px; }
+
+.arch-container { background: var(--color-background-secondary); border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
+.arch-title { font-size: 12px; font-weight: 600; color: var(--color-text-secondary); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 1rem; }
+
+.trace-flow { display: flex; align-items: center; gap: 0; overflow-x: auto; padding-bottom: 4px; }
+.trace-box {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 8px; padding: 8px 14px;
+  font-size: 12px; font-weight: 600; color: var(--color-text-primary);
+  white-space: nowrap; flex-shrink: 0;
+}
+.trace-box.root { border-color: var(--ls-orange); color: var(--ls-orange); }
+.trace-box.chain { border-color: var(--ls-blue-dim); color: var(--ls-blue); }
+.trace-box.tool { border-color: #1D9E75; color: var(--ls-teal); }
+.trace-box.llm { border-color: var(--ls-purple); color: var(--ls-purple); }
+.trace-arrow { font-size: 16px; color: var(--color-text-secondary); padding: 0 4px; flex-shrink: 0; }
+
+.span-legend { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 10px; }
+.span-legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-text-secondary); }
+.span-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+/* ── Concepts (deep dives) ── */
+.concept-section { margin-bottom: 1.5rem; }
+.cs-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; border-radius: 10px 10px 0 0;
+  border: 0.5px solid var(--color-border-tertiary);
+  cursor: pointer; background: var(--color-background-secondary);
+}
+.cs-header:hover { background: var(--color-background-tertiary); }
+.cs-badge { font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+.cs-title { font-size: 14px; font-weight: 600; color: var(--color-text-primary); flex: 1; }
+.cs-chevron { font-size: 14px; color: var(--color-text-secondary); transition: transform .2s; }
+.cs-body {
+  border: 0.5px solid var(--color-border-tertiary); border-top: none;
+  border-radius: 0 0 10px 10px; padding: 16px;
+  background: var(--color-background-primary);
+  display: none;
+}
+.cs-body.open { display: block; }
+.cs-header.open .cs-chevron { transform: rotate(180deg); }
+
+.code-block {
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: 8px; padding: 12px 14px;
+  font-family: 'JetBrains Mono', var(--font-mono), monospace;
+  font-size: 12px; line-height: 1.65;
+  color: var(--color-text-primary); overflow-x: auto;
+  margin: 10px 0;
+}
+.kw { color: #7F77DD; } /* keyword */
+.fn { color: #185FA5; } /* function */
+.st { color: #0F6E56; } /* string */
+.cm { color: var(--color-text-secondary); font-style: italic; } /* comment */
+.arg { color: #BA7517; } /* arg/param */
+
+.tip-box {
+  border-radius: 8px; padding: 10px 14px; margin: 10px 0;
+  font-size: 13px; line-height: 1.6;
+  border-left: 3px solid;
+}
+.tip-box.info { background: var(--ls-blue-bg); border-color: var(--ls-blue-dim); color: var(--ls-blue); }
+.tip-box.warn { background: var(--ls-amber-bg); border-color: var(--ls-amber); color: var(--ls-amber); }
+.tip-box.success { background: var(--ls-green-bg); border-color: #639922; color: var(--ls-green); }
+.tip-box.danger { background: var(--ls-red-bg); border-color: #E24B4A; color: var(--ls-red); }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 10px 0; }
+.mini-card { background: var(--color-background-secondary); border-radius: 8px; padding: 12px; font-size: 13px; }
+.mini-card .label { font-size: 11px; font-weight: 600; color: var(--color-text-secondary); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 6px; }
+
+/* ── Debug flow ── */
+.debug-steps { counter-reset: step; }
+.debug-step {
+  display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start;
+}
+.debug-step-num {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+}
+.debug-step-body { flex: 1; }
+.debug-step-body .ds-title { font-size: 13px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 4px; }
+.debug-step-body .ds-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+
+/* ── Quiz ── */
+.quiz-card {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: 12px; padding: 20px; margin-bottom: 14px;
+}
+.quiz-q { font-size: 14px; font-weight: 600; color: var(--color-text-primary); margin-bottom: 14px; line-height: 1.5; }
+.quiz-opts { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  padding: 10px 14px; border-radius: 8px; cursor: pointer;
+  border: 0.5px solid var(--color-border-secondary); font-size: 13px;
+  color: var(--color-text-secondary); background: var(--color-background-secondary);
+  font-family: inherit; text-align: left; transition: all .12s;
+}
+.quiz-opt:hover:not(:disabled) { border-color: var(--color-border-primary); color: var(--color-text-primary); background: var(--color-background-primary); }
+.quiz-opt.correct { background: var(--ls-green-bg); border-color: #639922; color: var(--ls-green); }
+.quiz-opt.wrong   { background: var(--ls-red-bg);   border-color: #E24B4A; color: var(--ls-red); }
+.quiz-feedback { margin-top: 10px; font-size: 13px; line-height: 1.5; padding: 8px 12px; border-radius: 6px; }
+.quiz-feedback.ok  { background: var(--ls-green-bg); color: var(--ls-green); }
+.quiz-feedback.bad { background: var(--ls-red-bg); color: var(--ls-red); }
+.quiz-score { text-align: center; padding: 1rem; font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1rem; }
+.quiz-score span { font-size: 24px; font-weight: 700; color: var(--color-text-primary); }
+
+/* ── Cheatsheet ── */
+.cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cheat-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 10px; padding: 14px 16px; }
+.cheat-card .ch-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.cheat-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; gap: 8px; }
+.cheat-row .cheat-key { font-size: 12px; color: var(--color-text-secondary); }
+.cheat-row .cheat-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; background: var(--color-background-secondary); padding: 2px 7px; border-radius: 4px; color: var(--color-text-primary); white-space: nowrap; }
+
+@media (max-width: 500px) {
+  .two-col, .cheat-grid { grid-template-columns: 1fr; }
+  .concept-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+
+<div class="guide">
+  <h2 class="sr-only">LangSmith Observability Study Guide — interactive reference covering tracing setup, span attribution, tagging, prompt versioning, and debugging</h2>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="show('overview')">Overview</button>
+    <button class="nav-btn" onclick="show('tracing')">Tracing setup</button>
+    <button class="nav-btn" onclick="show('spans')">Spans & tags</button>
+    <button class="nav-btn" onclick="show('prompts')">Prompt versioning</button>
+    <button class="nav-btn" onclick="show('debugging')">Debugging</button>
+    <button class="nav-btn" onclick="show('quiz')">Quiz</button>
+    <button class="nav-btn" onclick="show('cheatsheet')">Cheatsheet</button>
+  </nav>
+
+  <!-- ────────────────── OVERVIEW ────────────────── -->
+  <div id="overview" class="section active">
+    <p class="hero-title">LangSmith Observability</p>
+    <p class="hero-sub">Full-stack tracing, debugging and prompt management for LLM agents.</p>
+
+    <div class="concept-grid">
+      <div class="concept-card" onclick="show('tracing')">
+        <div class="cc-dot" style="background:#E8593C"></div>
+        <div class="cc-title">Tracing setup</div>
+        <div class="cc-desc">Configure env vars, wrap your agent, enable auto-tracing via LangChain callbacks.</div>
+      </div>
+      <div class="concept-card" onclick="show('spans')">
+        <div class="cc-dot" style="background:#185FA5"></div>
+        <div class="cc-title">Spans & attribution</div>
+        <div class="cc-desc">Runs, parent spans, metadata tagging, custom names and session tracking.</div>
+      </div>
+      <div class="concept-card" onclick="show('prompts')">
+        <div class="cc-dot" style="background:#0F6E56"></div>
+        <div class="cc-title">Prompt versioning</div>
+        <div class="cc-desc">Push, pull and commit prompts from the Hub. Pin commits to avoid regressions.</div>
+      </div>
+      <div class="concept-card" onclick="show('debugging')">
+        <div class="cc-dot" style="background:#BA7517"></div>
+        <div class="cc-title">Debugging failures</div>
+        <div class="cc-desc">Trace inspection, error surfacing, feedback logging and root-cause workflow.</div>
+      </div>
+    </div>
+
+    <div class="arch-container">
+      <div class="arch-title">Trace hierarchy — how runs nest</div>
+      <div class="trace-flow">
+        <div class="trace-box root">Agent run (root)</div>
+        <div class="trace-arrow">→</div>
+        <div class="trace-box chain">Chain / retriever</div>
+        <div class="trace-arrow">→</div>
+        <div class="trace-box tool">Tool call</div>
+        <div class="trace-arrow">→</div>
+        <div class="trace-box llm">LLM span</div>
+      </div>
+      <div class="span-legend">
+        <div class="span-legend-item"><div class="span-dot" style="background:#E8593C"></div>Root run</div>
+        <div class="span-legend-item"><div class="span-dot" style="background:#378ADD"></div>Chain / retriever</div>
+        <div class="span-legend-item"><div class="span-dot" style="background:#1D9E75"></div>Tool call</div>
+        <div class="span-legend-item"><div class="span-dot" style="background:#7F77DD"></div>LLM invocation</div>
+      </div>
+    </div>
+
+    <div class="tip-box info">Every LangChain component automatically emits a run. LangSmith collects these in real time and assembles them into a tree you can inspect run-by-run.</div>
+  </div>
+
+  <!-- ────────────────── TRACING SETUP ────────────────── -->
+  <div id="tracing" class="section">
+    <p style="font-size:18px;font-weight:700;color:var(--color-text-primary);margin-bottom:4px">Tracing setup</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.2rem">Three environment variables + zero code changes for LangChain projects.</p>
+
+    <div class="concept-section">
+      <div class="cs-header open" onclick="toggleCS(this)">
+        <span class="cs-badge" style="background:var(--ls-orange-bg);color:var(--ls-orange)">Step 1</span>
+        <span class="cs-title">Set environment variables</span>
+        <span class="cs-chevron">▾</span>
+      </div>
+      <div class="cs-body open">
+        <div class="code-block"><span class="cm"># .env or shell export</span>
+<span class="kw">export</span> <span class="arg">LANGCHAIN_TRACING_V2</span>=<span class="st">"true"</span>
+<span class="kw">export</span> <span class="arg">LANGCHAIN_API_KEY</span>=<span class="st">"ls__..."</span>
+<span class="kw">export</span> <span class="arg">LANGCHAIN_PROJECT</span>=<span class="st">"my-agent"</span></div>
+        <div class="tip-box info"><strong>LANGCHAIN_PROJECT</strong> controls the LangSmith project bucket. Omitting it sends traces to <em>default</em>. Use a distinct name per environment (dev / staging / prod).</div>
+        <div class="two-col">
+          <div class="mini-card">
+            <div class="label">When it works</div>
+            Any LangChain (v0.1+) call will auto-trace once these three vars are set.
+          </div>
+          <div class="mini-card">
+            <div class="label">When it doesn't</div>
+            Async code in some frameworks needs <code>LANGCHAIN_CALLBACKS_BACKGROUND=true</code> to prevent early exit before flush.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-section">
+      <div class="cs-header" onclick="toggleCS(this)">
+        <span class="cs-badge" style="background:var(--ls-blue-bg);color:var(--ls-blue)">Step 2</span>
+        <span class="cs-title">Manual tracing with <code>@traceable</code></span>
+        <span class="cs-chevron">▾</span>
+      </div>
+      <div class="cs-body">
+        <div class="code-block"><span class="kw">from</span> langsmith <span class="kw">import</span> traceable
+
+<span class="cm"># Decorating any Python function creates a named run</span>
+<span class="kw">@</span><span class="fn">traceable</span>(run_type=<span class="st">"chain"</span>, name=<span class="st">"retrieve_and_rank"</span>)
+<span class="kw">def</span> <span class="fn">retrieve_and_rank</span>(query: <span class="fn">str</span>) -> <span class="fn">list</span>:
+    results = vector_store.<span class="fn">similarity_search</span>(query)
+    <span class="kw">return</span> <span class="fn">rerank</span>(results)</div>
+        <div class="tip-box success">Use <code>run_type</code> to classify spans: <em>chain</em>, <em>retriever</em>, <em>tool</em>, <em>llm</em>, or <em>embedding</em>. This controls the icon shown in the LangSmith UI.</div>
+      </div>
+    </div>
+
+    <div class="concept-section">
+      <div class="cs-header" onclick="toggleCS(this)">
+        <span class="cs-badge" style="background:var(--ls-teal-bg);color:var(--ls-teal)">Step 3</span>
+        <span class="cs-title">Full agent tracing pattern</span>
+        <span class="cs-chevron">▾</span>
+      </div>
+      <div class="cs-body">
+        <div class="code-block"><span class="kw">from</span> langsmith <span class="kw">import</span> traceable, get_current_run_tree
+<span class="kw">from</span> langchain.agents <span class="kw">import</span> AgentExecutor
+
+<span class="kw">@</span><span class="fn">traceable</span>(run_type=<span class="st">"chain"</span>, name=<span class="st">"agent_root"</span>)
+<span class="kw">def</span> <span class="fn">run_agent</span>(user_input: <span class="fn">str</span>) -> <span class="fn">str</span>:
+    <span class="cm"># All nested LangChain calls are auto-attributed as children</span>
+    result = agent_executor.<span class="fn">invoke</span>({<span class="st">"input"</span>: user_input})
+    <span class="kw">return</span> result[<span class="st">"output"</span>]</div>
+        <div class="tip-box warn">Wrapping your top-level function with <code>@traceable</code> establishes the root run. Every LangChain component invoked inside it automatically becomes a child span.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────── SPANS & TAGS ────────────────── -->
+  <div id="spans" class="section">
+    <p style="font-size:18px;font-weight:700;color:var(--color-text-primary);margin-bottom:4px">Spans & attribution</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.2rem">Add metadata to runs so you can filter, aggregate and compare in LangSmith.</p>
+
+    <div class="concept-section">
+      <div class="cs-header open" onclick="toggleCS(this)">
+        <span class="cs-badge" style="background:var(--ls-orange-bg);color:var(--ls-orange)">Tags</span>
+        <span class="cs-title">Tagging runs with <code>metadata</code> and <code>tags</code></span>
+        <span class="cs-chevron">▾</span>
+      </div>
+      <div class="cs-body open">
+        <div class="code-block"><span class="kw">@</span><span class="fn">traceable</span>(
+    run_type=<span class="st">"chain"</span>,
+    name=<span class="st">"rag_pipeline"</span>,
+    tags=[<span class="st">"rag"</span>, <span class="st">"production"</span>],          <span class="cm"># freeform string labels</span>
+    metadata={<span class="st">"user_id"</span>: <span class="st">"u_1234"</span>,      <span class="cm"># structured key-value data</span>
+              <span class="st">"session"</span>: session_id}
+)
+<span class="kw">def</span> <span class="fn">rag_pipeline</span>(query: <span class="fn">str</span>) -> <span class="fn">str</span>: ...</div>
+        <div class="two-col">
+          <div class="mini-card"><div class="label">tags</div>Use for categorical labels you filter on: environment, feature flag, user tier. Tags show up as chips in the UI run list.</div>
+          <div class="mini-card"><div class="label">metadata</div>Use for structured data you want to query: user_id, session_id, model version, A/B variant. Metadata is searchable via the filter bar.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="concept-section">
+      <div class="cs-header" onclick="toggleCS(this)">
+        <span class="cs-badge" style="background:var(--ls-blue-bg);color:var(--ls-blue)">Sessions</span>
+        <span class="cs-title">Grouping runs into sessions</span>
+        <span class="cs-chevron">▾</span>
+      </div>
+      <div class="cs-body">
+        <div class="code-block"><span class="kw">import</span> uuid
+<span class="kw">from</span> langsmith <span class="kw">import</span> traceable
+
+session_id = <span class="fn">str</span>(uuid.<span class="fn">uuid4</span>())  <span class="cm"># one per user session</span>
+
+<span class="kw">@</span><span class="fn">traceable</span>(
+    run_type=<span class="st">"chain"</span>,
+    metadata={<span class="st">"session_id"</span>: session_id}
+)
+<span class="kw">def</span> <span class="fn">chat_turn</span>(message: <span class="fn">str</span>) -> <span class="fn">str</span>: ...</div>
+        <div class="tip-box info">Sessions aren't a native LangSmith primitive — use <code>session_id</code> in metadata and filter by it. LangSmith Projects act as the top-level bucket; sessions are a filtering convention within a project.</div>
+      </div>
+    </div>
+
+    <div class="concept-section">
+      <div class="cs-header" onclick="toggleCS(this)">
+        <span class="cs-badge" style="background:var(--ls-teal-bg);color:var(--ls-teal)">Runtime</span>
+        <span class="cs-title">Updating metadata at runtime</span>
+        <span class="cs-chevron">▾</span>
+      </div>
+      <div class="cs-body">
+        <div class="code-block"><span class="kw">from</span> langsmith <span class="kw">import</span> get_current_run_tree
+
+<span class="kw">@</span><span class="fn">traceable</span>(run_type=<span class="st">"chain"</span>)
+<span class="kw">def</span> <span class="fn">process</span>(q: <span class="fn">str</span>) -> <span class="fn">str</span>:
+    run = <span class="fn">get_current_run_tree</span>()
+    run.<span class="fn">add_metadata</span>({<span class="st">"tokens_used"</span>: token_count})
+    run.<span class="fn">add_tags</span>([<span class="st">"flagged_for_review"</span>])
+    <span class="kw">return</span> answer</div>
+        <div class="tip-box success"><code>get_current_run_tree()</code> returns the active run so you can attach computed info (e.g. actual token counts or retrieved doc IDs) after they are known.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────── PROMPT VERSIONING ────────────────── -->
+  <div id="prompts" class="section">
+    <p style="font-size:18px;font-weight:700;color:var(--color-text-primary);margin-bottom:4px">Prompt versioning in LangSmith</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.2rem">Version-control prompts in the Hub; pull pinned commits in code.</p>
+
+    <div class="concept-section">
+      <div class="cs-header open" onclick="toggleCS(this)">
+        <span class="cs-badge" style="background:var(--ls-teal-bg);color:var(--ls-teal)">Push</span>
+        <span class="cs-title">Publishing a prompt to the Hub</span>
+        <span class="cs-chevron">▾</span>
+      </div>
+      <div class="cs-body open">
+        <div class="code-block"><span class="kw">from</span> langsmith <span class="kw">import</span> Client
+<span class="kw">from</span> langchain_core.prompts <span class="kw">import</span> ChatPromptTemplate
+
+client = <span class="fn">Client</span>()
+
+prompt = ChatPromptTemplate.<span class="fn">from_messages</span>([
+    (<span class="st">"system"</span>, <span class="st">"You are a helpful assistant. Context: {context}"</span>),
+    (<span class="st">"human"</span>,  <span class="st">"{question}"</span>),
+])
+
+<span class="cm"># Push creates a new commit; returns the commit hash</span>
+commit_hash = client.<span class="fn">push_prompt</span>(<span class="st">"rag-assistant"</span>, object=prompt)</div>
+        <div class="tip-box info">Every <code>push_prompt</code> creates an immutable commit. The same name with a new push is a new version — old commits remain accessible forever.</div>
+      </div>
+    </div>
+
+    <div class="concept-section">
+      <div class="cs-header" onclick="toggleCS(this)">
+        <span class="cs-badge" style="background:var(--ls-blue-bg);color:var(--ls-blue)">Pull</span>
+        <span class="cs-title">Pulling a prompt (latest vs pinned)</span>
+        <span class="cs-chevron">▾</span>
+      </div>
+      <div class="cs-body">
+        <div class="code-block"><span class="kw">from</span> langchain <span class="kw">import</span> hub
+
+<span class="cm"># Always gets the latest commit — fine for development</span>
+prompt_latest = hub.<span class="fn">pull</span>(<span class="st">"rag-assistant"</span>)
+
+<span class="cm"># Pin to a commit hash for production safety</span>
+prompt_pinned = hub.<span class="fn">pull</span>(<span class="st">"rag-assistant:abc12345"</span>)</div>
+        <div class="tip-box warn">Always pin prompts with a commit hash in production. <code>pull("name")</code> follows latest, which can silently change behavior when a teammate edits the prompt.</div>
+      </div>
+    </div>
+
+    <div class="concept-section">
+      <div class="cs-header" onclick="toggleCS(this)">
+        <span class="cs-badge" style="background:var(--ls-orange-bg);color:var(--ls-orange)">Link</span>
+        <span class="cs-title">Linking prompt versions to traces</span>
+        <span class="cs-chevron">▾</span>
+      </div>
+      <div class="cs-body">
+        <div class="code-block"><span class="kw">from</span> langsmith <span class="kw">import</span> traceable
+<span class="kw">from</span> langchain <span class="kw">import</span> hub
+
+<span class="cm"># Fetch prompt once at startup, tag its version in metadata</span>
+prompt_obj = hub.<span class="fn">pull</span>(<span class="st">"rag-assistant:abc12345"</span>)
+
+<span class="kw">@</span><span class="fn">traceable</span>(metadata={<span class="st">"prompt_commit"</span>: <span class="st">"abc12345"</span>})
+<span class="kw">def</span> <span class="fn">answer</span>(q: <span class="fn">str</span>) -> <span class="fn">str</span>:
+    chain = prompt_obj | llm
+    <span class="kw">return</span> chain.<span class="fn">invoke</span>({<span class="st">"question"</span>: q}).<span class="fn">content</span></div>
+        <div class="tip-box success">Storing <code>prompt_commit</code> in run metadata lets you filter LangSmith by commit hash to compare how different prompt versions affect outputs, latency and cost side-by-side.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ────────────────── DEBUGGING ────────────────── -->
+  <div id="debugging" class="section">
+    <p style="font-size:18px;font-weight:700;color:var(--color-text-primary);margin-bottom:4px">Debugging failures</p>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.2rem">A repeatable workflow for root-causing bad outputs or errors in your agent.</p>
+
+    <div class="debug-steps">
+      <div class="debug-step">
+        <div class="debug-step-num" style="background:var(--ls-orange-bg);color:var(--ls-orange)">1</div>
+        <div class="debug-step-body">
+          <div class="ds-title">Find the failing trace</div>
+          <div class="ds-desc">In LangSmith, filter by <em>Error</em> status or by your custom tag (<code>flagged</code>, <code>user_report</code>). Traces with exceptions show a red badge.</div>
+        </div>
+      </div>
+      <div class="debug-step">
+        <div class="debug-step-num" style="background:var(--ls-blue-bg);color:var(--ls-blue)">2</div>
+        <div class="debug-step-body">
+          <div class="ds-title">Inspect the span tree</div>
+          <div class="ds-desc">Expand the tree to find the failing span. Check inputs, outputs and the error message at each level. LLM spans show the exact prompt sent and the token usage.</div>
+        </div>
+      </div>
+      <div class="debug-step">
+        <div class="debug-step-num" style="background:var(--ls-teal-bg);color:var(--ls-teal)">3</div>
+        <div class="debug-step-body">
+          <div class="ds-title">Attach feedback programmatically</div>
+          <div class="ds-desc">Log structured feedback (thumbs, score, corrections) to runs so you can build evaluation datasets directly from production failures.</div>
+          <div class="code-block" style="margin-top:8px"><span class="kw">from</span> langsmith <span class="kw">import</span> Client
+client = <span class="fn">Client</span>()
+client.<span class="fn">create_feedback</span>(
+    run_id=failing_run_id,
+    key=<span class="st">"correctness"</span>,
+    score=<span class="arg">0</span>,
+    comment=<span class="st">"Wrong retrieval source"</span>
+)</div>
+        </div>
+      </div>
+      <div class="debug-step">
+        <div class="debug-step-num" style="background:var(--ls-amber-bg);color:var(--ls-amber)">4</div>
+        <div class="debug-step-body">
+          <div class="ds-title">Replay in the Playground</div>
+          <div class="ds-desc">Click <em>Open in Playground</em> on any LLM span to edit the exact prompt that caused the failure and re-run it live. Iterate on the prompt without touching code.</div>
+        </div>
+      </div>
+      <div class="debug-step">
+        <div class="debug-step-num" style="background:var(--ls-green-bg);color:var(--ls-green)">5</div>
+        <div class="debug-step-body">
+          <div class="ds-title">Add to a dataset and run evals</div>
+          <div class="ds-desc">Add the failing input → expected output pair to a LangSmith Dataset. Run evaluators against it after each fix to prevent regressions.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip-box danger" style="margin-top:1rem">Never debug from logs alone — without the full span tree you can't see whether a failure came from the retriever, the LLM call, or a downstream tool. Always anchor debugging to a LangSmith trace.</div>
+  </div>
+
+  <!-- ────────────────── QUIZ ────────────────── -->
+  <div id="quiz" class="section">
+    <p style="font-size:18px;font-weight:700;color:var(--color-text-primary);margin-bottom:.3rem">Knowledge check</p>
+    <div class="quiz-score">Score: <span id="score-val">0</span> / <span id="score-total">5</span></div>
+    <div id="quiz-container"></div>
+  </div>
+
+  <!-- ────────────────── CHEATSHEET ────────────────── -->
+  <div id="cheatsheet" class="section">
+    <p style="font-size:18px;font-weight:700;color:var(--color-text-primary);margin-bottom:1rem">Quick reference</p>
+    <div class="cheat-grid">
+      <div class="cheat-card">
+        <div class="ch-title" style="color:var(--ls-orange)">Env vars</div>
+        <div class="cheat-row"><span class="cheat-key">Enable tracing</span><span class="cheat-val">TRACING_V2=true</span></div>
+        <div class="cheat-row"><span class="cheat-key">API key</span><span class="cheat-val">LANGCHAIN_API_KEY</span></div>
+        <div class="cheat-row"><span class="cheat-key">Project name</span><span class="cheat-val">LANGCHAIN_PROJECT</span></div>
+        <div class="cheat-row"><span class="cheat-key">Async flush</span><span class="cheat-val">CALLBACKS_BACKGROUND</span></div>
+      </div>
+      <div class="cheat-card">
+        <div class="ch-title" style="color:var(--ls-blue)">Decorators & helpers</div>
+        <div class="cheat-row"><span class="cheat-key">Trace a function</span><span class="cheat-val">@traceable</span></div>
+        <div class="cheat-row"><span class="cheat-key">Access active run</span><span class="cheat-val">get_current_run_tree()</span></div>
+        <div class="cheat-row"><span class="cheat-key">Log feedback</span><span class="cheat-val">client.create_feedback()</span></div>
+        <div class="cheat-row"><span class="cheat-key">Context manager</span><span class="cheat-val">with trace(…)</span></div>
+      </div>
+      <div class="cheat-card">
+        <div class="ch-title" style="color:var(--ls-teal)">Prompt Hub</div>
+        <div class="cheat-row"><span class="cheat-key">Push new version</span><span class="cheat-val">client.push_prompt()</span></div>
+        <div class="cheat-row"><span class="cheat-key">Pull latest</span><span class="cheat-val">hub.pull("name")</span></div>
+        <div class="cheat-row"><span class="cheat-key">Pull pinned</span><span class="cheat-val">hub.pull("name:abc")</span></div>
+        <div class="cheat-row"><span class="cheat-key">List commits</span><span class="cheat-val">client.list_commits()</span></div>
+      </div>
+      <div class="cheat-card">
+        <div class="ch-title" style="color:var(--ls-amber)">Run types</div>
+        <div class="cheat-row"><span class="cheat-key">LLM call</span><span class="cheat-val">run_type="llm"</span></div>
+        <div class="cheat-row"><span class="cheat-key">Retrieval step</span><span class="cheat-val">run_type="retriever"</span></div>
+        <div class="cheat-row"><span class="cheat-key">Tool use</span><span class="cheat-val">run_type="tool"</span></div>
+        <div class="cheat-row"><span class="cheat-key">Generic step</span><span class="cheat-val">run_type="chain"</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const quizData = [
+  {
+    q: "Which environment variable must be set to `true` to enable LangSmith tracing in a LangChain project?",
+    opts: ["LANGCHAIN_TRACING_V2", "LANGSMITH_TRACE", "LANGCHAIN_OBSERVABILITY", "LS_ENABLE_TRACING"],
+    ans: 0,
+    exp: "LANGCHAIN_TRACING_V2=true is the canonical toggle. The other keys don't exist in LangChain."
+  },
+  {
+    q: "You want to pin a specific prompt version in production to avoid unexpected behavior from teammate edits. Which call is correct?",
+    opts: ["hub.pull('my-prompt')", "hub.pull('my-prompt:commit_hash')", "client.get_prompt('my-prompt', latest=False)", "hub.pin('my-prompt')"],
+    ans: 1,
+    exp: "Appending :commit_hash to the prompt name in hub.pull() pins to that exact immutable version."
+  },
+  {
+    q: "What does the `run_type` parameter in `@traceable` control?",
+    opts: ["The sampling rate for traces", "The icon and category shown in the LangSmith UI", "Whether child spans are created", "The retry logic on failure"],
+    ans: 1,
+    exp: "run_type classifies the span (chain, llm, retriever, tool, embedding) which determines the icon and filtering category in LangSmith."
+  },
+  {
+    q: "You need to attach computed token counts to a run after the LLM call completes. Which approach works?",
+    opts: [
+      "Pass tokens in the @traceable decorator at import time",
+      "Use get_current_run_tree() inside the function and call run.add_metadata()",
+      "Write directly to the LANGSMITH_METADATA env var",
+      "Token counts are captured automatically; no action needed"
+    ],
+    ans: 1,
+    exp: "get_current_run_tree() returns the live Run object. Calling add_metadata() on it attaches data computed at runtime."
+  },
+  {
+    q: "In the debugging workflow, what is the fastest way to experiment with a fixed prompt after finding a failure in a trace?",
+    opts: [
+      "Edit the source code, redeploy, and re-run",
+      "Download the trace as JSON and replay locally",
+      "Click 'Open in Playground' on the LLM span and iterate there",
+      "Create a new LangSmith project and re-instrument"
+    ],
+    ans: 2,
+    exp: "The LangSmith Playground lets you edit the exact prompt from a failing LLM span and re-run it live without touching code or redeploying."
+  }
+];
+
+let scores = new Array(quizData.length).fill(null);
+
+function renderQuiz() {
+  const c = document.getElementById('quiz-container');
+  c.innerHTML = quizData.map((q, i) => `
+    <div class="quiz-card" id="qcard-${i}">
+      <div class="quiz-q">${i+1}. ${q.q}</div>
+      <div class="quiz-opts">
+        ${q.opts.map((o, j) => `
+          <button class="quiz-opt" id="opt-${i}-${j}" onclick="answer(${i},${j})">${o}</button>
+        `).join('')}
+      </div>
+      <div id="fb-${i}" class="quiz-feedback" style="display:none"></div>
+    </div>
+  `).join('');
+  updateScore();
+}
+
+function answer(qi, oi) {
+  if (scores[qi] !== null) return;
+  const correct = quizData[qi].ans === oi;
+  scores[qi] = correct ? 1 : 0;
+
+  const opts = document.querySelectorAll(`[id^="opt-${qi}-"]`);
+  opts.forEach(b => b.disabled = true);
+  document.getElementById(`opt-${qi}-${quizData[qi].ans}`).classList.add('correct');
+  if (!correct) document.getElementById(`opt-${qi}-${oi}`).classList.add('wrong');
+
+  const fb = document.getElementById(`fb-${qi}`);
+  fb.style.display = 'block';
+  fb.className = `quiz-feedback ${correct ? 'ok' : 'bad'}`;
+  fb.textContent = (correct ? '✓ Correct. ' : '✗ Not quite. ') + quizData[qi].exp;
+
+  updateScore();
+}
+
+function updateScore() {
+  const done = scores.filter(s => s !== null).length;
+  const got = scores.filter(s => s === 1).length;
+  document.getElementById('score-val').textContent = got;
+  document.getElementById('score-total').textContent = quizData.length;
+}
+
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const labels = {overview:'Overview',tracing:'Tracing setup',spans:'Spans & tags',prompts:'Prompt versioning',debugging:'Debugging',quiz:'Quiz',cheatsheet:'Cheatsheet'};
+  document.querySelectorAll('.nav-btn').forEach(b => { if(b.textContent===labels[id]) b.classList.add('active'); });
+  if(id==='quiz' && !document.getElementById('quiz-container').innerHTML) renderQuiz();
+}
+
+function toggleCS(header) {
+  const body = header.nextElementSibling;
+  const open = body.classList.toggle('open');
+  header.classList.toggle('open', open);
+}
+
+document.querySelectorAll('.cs-header.open + .cs-body').forEach(b => b.classList.add('open'));
+document.querySelectorAll('.cs-header.open').forEach(h => h.classList.add('open'));
+</script>
