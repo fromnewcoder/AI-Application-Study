@@ -1,0 +1,835 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;1,9..144,300&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --rag: #0C7C59;
+    --rag-bg: #E1F5EE;
+    --ft: #185FA5;
+    --ft-bg: #E6F1FB;
+    --agent: #7F77DD;
+    --agent-bg: #EEEDFE;
+    --prompt: #BA7517;
+    --prompt-bg: #FAEEDA;
+  }
+
+  body { font-family: var(--font-sans, system-ui, sans-serif); }
+
+  .wrapper {
+    padding: 0 0 2rem;
+    max-width: 680px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 2px;
+    border-bottom: 1px solid var(--color-border-tertiary);
+    margin-bottom: 1.5rem;
+  }
+
+  .tab {
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    letter-spacing: 0.01em;
+  }
+
+  .tab:hover { color: var(--color-text-primary); }
+  .tab.active { color: var(--color-text-primary); border-bottom-color: var(--color-text-primary); }
+
+  .pane { display: none; }
+  .pane.active { display: block; }
+
+  /* === OVERVIEW === */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .arch-card {
+    border-radius: var(--border-radius-lg);
+    padding: 1rem 1.1rem;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .arch-card:hover { transform: translateY(-2px); }
+
+  .arch-card.rag   { background: var(--rag-bg);    border-color: #9FE1CB; }
+  .arch-card.ft    { background: var(--ft-bg);     border-color: #B5D4F4; }
+  .arch-card.agent { background: var(--agent-bg);  border-color: #CECBF6; }
+  .arch-card.prompt{ background: var(--prompt-bg); border-color: #FAC775; }
+
+  .arch-card .tag {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 6px;
+  }
+  .arch-card h3 { font-size: 15px; font-weight: 500; margin-bottom: 6px; }
+  .arch-card p  { font-size: 12.5px; line-height: 1.55; color: var(--color-text-secondary); }
+
+  .arch-card.rag   h3 { color: var(--rag); }
+  .arch-card.ft    h3 { color: var(--ft); }
+  .arch-card.agent h3 { color: var(--agent); }
+  .arch-card.prompt h3{ color: var(--prompt); }
+
+  .arch-card .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 400;
+  }
+
+  .arch-card.rag    .badge { background: #9FE1CB33; color: var(--rag); }
+  .arch-card.ft     .badge { background: #B5D4F433; color: var(--ft); }
+  .arch-card.agent  .badge { background: #CECBF633; color: var(--agent); }
+  .arch-card.prompt .badge { background: #FAC77533; color: var(--prompt); }
+
+  /* === FLOWCHART === */
+  .flowchart-wrap {
+    overflow-x: auto;
+  }
+
+  .fc-node {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .fc-node:hover rect, .fc-node:hover polygon { opacity: 0.85; }
+
+  /* === CASE STUDIES === */
+  .case-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .case-card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+  }
+
+  .case-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--color-background-secondary);
+    user-select: none;
+  }
+
+  .case-type-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+
+  .case-header h4 { font-size: 14px; font-weight: 500; flex: 1; }
+  .case-header .chevron { font-size: 12px; color: var(--color-text-tertiary); transition: transform 0.2s; }
+  .case-card.open .chevron { transform: rotate(180deg); }
+
+  .case-body {
+    display: none;
+    padding: 14px 16px;
+    border-top: 0.5px solid var(--color-border-tertiary);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+  }
+  .case-card.open .case-body { display: block; }
+
+  .case-body .verdict {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 8px;
+  }
+  .case-body .verdict.rag   { background: var(--rag-bg);    color: var(--rag); }
+  .case-body .verdict.ft    { background: var(--ft-bg);     color: var(--ft); }
+  .case-body .verdict.agent { background: var(--agent-bg);  color: var(--agent); }
+  .case-body .verdict.prompt{ background: var(--prompt-bg); color: var(--prompt); }
+
+  .case-body .factors {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 4px 12px;
+  }
+  .case-body .factors dt {
+    font-weight: 500;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+  }
+  .case-body .factors dd { color: var(--color-text-secondary); }
+
+  /* === QUIZ === */
+  .quiz-progress {
+    display: flex; gap: 4px; margin-bottom: 1.2rem;
+  }
+  .qp-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--color-border-secondary);
+    transition: background 0.2s;
+  }
+  .qp-dot.done { background: var(--color-text-primary); }
+  .qp-dot.current { background: var(--color-text-secondary); }
+
+  .quiz-q {
+    font-size: 15px; font-weight: 500;
+    margin-bottom: 1rem; line-height: 1.5;
+    color: var(--color-text-primary);
+  }
+
+  .quiz-opts {
+    display: flex; flex-direction: column; gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-opt {
+    background: var(--color-background-secondary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 10px 14px;
+    font-size: 13.5px;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s, border-color 0.1s;
+    color: var(--color-text-primary);
+  }
+  .quiz-opt:hover:not(:disabled) { border-color: var(--color-border-primary); }
+  .quiz-opt.correct { background: #E1F5EE; border-color: #0C7C59; color: #0C7C59; font-weight: 500; }
+  .quiz-opt.wrong   { background: #FCEBEB; border-color: #A32D2D; color: #A32D2D; }
+  .quiz-opt:disabled { cursor: default; }
+
+  .quiz-explain {
+    font-size: 13px; line-height: 1.6;
+    padding: 10px 14px;
+    border-radius: var(--border-radius-md);
+    background: var(--color-background-secondary);
+    border-left: 3px solid var(--color-border-secondary);
+    margin-bottom: 1rem;
+    color: var(--color-text-secondary);
+    display: none;
+  }
+  .quiz-explain.show { display: block; }
+
+  .quiz-next {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 8px 20px;
+    font-size: 13px;
+    cursor: pointer;
+    display: none;
+    color: var(--color-text-primary);
+    transition: background 0.1s;
+  }
+  .quiz-next:hover { background: var(--color-background-secondary); }
+  .quiz-next.show { display: inline-block; }
+
+  .quiz-score {
+    text-align: center; padding: 2rem 1rem;
+  }
+  .quiz-score .score-num {
+    font-size: 48px; font-weight: 500; margin-bottom: 4px;
+    color: var(--color-text-primary);
+  }
+  .quiz-score p { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin-bottom: 10px;
+  }
+
+  .compare-table {
+    width: 100%;
+    font-size: 12.5px;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+  }
+  .compare-table th {
+    text-align: left;
+    padding: 6px 10px;
+    font-weight: 500;
+    font-size: 12px;
+    background: var(--color-background-secondary);
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border-tertiary);
+  }
+  .compare-table td {
+    padding: 7px 10px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    color: var(--color-text-primary);
+    vertical-align: top;
+    line-height: 1.4;
+  }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table td:first-child { font-weight: 500; color: var(--color-text-secondary); font-size: 12px; white-space: nowrap; }
+
+  .chip { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 10px; margin: 1px 2px 1px 0; }
+  .chip.g { background: #E1F5EE; color: #0C7C59; }
+  .chip.b { background: #FCEBEB; color: #A32D2D; }
+</style>
+
+<div class="wrapper">
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab" onclick="switchTab('flowchart')">Decision flowchart</button>
+    <button class="tab" onclick="switchTab('cases')">Case studies</button>
+    <button class="tab" onclick="switchTab('compare')">Compare</button>
+    <button class="tab" onclick="switchTab('quiz')">Quiz</button>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="pane active" id="pane-overview">
+    <p class="section-label">Four architecture patterns</p>
+    <div class="arch-grid">
+      <div class="arch-card rag" onclick="sendPrompt('Explain RAG architecture in depth — when to use it, typical stack, and pitfalls')">
+        <div class="tag">Pattern 01</div>
+        <h3>RAG</h3>
+        <p>Retrieval-Augmented Generation. Fetch relevant context at runtime and inject into the prompt.</p>
+        <div class="badge-row">
+          <span class="badge">Dynamic knowledge</span>
+          <span class="badge">No retraining</span>
+          <span class="badge">Citeable</span>
+        </div>
+      </div>
+      <div class="arch-card ft" onclick="sendPrompt('Explain fine-tuning in depth — when to use it, cost, and when NOT to use it')">
+        <div class="tag">Pattern 02</div>
+        <h3>Fine-tune</h3>
+        <p>Adapt a base model's weights on domain-specific examples to shift its behavior or style.</p>
+        <div class="badge-row">
+          <span class="badge">Style/format control</span>
+          <span class="badge">No runtime cost</span>
+          <span class="badge">Costly upfront</span>
+        </div>
+      </div>
+      <div class="arch-card agent" onclick="sendPrompt('Explain LLM agents in depth — tools, orchestration patterns, and failure modes')">
+        <div class="tag">Pattern 03</div>
+        <h3>Agent</h3>
+        <p>LLM as an orchestrator. Calls tools, searches, writes code, loops until task complete.</p>
+        <div class="badge-row">
+          <span class="badge">Multi-step tasks</span>
+          <span class="badge">Tool use</span>
+          <span class="badge">High complexity</span>
+        </div>
+      </div>
+      <div class="arch-card prompt" onclick="sendPrompt('Explain simple prompting as an architecture — when it\'s the right answer and prompt engineering techniques')">
+        <div class="tag">Pattern 04</div>
+        <h3>Simple prompt</h3>
+        <p>Zero-shot or few-shot prompts. No pipelines, no training. Just the right system prompt.</p>
+        <div class="badge-row">
+          <span class="badge">Fast iteration</span>
+          <span class="badge">Low cost</span>
+          <span class="badge">Limited scope</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="section-label">When each shines</p>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Situation</th>
+          <th>Best fit</th>
+          <th>Reason</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Private docs change weekly</td><td><span class="chip g">RAG</span></td><td>Keeps knowledge fresh without retraining</td></tr>
+        <tr><td>Need specific output format/tone</td><td><span class="chip g">Fine-tune</span></td><td>Bakes format into weights, not prompts</td></tr>
+        <tr><td>Send an email based on calendar</td><td><span class="chip g">Agent</span></td><td>Requires tool calls to external systems</td></tr>
+        <tr><td>Summarize a single doc</td><td><span class="chip g">Simple prompt</span></td><td>No retrieval needed — doc fits in context</td></tr>
+        <tr><td>Answer questions about static FAQ</td><td><span class="chip g">Simple prompt</span></td><td>FAQ fits in system prompt — no complexity needed</td></tr>
+        <tr><td>Legal compliance Q&amp;A</td><td><span class="chip g">RAG</span></td><td>Citations required; docs update frequently</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FLOWCHART -->
+  <div class="pane" id="pane-flowchart">
+    <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.5">Work top to bottom. Each question eliminates options. Click any outcome for a deep dive.</p>
+    <div class="flowchart-wrap">
+<svg width="100%" viewBox="0 0 680 920" role="img">
+  <title>Architecture Decision Flowchart</title>
+  <desc>A decision tree guiding from problem statement to one of four architecture patterns: simple prompt, fine-tune, RAG, or agent.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+  </defs>
+
+  <!-- START -->
+  <g class="fc-node" onclick="sendPrompt('Walk me through the architecture decision flowchart from the beginning')">
+    <rect x="240" y="20" width="200" height="44" rx="22" fill="var(--color-background-secondary)" stroke="var(--color-border-secondary)" stroke-width="1"/>
+    <text class="th" x="340" y="42" text-anchor="middle" dominant-baseline="central" style="font-size:14px">New AI feature needed</text>
+  </g>
+
+  <!-- Q1 -->
+  <line x1="340" y1="64" x2="340" y2="100" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <g class="fc-node" onclick="sendPrompt('In the architecture decision framework, what does it mean for a task to require external data or tools?')">
+    <polygon points="340,105 480,145 340,185 200,145" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+    <text class="ts" x="340" y="139" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">Requires external</text>
+    <text class="ts" x="340" y="157" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">data or tool calls?</text>
+  </g>
+
+  <!-- Q1 → YES → Agent -->
+  <line x1="480" y1="145" x2="570" y2="145" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="523" y="137" text-anchor="middle" style="font-size:12px">yes</text>
+
+  <!-- Q1 → NO → Q2 -->
+  <line x1="340" y1="185" x2="340" y2="230" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="330" y="215" text-anchor="end" style="font-size:12px">no</text>
+
+  <!-- AGENT box (right) -->
+  <g class="fc-node" onclick="sendPrompt('When should I use an agent architecture? Give me a concrete example and the typical stack.')">
+    <rect x="571" y="116" width="88" height="58" rx="8" fill="#EEEDFE" stroke="#CECBF6" stroke-width="1"/>
+    <text class="th" x="615" y="141" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#3C3489">Agent</text>
+    <text class="ts" x="615" y="158" text-anchor="middle" dominant-baseline="central" style="font-size:11px;fill:#534AB7">tools + loops</text>
+  </g>
+
+  <!-- Q2: multi-step reasoning -->
+  <g class="fc-node" onclick="sendPrompt('What makes a task require multi-step orchestration vs a single LLM call?')">
+    <polygon points="340,235 480,275 340,315 200,275" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+    <text class="ts" x="340" y="269" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">Multi-step reasoning</text>
+    <text class="ts" x="340" y="287" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">or autonomous loops?</text>
+  </g>
+
+  <!-- Q2 YES → Agent too -->
+  <line x1="480" y1="275" x2="570" y2="275" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="523" y="267" text-anchor="middle" style="font-size:12px">yes</text>
+  <line x1="571" y1="275" x2="571" y2="174" stroke="var(--color-border-secondary)" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#arrow)"/>
+
+  <!-- Q2 NO → Q3 -->
+  <line x1="340" y1="315" x2="340" y2="365" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="330" y="348" text-anchor="end" style="font-size:12px">no</text>
+
+  <!-- Q3: knowledge freshness -->
+  <g class="fc-node" onclick="sendPrompt('How do I decide between RAG and a context window? What signals indicate I need retrieval?')">
+    <polygon points="340,370 480,410 340,450 200,410" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+    <text class="ts" x="340" y="404" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">Knowledge too large</text>
+    <text class="ts" x="340" y="422" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">or changes often?</text>
+  </g>
+
+  <!-- Q3 YES → RAG -->
+  <line x1="480" y1="410" x2="571" y2="410" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="524" y="402" text-anchor="middle" style="font-size:12px">yes</text>
+
+  <g class="fc-node" onclick="sendPrompt('When should I use RAG? Explain chunks, embeddings, vector search and when to avoid it.')">
+    <rect x="571" y="381" width="88" height="58" rx="8" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="1"/>
+    <text class="th" x="615" y="406" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#085041">RAG</text>
+    <text class="ts" x="615" y="423" text-anchor="middle" dominant-baseline="central" style="font-size:11px;fill:#0F6E56">retrieve + inject</text>
+  </g>
+
+  <!-- Q3 NO → Q4 -->
+  <line x1="340" y1="450" x2="340" y2="500" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="330" y="482" text-anchor="end" style="font-size:12px">no</text>
+
+  <!-- Q4: behavior change -->
+  <g class="fc-node" onclick="sendPrompt('What is the difference between controlling model behavior through fine-tuning vs prompting?')">
+    <polygon points="340,505 480,545 340,585 200,545" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+    <text class="ts" x="340" y="539" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">Need specific tone,</text>
+    <text class="ts" x="340" y="557" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">style or domain task?</text>
+  </g>
+
+  <!-- Q4 NO → Simple prompt -->
+  <line x1="200" y1="545" x2="109" y2="545" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="153" y="537" text-anchor="middle" style="font-size:12px">no</text>
+
+  <g class="fc-node" onclick="sendPrompt('When is a simple prompt the right architecture? Give examples where teams over-engineered instead.')">
+    <rect x="20" y="516" width="88" height="58" rx="8" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+    <text class="th" x="64" y="540" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#412402">Simple</text>
+    <text class="th" x="64" y="557" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#412402">prompt</text>
+  </g>
+
+  <!-- Q4 YES → Q5 -->
+  <line x1="340" y1="585" x2="340" y2="635" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="352" y="614" style="font-size:12px">yes</text>
+
+  <!-- Q5: examples volume -->
+  <g class="fc-node" onclick="sendPrompt('How many labeled examples do I need before fine-tuning makes sense over few-shot prompting?')">
+    <polygon points="340,640 480,680 340,720 200,680" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+    <text class="ts" x="340" y="674" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">Have 100s+ quality</text>
+    <text class="ts" x="340" y="692" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#633806">labeled examples?</text>
+  </g>
+
+  <!-- Q5 YES → Fine-tune -->
+  <line x1="480" y1="680" x2="571" y2="680" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="524" y="672" text-anchor="middle" style="font-size:12px">yes</text>
+
+  <g class="fc-node" onclick="sendPrompt('Explain the fine-tuning process end to end — dataset prep, training, evaluation, and when to prefer RLHF vs SFT.')">
+    <rect x="571" y="651" width="88" height="58" rx="8" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1"/>
+    <text class="th" x="615" y="676" text-anchor="middle" dominant-baseline="central" style="font-size:13px;fill:#042C53">Fine-tune</text>
+    <text class="ts" x="615" y="693" text-anchor="middle" dominant-baseline="central" style="font-size:11px;fill:#185FA5">train on examples</text>
+  </g>
+
+  <!-- Q5 NO → Simple prompt again -->
+  <line x1="340" y1="720" x2="340" y2="770" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#arrow)"/>
+  <text class="ts" x="330" y="752" text-anchor="end" style="font-size:12px">no</text>
+
+  <!-- Fallback: try few-shot first -->
+  <g class="fc-node" onclick="sendPrompt('How can I use few-shot prompting as a cheaper alternative to fine-tuning?')">
+    <rect x="210" y="775" width="260" height="50" rx="8" fill="var(--color-background-secondary)" stroke="var(--color-border-secondary)" stroke-width="0.8"/>
+    <text class="th" x="340" y="796" text-anchor="middle" dominant-baseline="central" style="font-size:13px">Try few-shot prompting first</text>
+    <text class="ts" x="340" y="813" text-anchor="middle" dominant-baseline="central" style="font-size:12px">collect more data if still unsatisfied</text>
+  </g>
+
+  <!-- Legend -->
+  <rect x="30" y="840" width="620" height="64" rx="8" fill="var(--color-background-secondary)" stroke="var(--color-border-tertiary)" stroke-width="0.5"/>
+  <text class="ts" x="50" y="860" style="font-size:12px;font-weight:500">Click any box for a deep-dive ↗</text>
+  <circle cx="50" cy="880" r="6" fill="#E1F5EE" stroke="#9FE1CB" stroke-width="1"/>
+  <text class="ts" x="62" y="884" style="font-size:11px;fill:#0C7C59">RAG</text>
+  <circle cx="115" cy="880" r="6" fill="#E6F1FB" stroke="#B5D4F4" stroke-width="1"/>
+  <text class="ts" x="127" y="884" style="font-size:11px;fill:#185FA5">Fine-tune</text>
+  <circle cx="200" cy="880" r="6" fill="#EEEDFE" stroke="#CECBF6" stroke-width="1"/>
+  <text class="ts" x="212" y="884" style="font-size:11px;fill:#534AB7">Agent</text>
+  <circle cx="265" cy="880" r="6" fill="#FAEEDA" stroke="#FAC775" stroke-width="1"/>
+  <text class="ts" x="277" y="884" style="font-size:11px;fill:#BA7517">Simple prompt</text>
+  <polygon points="390,886 410,876 430,886 410,896" fill="#FAEEDA" stroke="#FAC775" stroke-width="0.8"/>
+  <text class="ts" x="442" y="885" style="font-size:11px">Decision point</text>
+</svg>
+    </div>
+  </div>
+
+  <!-- CASE STUDIES -->
+  <div class="pane" id="pane-cases">
+    <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.5">Real scenarios analyzed through the decision framework. Click each to see the reasoning.</p>
+    <div class="case-list" id="case-list"></div>
+  </div>
+
+  <!-- COMPARE -->
+  <div class="pane" id="pane-compare">
+    <p class="section-label">Side-by-side comparison</p>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th style="width:120px">Dimension</th>
+          <th style="color:#0C7C59">RAG</th>
+          <th style="color:#185FA5">Fine-tune</th>
+          <th style="color:#7F77DD">Agent</th>
+          <th style="color:#BA7517">Simple prompt</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Setup cost</td>
+          <td>Medium<br><small>embedding pipeline</small></td>
+          <td>High<br><small>training + eval</small></td>
+          <td>High<br><small>tool design + orchestration</small></td>
+          <td>Low<br><small>just prompt eng.</small></td>
+        </tr>
+        <tr>
+          <td>Latency</td>
+          <td>Medium<br><small>retrieval + LLM call</small></td>
+          <td>Low<br><small>single forward pass</small></td>
+          <td>High<br><small>multi-turn loops</small></td>
+          <td>Low<br><small>single call</small></td>
+        </tr>
+        <tr>
+          <td>Knowledge freshness</td>
+          <td><span class="chip g">Real-time</span></td>
+          <td><span class="chip b">Static</span></td>
+          <td><span class="chip g">Via tools</span></td>
+          <td><span class="chip b">Static</span></td>
+        </tr>
+        <tr>
+          <td>Citeable / auditable</td>
+          <td><span class="chip g">Yes — chunk source</span></td>
+          <td><span class="chip b">No</span></td>
+          <td><span class="chip g">Yes — tool logs</span></td>
+          <td><span class="chip b">No</span></td>
+        </tr>
+        <tr>
+          <td>Failure mode</td>
+          <td>Bad retrieval = bad answer</td>
+          <td>Catastrophic forgetting; overfit</td>
+          <td>Hallucinated tool calls; loops</td>
+          <td>Hits context limit; prompt injection</td>
+        </tr>
+        <tr>
+          <td>Best for</td>
+          <td>Q&amp;A over private docs</td>
+          <td>Tone / domain shift</td>
+          <td>Autonomous tasks</td>
+          <td>Single-turn classification / gen</td>
+        </tr>
+        <tr>
+          <td>Typical stack</td>
+          <td>Embeddings + vector DB + LLM</td>
+          <td>Base model + training data + GPU</td>
+          <td>LLM + tools + memory + orchestrator</td>
+          <td>System prompt + LLM API</td>
+        </tr>
+        <tr>
+          <td>Start here when</td>
+          <td>Docs &gt; context window OR update &gt; monthly</td>
+          <td>Prompt tuning hits ceiling after 50+ examples</td>
+          <td>Task requires browsing, code exec, or DB writes</td>
+          <td>Always — exhaust this before adding complexity</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size:12.5px;color:var(--color-text-tertiary);line-height:1.5">Rule of thumb: start with a simple prompt. Only graduate to RAG when knowledge won't fit in context. Only fine-tune when you've exhausted prompt engineering. Only use agents when a task truly requires external actions.</p>
+  </div>
+
+  <!-- QUIZ -->
+  <div class="pane" id="pane-quiz">
+    <div id="quiz-area"></div>
+  </div>
+</div>
+
+<script>
+const CASES = [
+  {
+    title: "Customer support chatbot for SaaS docs",
+    type: "rag",
+    verdict: "RAG",
+    problem: "A B2B company wants their chatbot to answer product questions accurately. Docs update with every release (bi-weekly).",
+    decision: "The knowledge base (500+ pages) is too large for a system prompt. Docs change every 2 weeks — fine-tuning would be stale by release. No tool calls needed. RAG with chunked docs + vector search is ideal.",
+    factors: {
+      "Knowledge size": "500+ pages, can't fit in context",
+      "Update frequency": "Bi-weekly — RAG keeps it fresh",
+      "Tool calls needed": "No — just Q&A",
+      "Why not fine-tune": "Would encode stale knowledge",
+      "Why not agent": "No actions to take — just lookup"
+    }
+  },
+  {
+    title: "Legal brief formatter for law firm",
+    type: "ft",
+    verdict: "Fine-tune",
+    problem: "A law firm wants the model to always produce briefs in their house style — specific section headers, citation format, formal register. Base model drifts without very long system prompts.",
+    decision: "This is a style/format problem, not a knowledge problem. The firm has 800 historical briefs as training data. Fine-tuning bakes the format into weights, eliminating the need for a 2,000-token system prompt on every call.",
+    factors: {
+      "Core need": "Consistent output style, not fresh knowledge",
+      "Training data": "800 labeled examples available",
+      "Why not RAG": "Docs don't need retrieving — style does",
+      "Why not agent": "No external tools needed",
+      "Prompt alternative": "Tried — too brittle, long system prompt"
+    }
+  },
+  {
+    title: "Autonomous code review bot",
+    type: "agent",
+    verdict: "Agent",
+    problem: "On each PR, the bot should: fetch the diff from GitHub, run tests, read related files, post a structured comment, and open Jira tickets for critical issues.",
+    decision: "This task requires calling 4 external systems (GitHub, test runner, Jira, PR comments). It's inherently multi-step with conditional logic. Only an agent architecture handles this — a simple prompt or RAG can't execute side effects.",
+    factors: {
+      "Tool calls": "GitHub API, test runner, Jira, PR comments",
+      "Multi-step": "Yes — conditional on test results",
+      "Why not RAG": "Needs to write to systems, not just read",
+      "Why not fine-tune": "Logic is dynamic, not stylistic",
+      "Risk": "Hallucinated tool calls — needs guardrails"
+    }
+  },
+  {
+    title: "Blog post sentiment classifier",
+    type: "prompt",
+    verdict: "Simple prompt",
+    problem: "Marketing team wants to tag inbound blog comments as positive, negative, or neutral for a dashboard.",
+    decision: "A zero-shot classification task. GPT-4 / Claude with a 3-line system prompt achieves near-human accuracy out of the box. No external data, no multi-step loops, no style shift needed. Classic over-engineering trap — teams often jump to fine-tuning here.",
+    factors: {
+      "Task type": "Classification — LLMs excel zero-shot",
+      "Knowledge needed": "None — comment is the full input",
+      "Why not fine-tune": "Would add weeks of work for minimal gain",
+      "Why not RAG": "No external knowledge to retrieve",
+      "Why not agent": "Single inference, no tools needed"
+    }
+  },
+  {
+    title: "Medical coding assistant",
+    type: "rag",
+    verdict: "RAG",
+    problem: "Hospital wants to suggest ICD-10 codes from clinical notes. Codebook has 70k+ codes with descriptions. Updated annually by CMS.",
+    decision: "70k codes can't fit in context (would be 200k+ tokens). The codebook is the ground truth — hallucinating codes would be dangerous. RAG retrieves candidate codes with their descriptions, then LLM picks and justifies. Annual updates are easy to re-embed.",
+    factors: {
+      "Knowledge size": "70,000+ codes with descriptions",
+      "Accuracy need": "High — wrong codes = billing errors",
+      "Why not fine-tune": "Model would hallucinate codes not in fine-tune data",
+      "Why RAG wins": "Retrieval grounds in authoritative codebook",
+      "Update cycle": "Annual — easy re-embed"
+    }
+  },
+  {
+    title: "Internal research analyst assistant",
+    type: "agent",
+    verdict: "Agent",
+    problem: "Analysts want to ask: 'What are our top 5 deals at risk this quarter?' The answer requires querying CRM, pulling meeting transcripts, and cross-referencing email threads.",
+    decision: "Three data sources, dynamic querying, synthesis required. This is a natural agent: tool calls to CRM API, transcript store, and email search; then LLM synthesizes. A simple prompt can't touch live systems; RAG doesn't write the query logic.",
+    factors: {
+      "Data sources": "CRM, transcripts, email — all live",
+      "Query type": "Dynamic — different each time",
+      "Why not RAG": "Needs to execute queries, not just search docs",
+      "Why not fine-tune": "Logic is situational, not style",
+      "Orchestration": "ReAct loop: plan → query → synthesize"
+    }
+  }
+];
+
+const QUIZ = [
+  {
+    q: "A startup wants their LLM to answer questions about their 1,000-page employee handbook, which updates monthly. What architecture fits best?",
+    opts: ["Simple prompt — handbooks are simple docs", "Fine-tune — train it on the handbook", "RAG — retrieve relevant sections at query time", "Agent — automate the HR process"],
+    answer: 2,
+    explain: "At 1,000 pages the handbook exceeds any context window. RAG chunks the doc, embeds it, and retrieves relevant sections at query time. Monthly updates are handled by re-embedding — no retraining needed. Fine-tuning would encode stale data."
+  },
+  {
+    q: "A law firm's base model keeps drifting from their citation style despite a 1,500-token system prompt. They have 600 historical briefs as examples. What should they do?",
+    opts: ["Add more instructions to the system prompt", "Switch to RAG to pull citation examples at runtime", "Fine-tune on the 600 historical briefs", "Use an agent to check citations via API"],
+    answer: 2,
+    explain: "This is a style/format problem, not a knowledge retrieval problem. With 600 labeled examples, fine-tuning bakes the citation style into the model's weights — eliminating the long, brittle system prompt. RAG would help if they needed to look up cases, not for style consistency."
+  },
+  {
+    q: "Which architecture has the HIGHEST latency for user-facing requests?",
+    opts: ["Simple prompt", "RAG", "Fine-tuned model", "Agent"],
+    answer: 3,
+    explain: "Agents invoke multiple tool calls in a loop, each adding network round trips plus LLM inference time. Fine-tuned models are actually fastest — a single forward pass. RAG adds one retrieval step. Simple prompts are a single LLM call."
+  },
+  {
+    q: "You need to classify customer emails as 'billing', 'technical', or 'other' with ~90% accuracy. What's the best first step?",
+    opts: ["Fine-tune a model on 10,000 labeled emails", "Build a RAG pipeline with past tickets", "Try a zero-shot prompt with GPT-4/Claude", "Build an agent that queries the ticket system"],
+    answer: 2,
+    explain: "Always exhaust simpler options first. Modern LLMs achieve excellent accuracy on 3-class classification zero-shot. Fine-tuning would take weeks. RAG would retrieve irrelevant tickets. An agent is overkill for pure classification. Start simple — escalate only if accuracy is insufficient."
+  },
+  {
+    q: "What is the PRIMARY failure mode of RAG architectures?",
+    opts: ["Model forgets its original training", "Bad retrieval surfaces wrong chunks → wrong answers", "Too many tool calls in a loop", "Context window overflow from system prompt"],
+    answer: 1,
+    explain: "RAG is only as good as its retrieval. If the wrong chunks are retrieved (due to embedding mismatch, chunking strategy, or poor query rewriting), the LLM generates confidently wrong answers. This is why RAG evals must measure retrieval precision separately from generation quality."
+  },
+  {
+    q: "A team wants their bot to: search the web, query their database, write a report, and email it. Which architecture?",
+    opts: ["RAG — it can search docs", "Fine-tune — it needs to know the report format", "Simple prompt — detailed instructions suffice", "Agent — requires multiple tool calls"],
+    answer: 3,
+    explain: "The task requires executing 3 external actions (web search, DB query, send email). These are tool calls — only an agent architecture can invoke external systems. RAG is read-only retrieval. Fine-tuning changes behavior, not capabilities. A prompt can't call APIs."
+  },
+  {
+    q: "When does fine-tuning make MORE sense than few-shot prompting?",
+    opts: ["When you have fewer than 10 examples", "When you need to add brand-new knowledge to the model", "When you have 100+ examples and prompting hits a performance ceiling", "When the task requires tool use"],
+    answer: 2,
+    explain: "Fine-tuning pays off when (1) you have enough labeled examples (typically 100+), and (2) you've exhausted prompt engineering. With <50 examples, few-shot prompting often matches fine-tune performance at zero cost. Fine-tuning does NOT add new facts reliably — use RAG for knowledge."
+  }
+];
+
+function switchTab(id) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const names = ['overview','flowchart','cases','compare','quiz'];
+    t.classList.toggle('active', names[i] === id);
+  });
+  document.querySelectorAll('.pane').forEach(p => {
+    p.classList.toggle('active', p.id === 'pane-' + id);
+  });
+}
+
+// Build cases
+const caseList = document.getElementById('case-list');
+CASES.forEach((c, i) => {
+  const color = {rag:'#0C7C59', ft:'#185FA5', agent:'#7F77DD', prompt:'#BA7517'}[c.type];
+  const card = document.createElement('div');
+  card.className = 'case-card';
+  card.innerHTML = `
+    <div class="case-header" onclick="toggleCase(${i})">
+      <div class="case-type-dot" style="background:${color}"></div>
+      <h4>${c.title}</h4>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="case-body">
+      <span class="verdict ${c.type}">${c.verdict}</span>
+      <p style="margin-bottom:10px">${c.problem}</p>
+      <p style="font-weight:500;font-size:13px;color:var(--color-text-primary);margin-bottom:6px">Decision reasoning</p>
+      <p style="margin-bottom:12px">${c.decision}</p>
+      <dl class="factors">
+        ${Object.entries(c.factors).map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}
+      </dl>
+      <button onclick="sendPrompt('Give me a deeper technical breakdown of the ${c.verdict} approach for: ${c.title}')" style="margin-top:12px;background:none;border:0.5px solid var(--color-border-secondary);border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer;color:var(--color-text-secondary)">Deep dive ↗</button>
+    </div>
+  `;
+  caseList.appendChild(card);
+});
+
+function toggleCase(i) {
+  const cards = document.querySelectorAll('.case-card');
+  cards[i].classList.toggle('open');
+}
+
+// Quiz
+let qIdx = 0, score = 0, answered = false;
+
+function renderQuiz() {
+  const area = document.getElementById('quiz-area');
+  if (qIdx >= QUIZ.length) {
+    const pct = Math.round((score / QUIZ.length) * 100);
+    const msg = pct >= 80 ? "Excellent — you're ready to architect." : pct >= 60 ? "Solid. Review the cases you missed." : "Review the flowchart and try again.";
+    area.innerHTML = `
+      <div class="quiz-score">
+        <div class="score-num">${score}/${QUIZ.length}</div>
+        <p>${msg}</p>
+        <button onclick="restartQuiz()" style="background:none;border:0.5px solid var(--color-border-secondary);border-radius:8px;padding:8px 24px;font-size:13px;cursor:pointer;color:var(--color-text-primary)">Restart quiz</button>
+        <button onclick="sendPrompt('Based on my quiz performance, explain the architecture decision framework concepts I should review')" style="margin-left:8px;background:none;border:0.5px solid var(--color-border-secondary);border-radius:8px;padding:8px 24px;font-size:13px;cursor:pointer;color:var(--color-text-secondary)">Review weak spots ↗</button>
+      </div>
+    `;
+    return;
+  }
+  const q = QUIZ[qIdx];
+  const dots = QUIZ.map((_, i) => `<div class="qp-dot ${i < qIdx ? 'done' : i === qIdx ? 'current' : ''}"></div>`).join('');
+  area.innerHTML = `
+    <div class="quiz-progress">${dots}</div>
+    <p style="font-size:12px;color:var(--color-text-tertiary);margin-bottom:8px">Question ${qIdx+1} of ${QUIZ.length}</p>
+    <div class="quiz-q">${q.q}</div>
+    <div class="quiz-opts">
+      ${q.opts.map((o, i) => `<button class="quiz-opt" id="opt-${i}" onclick="answerQuiz(${i})">${o}</button>`).join('')}
+    </div>
+    <div class="quiz-explain" id="quiz-explain">${q.explain}</div>
+    <button class="quiz-next" id="quiz-next" onclick="nextQuestion()">${qIdx < QUIZ.length - 1 ? 'Next question →' : 'See results →'}</button>
+  `;
+  answered = false;
+}
+
+function answerQuiz(selected) {
+  if (answered) return;
+  answered = true;
+  const q = QUIZ[qIdx];
+  document.querySelectorAll('.quiz-opt').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.answer) btn.classList.add('correct');
+    else if (i === selected) btn.classList.add('wrong');
+  });
+  if (selected === q.answer) score++;
+  document.getElementById('quiz-explain').classList.add('show');
+  document.getElementById('quiz-next').classList.add('show');
+}
+
+function nextQuestion() {
+  qIdx++;
+  renderQuiz();
+}
+
+function restartQuiz() {
+  qIdx = 0; score = 0;
+  renderQuiz();
+}
+
+renderQuiz();
+</script>

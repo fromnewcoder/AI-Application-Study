@@ -1,0 +1,1064 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: var(--color-background-primary);
+    --bg2: var(--color-background-secondary);
+    --bg3: var(--color-background-tertiary);
+    --text: var(--color-text-primary);
+    --muted: var(--color-text-secondary);
+    --hint: var(--color-text-tertiary);
+    --border: var(--color-border-tertiary);
+    --border2: var(--color-border-secondary);
+    --radius: var(--border-radius-md);
+    --radius-lg: var(--border-radius-lg);
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Sora', var(--font-sans);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: transparent;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  h2.sr-only { position: absolute; left: -9999px; }
+
+  .app { padding: 1.5rem 0; }
+
+  /* Navigation tabs */
+  .nav {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+    border-bottom: 0.5px solid var(--border);
+    padding-bottom: 0;
+  }
+
+  .nav-tab {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-family: var(--sans);
+    font-weight: 400;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: -0.5px;
+  }
+
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--text);
+    font-weight: 500;
+  }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ─── DEMO PANEL ─── */
+  .demo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--hint);
+    margin-bottom: 8px;
+  }
+
+  .input-area {
+    width: 100%;
+    min-height: 120px;
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    color: var(--text);
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .input-area:focus { outline: none; border-color: var(--border2); }
+
+  .output-area {
+    min-height: 120px;
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    color: var(--text);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .pii-highlight { border-radius: 3px; padding: 1px 3px; font-weight: 500; }
+  .pii-PERSON { background: #FAECE7; color: #993C1D; }
+  .pii-EMAIL { background: #E6F1FB; color: #185FA5; }
+  .pii-PHONE { background: #EAF3DE; color: #3B6D11; }
+  .pii-LOCATION { background: #EEEDFE; color: #3C3489; }
+  .pii-SSN { background: #FCEBEB; color: #A32D2D; }
+  .pii-CREDIT_CARD { background: #FAEEDA; color: #854F0B; }
+  .pii-DOB { background: #FBEAF0; color: #993556; }
+  .pii-IP { background: #E1F5EE; color: #0F6E56; }
+
+  @media (prefers-color-scheme: dark) {
+    .pii-PERSON { background: #4A1B0C; color: #F0997B; }
+    .pii-EMAIL { background: #042C53; color: #85B7EB; }
+    .pii-PHONE { background: #173404; color: #97C459; }
+    .pii-LOCATION { background: #26215C; color: #AFA9EC; }
+    .pii-SSN { background: #501313; color: #F09595; }
+    .pii-CREDIT_CARD { background: #412402; color: #EF9F27; }
+    .pii-DOB { background: #4B1528; color: #ED93B1; }
+    .pii-IP { background: #04342C; color: #5DCAA5; }
+  }
+
+  .action-row {
+    display: flex;
+    gap: 8px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 6px 14px;
+    font-size: 13px;
+    font-family: var(--sans);
+    font-weight: 400;
+    background: var(--bg);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+
+  .btn:hover { background: var(--bg2); }
+  .btn:active { transform: scale(0.98); }
+  .btn.primary {
+    background: var(--text);
+    color: var(--bg);
+    border-color: var(--text);
+  }
+  .btn.primary:hover { opacity: 0.85; }
+
+  .strategy-select {
+    font-size: 13px;
+    font-family: var(--sans);
+    padding: 6px 10px;
+    background: var(--bg);
+    border: 0.5px solid var(--border2);
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  /* Entity legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .legend-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .findings-table {
+    width: 100%;
+    font-size: 12px;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+
+  .findings-table th {
+    text-align: left;
+    padding: 4px 8px;
+    color: var(--hint);
+    font-weight: 400;
+    border-bottom: 0.5px solid var(--border);
+  }
+
+  .findings-table td {
+    padding: 5px 8px;
+    border-bottom: 0.5px solid var(--border);
+    font-family: var(--mono);
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 99px;
+  }
+
+  .conf-bar {
+    display: inline-block;
+    height: 4px;
+    border-radius: 2px;
+    background: currentColor;
+    vertical-align: middle;
+    margin-right: 4px;
+    opacity: 0.5;
+  }
+
+  /* ─── STUDY PANEL ─── */
+  .study-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 1.5rem;
+  }
+
+  .study-card {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .study-card:hover { border-color: var(--border2); }
+  .study-card.active-card { border-color: var(--text); border-width: 1.5px; }
+
+  .study-card-icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  .study-card h3 {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .study-card p {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .detail-panel {
+    background: var(--bg);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    min-height: 200px;
+  }
+
+  .detail-panel h3 {
+    font-size: 15px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .detail-panel p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    line-height: 1.65;
+  }
+
+  .code-block {
+    background: var(--bg3);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    white-space: pre;
+    overflow-x: auto;
+    margin: 8px 0;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 99px;
+    margin: 2px;
+  }
+
+  .tag-info { background: var(--color-background-info); color: var(--color-text-info); }
+  .tag-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .tag-danger { background: var(--color-background-danger); color: var(--color-text-danger); }
+  .tag-success { background: var(--color-background-success); color: var(--color-text-success); }
+
+  .quiz-q {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .quiz-opt {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: var(--sans);
+    background: var(--bg2);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    cursor: pointer;
+    margin-bottom: 6px;
+    transition: all 0.12s;
+  }
+
+  .quiz-opt:hover:not(:disabled) { border-color: var(--border2); background: var(--bg); }
+  .quiz-opt.correct { background: var(--color-background-success); border-color: var(--color-border-success); color: var(--color-text-success); }
+  .quiz-opt.wrong { background: var(--color-background-danger); border-color: var(--color-border-danger); color: var(--color-text-danger); }
+  .quiz-opt:disabled { cursor: default; }
+
+  .quiz-feedback { font-size: 13px; margin-top: 8px; color: var(--muted); }
+
+  .progress-dots { display: flex; gap: 6px; margin-bottom: 12px; }
+  .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+  .progress-dot.done { background: var(--color-text-success); }
+  .progress-dot.current { background: var(--text); }
+</style>
+</head>
+<body>
+<h2 class="sr-only">PII & Data Privacy interactive study and demo tool</h2>
+<div class="app">
+  <div class="nav">
+    <button class="nav-tab active" onclick="switchPanel('demo')">Live demo</button>
+    <button class="nav-tab" onclick="switchPanel('concepts')">Concepts</button>
+    <button class="nav-tab" onclick="switchPanel('code')">Python code</button>
+    <button class="nav-tab" onclick="switchPanel('quiz')">Quiz</button>
+  </div>
+
+  <!-- ──────────────── DEMO PANEL ──────────────── -->
+  <div id="panel-demo" class="panel active">
+    <div class="action-row" style="margin-bottom:10px">
+      <button class="btn" onclick="loadExample(0)">Example: support ticket</button>
+      <button class="btn" onclick="loadExample(1)">Example: medical note</button>
+      <button class="btn" onclick="loadExample(2)">Example: HR email</button>
+    </div>
+
+    <textarea class="input-area" id="raw-input" style="width:100%;margin-bottom:8px" placeholder="Paste text containing PII here…" oninput="onInputChange()">Hi, my name is Sarah Johnson and I need help with my account. My email is sarah.johnson@gmail.com and my phone number is (415) 555-0192. My date of birth is 04/15/1988 and I live at 742 Evergreen Terrace, Springfield, IL 62701. My SSN is 123-45-6789. Please don't share this with anyone!</textarea>
+
+    <div class="action-row">
+      <button class="btn primary" onclick="runDetection()">Detect PII</button>
+      <select class="strategy-select" id="redact-strategy">
+        <option value="replace">Replace with type tag</option>
+        <option value="mask">Mask with ***</option>
+        <option value="hash">Hash (one-way)</option>
+        <option value="fake">Substitute with fake data</option>
+      </select>
+      <button class="btn" onclick="runRedaction()">Redact</button>
+    </div>
+
+    <div class="demo-grid" style="margin-top:10px">
+      <div class="card">
+        <div class="card-label">Highlighted detections</div>
+        <div class="output-area" id="highlighted-output" style="min-height:100px">Run detection to see highlighted PII…</div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Redacted (safe to send to LLM)</div>
+        <div class="output-area" id="redacted-output" style="min-height:100px">Run redaction to see output…</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <div class="card-label">Detection findings</div>
+      <table class="findings-table" id="findings-table">
+        <thead><tr><th>Entity type</th><th>Original value</th><th>Confidence</th><th>Start</th><th>End</th></tr></thead>
+        <tbody id="findings-body"><tr><td colspan="5" style="color:var(--hint);padding:8px">Run detection first</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ──────────────── CONCEPTS PANEL ──────────────── -->
+  <div id="panel-concepts" class="panel">
+    <div class="study-grid">
+      <div class="study-card active-card" onclick="showConcept('pii')">
+        <div class="study-card-icon">🔍</div>
+        <h3>What is PII?</h3>
+        <p>Definition, examples, and why it matters</p>
+      </div>
+      <div class="study-card" onclick="showConcept('presidio')">
+        <div class="study-card-icon">🛡️</div>
+        <h3>Presidio library</h3>
+        <p>Microsoft's open-source PII detection toolkit</p>
+      </div>
+      <div class="study-card" onclick="showConcept('strategies')">
+        <div class="study-card-icon">✂️</div>
+        <h3>Redaction strategies</h3>
+        <p>Replace, mask, hash, tokenize, synthesize</p>
+      </div>
+      <div class="study-card" onclick="showConcept('gdpr')">
+        <div class="study-card-icon">📋</div>
+        <h3>GDPR principles</h3>
+        <p>Key rules for AI systems in the EU</p>
+      </div>
+      <div class="study-card" onclick="showConcept('output')">
+        <div class="study-card-icon">🔎</div>
+        <h3>Output scanning</h3>
+        <p>Why scan after the LLM responds?</p>
+      </div>
+      <div class="study-card" onclick="showConcept('pipeline')">
+        <div class="study-card-icon">⚙️</div>
+        <h3>Pipeline design</h3>
+        <p>Architecture patterns for production</p>
+      </div>
+    </div>
+
+    <div class="detail-panel" id="concept-detail">
+      <h3>What is PII?</h3>
+      <p>Personally Identifiable Information (PII) is any data that can be used to identify a specific individual, either directly or in combination with other information.</p>
+      <p><strong style="font-weight:500">Direct identifiers</strong> — uniquely identify a person on their own:</p>
+      <div style="margin-bottom:10px">
+        <span class="tag tag-danger">Full name</span>
+        <span class="tag tag-danger">SSN / NI number</span>
+        <span class="tag tag-danger">Passport number</span>
+        <span class="tag tag-danger">Credit card number</span>
+        <span class="tag tag-danger">Biometric data</span>
+      </div>
+      <p><strong style="font-weight:500">Quasi-identifiers</strong> — risky when combined (k-anonymity attack):</p>
+      <div style="margin-bottom:10px">
+        <span class="tag tag-warn">ZIP code</span>
+        <span class="tag tag-warn">Date of birth</span>
+        <span class="tag tag-warn">Gender</span>
+        <span class="tag tag-warn">Employer</span>
+        <span class="tag tag-warn">IP address</span>
+      </div>
+      <p style="font-size:12px;color:var(--hint)">Latanya Sweeney's 2000 study found that 87% of Americans can be uniquely identified by just ZIP + DOB + gender.</p>
+    </div>
+  </div>
+
+  <!-- ──────────────── CODE PANEL ──────────────── -->
+  <div id="panel-code" class="panel">
+    <div class="action-row" style="margin-bottom:10px">
+      <button class="btn" onclick="showCode('setup')">Setup</button>
+      <button class="btn" onclick="showCode('analyze')">Analyze</button>
+      <button class="btn" onclick="showCode('anonymize')">Anonymize</button>
+      <button class="btn" onclick="showCode('pipeline')">Full pipeline</button>
+      <button class="btn" onclick="showCode('output_scan')">Output scan</button>
+    </div>
+    <div class="card">
+      <div class="card-label" id="code-label">Installation & setup</div>
+      <div class="code-block" id="code-block"></div>
+    </div>
+    <p style="font-size:12px;color:var(--hint);margin-top:8px">Click any tab above to view the corresponding Python snippet. Copy into your project.</p>
+  </div>
+
+  <!-- ──────────────── QUIZ PANEL ──────────────── -->
+  <div id="panel-quiz" class="panel">
+    <div class="card">
+      <div class="progress-dots" id="progress-dots"></div>
+      <div class="quiz-q" id="quiz-q"></div>
+      <div id="quiz-opts"></div>
+      <div class="quiz-feedback" id="quiz-feedback"></div>
+      <div class="action-row" style="margin-top:12px">
+        <button class="btn primary" id="next-btn" onclick="nextQuestion()" style="display:none">Next question →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let currentConcept = 'pii';
+let currentCode = 'setup';
+let quizIdx = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+// ── PII patterns (client-side simulation of Presidio) ──
+const PII_PATTERNS = [
+  { type: 'SSN',         regex: /\b\d{3}-\d{2}-\d{4}\b/g,                                  conf: 0.98 },
+  { type: 'CREDIT_CARD', regex: /\b(?:\d{4}[- ]){3}\d{4}\b/g,                              conf: 0.97 },
+  { type: 'EMAIL',       regex: /\b[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}\b/g, conf: 0.97 },
+  { type: 'PHONE',       regex: /\(?\d{3}\)?[\s\-]\d{3}[\-]\d{4}\b/g,                     conf: 0.90 },
+  { type: 'DOB',         regex: /\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/g,                          conf: 0.80 },
+  { type: 'IP',          regex: /\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g,                conf: 0.95 },
+  { type: 'PERSON',      regex: /\b(Mr\.|Mrs\.|Ms\.|Dr\.)?\s?[A-Z][a-z]+\s[A-Z][a-z]+\b/g, conf: 0.75 },
+  { type: 'LOCATION',    regex: /\b\d+\s[A-Z][a-zA-Z\s]+(Street|St|Avenue|Ave|Road|Rd|Terrace|Dr|Lane|Ln|Blvd)[,\s]+[A-Z][a-zA-Z\s]+,?\s+[A-Z]{2}\s+\d{5}\b/gi, conf: 0.85 },
+];
+
+const LEGEND_COLORS = {
+  PERSON: '#D85A30', EMAIL: '#378ADD', PHONE: '#639922',
+  LOCATION: '#7F77DD', SSN: '#E24B4A', CREDIT_CARD: '#BA7517',
+  DOB: '#D4537E', IP: '#1D9E75'
+};
+
+const FAKE_DATA = {
+  PERSON: ['Alex Chen', 'Jordan Williams', 'Morgan Taylor', 'Casey Rivera'],
+  EMAIL: ['user@example.com', 'contact@redacted.org', 'anon@privacy.net'],
+  PHONE: ['(555) 000-0000', '(800) 555-0199', '(999) 000-0001'],
+  LOCATION: ['123 Privacy Lane, Anytown, ST 00000'],
+  SSN: ['000-00-0000'],
+  CREDIT_CARD: ['0000-0000-0000-0000'],
+  DOB: ['01/01/1900'],
+  IP: ['0.0.0.0'],
+};
+
+function detectPII(text) {
+  const findings = [];
+  const seen = new Set();
+  for (const pat of PII_PATTERNS) {
+    let m;
+    const re = new RegExp(pat.regex.source, pat.regex.flags);
+    while ((m = re.exec(text)) !== null) {
+      const key = `${m.index}-${m[0]}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        findings.push({ type: pat.type, value: m[0], start: m.index, end: m.index + m[0].length, conf: pat.conf });
+      }
+    }
+  }
+  return findings.sort((a, b) => a.start - b.start);
+}
+
+let lastFindings = [];
+
+function runDetection() {
+  const text = document.getElementById('raw-input').value;
+  lastFindings = detectPII(text);
+
+  // Highlighted output
+  let html = '';
+  let cursor = 0;
+  for (const f of lastFindings) {
+    html += escapeHtml(text.slice(cursor, f.start));
+    html += `<span class="pii-highlight pii-${f.type}" title="${f.type} (${Math.round(f.conf * 100)}%)">${escapeHtml(f.value)}</span>`;
+    cursor = f.end;
+  }
+  html += escapeHtml(text.slice(cursor));
+  document.getElementById('highlighted-output').innerHTML = html || '<span style="color:var(--hint)">No PII detected.</span>';
+
+  // Legend
+  const types = [...new Set(lastFindings.map(f => f.type))];
+  document.getElementById('legend').innerHTML = types.map(t =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${LEGEND_COLORS[t]}"></div>${t}</div>`
+  ).join('');
+
+  // Findings table
+  const tbody = document.getElementById('findings-body');
+  if (lastFindings.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="color:var(--hint);padding:8px">No PII found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lastFindings.map(f => {
+    const pct = Math.round(f.conf * 100);
+    const barW = Math.round(f.conf * 60);
+    return `<tr>
+      <td><span class="badge pii-${f.type}">${f.type}</span></td>
+      <td>${escapeHtml(f.value)}</td>
+      <td><span class="conf-bar" style="width:${barW}px"></span>${pct}%</td>
+      <td>${f.start}</td>
+      <td>${f.end}</td>
+    </tr>`;
+  }).join('');
+}
+
+function runRedaction() {
+  if (lastFindings.length === 0) runDetection();
+  if (lastFindings.length === 0) {
+    document.getElementById('redacted-output').textContent = document.getElementById('raw-input').value;
+    return;
+  }
+  const text = document.getElementById('raw-input').value;
+  const strategy = document.getElementById('redact-strategy').value;
+  let result = '';
+  let cursor = 0;
+  for (const f of lastFindings) {
+    result += text.slice(cursor, f.start);
+    result += redact(f.value, f.type, strategy);
+    cursor = f.end;
+  }
+  result += text.slice(cursor);
+  document.getElementById('redacted-output').textContent = result;
+}
+
+function redact(value, type, strategy) {
+  switch (strategy) {
+    case 'replace': return `<${type}>`;
+    case 'mask': return value.replace(/[a-zA-Z0-9]/g, '*');
+    case 'hash': return `[${type}_${simpleHash(value)}]`;
+    case 'fake': {
+      const opts = FAKE_DATA[type] || [`[${type}]`];
+      return opts[Math.floor(Math.random() * opts.length)];
+    }
+    default: return `<${type}>`;
+  }
+}
+
+function simpleHash(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+  return Math.abs(h).toString(16).slice(0, 6).toUpperCase();
+}
+
+function onInputChange() { lastFindings = []; }
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+const EXAMPLES = [
+  `Hi, my name is Sarah Johnson and I need help with my account. My email is sarah.johnson@gmail.com and my phone number is (415) 555-0192. My date of birth is 04/15/1988 and I live at 742 Evergreen Terrace, Springfield, IL 62701. My SSN is 123-45-6789. Please don't share this with anyone!`,
+  `Patient: Robert Kim, DOB: 03/22/1965. Contact: r.kim@healthmail.com, (213) 555-0847. Address: 1420 Cedar Road, Los Angeles, CA 90001. Diagnosis: hypertension. Insurance: Aetna #AE-889-2234.`,
+  `From: Alice Martinez <alice.m@company.com>\nTo: HR Team\nRe: New hire David Chen\nPlease process onboarding for David Chen (DOB 07/04/1990). Reach him at d.chen@personal.com or (312) 555-0165. His address is 99 Oak Street, Chicago, IL 60601.`
+];
+
+function loadExample(i) {
+  document.getElementById('raw-input').value = EXAMPLES[i];
+  lastFindings = [];
+  document.getElementById('highlighted-output').textContent = 'Run detection to see highlighted PII…';
+  document.getElementById('redacted-output').textContent = 'Run redaction to see output…';
+  document.getElementById('findings-body').innerHTML = '<tr><td colspan="5" style="color:var(--hint);padding:8px">Run detection first</td></tr>';
+}
+
+// ── Concepts ──
+const CONCEPTS = {
+  pii: {
+    title: 'What is PII?',
+    html: `<p>Personally Identifiable Information (PII) is any data that can be used to identify a specific individual, either directly or in combination with other information.</p>
+<p><strong style="font-weight:500">Direct identifiers</strong> — uniquely identify a person on their own:</p>
+<div style="margin-bottom:10px"><span class="tag tag-danger">Full name</span><span class="tag tag-danger">SSN / NI number</span><span class="tag tag-danger">Passport number</span><span class="tag tag-danger">Credit card number</span><span class="tag tag-danger">Biometric data</span></div>
+<p><strong style="font-weight:500">Quasi-identifiers</strong> — risky when combined (k-anonymity attack):</p>
+<div style="margin-bottom:10px"><span class="tag tag-warn">ZIP code</span><span class="tag tag-warn">Date of birth</span><span class="tag tag-warn">Gender</span><span class="tag tag-warn">Employer</span><span class="tag tag-warn">IP address</span></div>
+<p style="font-size:12px;color:var(--hint)">Latanya Sweeney's 2000 study found that 87% of Americans can be uniquely identified by ZIP + DOB + gender alone.</p>`
+  },
+  presidio: {
+    title: 'Microsoft Presidio',
+    html: `<p>Presidio is Microsoft's open-source PII detection and anonymization library. It uses NLP (spaCy), regex patterns, and custom recognizers to detect 20+ entity types.</p>
+<p><strong style="font-weight:500">Two main components:</strong></p>
+<div style="margin-bottom:10px"><span class="tag tag-info">AnalyzerEngine</span> detects PII entities → returns list of RecognizerResult<br><span class="tag tag-info">AnonymizerEngine</span> transforms detected entities → returns anonymized text</div>
+<p><strong style="font-weight:500">Built-in recognizers include:</strong></p>
+<div style="margin-bottom:10px"><span class="tag tag-success">PERSON</span><span class="tag tag-success">EMAIL_ADDRESS</span><span class="tag tag-success">PHONE_NUMBER</span><span class="tag tag-success">US_SSN</span><span class="tag tag-success">CREDIT_CARD</span><span class="tag tag-success">IP_ADDRESS</span><span class="tag tag-success">LOCATION</span><span class="tag tag-success">DATE_TIME</span></div>
+<p>You can add custom recognizers using patterns, deny-lists, or ML models. Supports 50+ languages via spaCy language models.</p>`
+  },
+  strategies: {
+    title: 'Redaction strategies',
+    html: `<p>Different redaction approaches offer different privacy/utility trade-offs:</p>
+<table class="findings-table" style="margin:0 0 12px">
+<thead><tr><th>Strategy</th><th>Example</th><th>Use case</th></tr></thead>
+<tbody>
+<tr><td><span class="tag tag-info">Replace</span></td><td style="font-family:var(--mono)">&lt;PERSON&gt;</td><td>Testing, lowest utility needed</td></tr>
+<tr><td><span class="tag tag-warn">Mask</span></td><td style="font-family:var(--mono)">****** ****</td><td>Auditing, format preserved</td></tr>
+<tr><td><span class="tag tag-warn">Hash</span></td><td style="font-family:var(--mono)">[PERSON_A3F2C1]</td><td>Cross-reference tracking</td></tr>
+<tr><td><span class="tag tag-success">Synthesize</span></td><td style="font-family:var(--mono)">Alex Chen</td><td>Model training, highest utility</td></tr>
+<tr><td><span class="tag tag-success">Tokenize</span></td><td style="font-family:var(--mono)">[TOKEN_001]</td><td>De-anonymizable, reversible</td></tr>
+</tbody></table>
+<p style="font-size:12px;color:var(--hint)">Choose based on whether you need to (a) reverse the anonymization later, (b) maintain format, or (c) just block LLM access to PII.</p>`
+  },
+  gdpr: {
+    title: 'GDPR considerations for AI',
+    html: `<p>The General Data Protection Regulation (GDPR) imposes strict obligations when processing personal data, including sending it to LLM APIs.</p>
+<div style="margin-bottom:10px">
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><span class="tag tag-info">Article 5</span> <strong style="font-weight:500">Data minimization</strong> — only send what is strictly necessary to the LLM</div>
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><span class="tag tag-info">Article 5</span> <strong style="font-weight:500">Purpose limitation</strong> — don't use data for purposes beyond what users consented to</div>
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><span class="tag tag-warn">Article 17</span> <strong style="font-weight:500">Right to erasure</strong> — users can request deletion; LLM-processed data complicates this</div>
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><span class="tag tag-warn">Article 25</span> <strong style="font-weight:500">Privacy by design</strong> — PII redaction pipeline must be the default, not an add-on</div>
+<div style="padding:6px 0"><span class="tag tag-danger">Article 83</span> <strong style="font-weight:500">Fines</strong> — up to €20M or 4% of global annual turnover</div>
+</div>
+<p style="font-size:12px;color:var(--hint)">Sending raw PII to a third-party LLM API (e.g. OpenAI, Anthropic) may constitute a data transfer requiring a DPA (Data Processing Agreement).</p>`
+  },
+  output: {
+    title: 'Output scanning',
+    html: `<p>Even after redacting the input, the LLM response itself must be scanned before returning to the user. Why?</p>
+<div style="margin-bottom:10px">
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><strong style="font-weight:500">Training data leakage</strong> — LLMs can memorize and reproduce PII from their training corpus</div>
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><strong style="font-weight:500">Prompt injection</strong> — malicious content in docs could trick the LLM into outputting sensitive data</div>
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><strong style="font-weight:500">Context reconstruction</strong> — partial hints in prompts can lead to PII inference in responses</div>
+<div style="padding:6px 0"><strong style="font-weight:500">Multi-turn leakage</strong> — previous conversation context may contain PII the current turn exposes</div>
+</div>
+<p><strong style="font-weight:500">Actions on detection:</strong></p>
+<div><span class="tag tag-warn">Block</span> don't return the response<span class="tag tag-warn" style="margin-left:8px">Redact</span> mask in-place<span class="tag tag-danger" style="margin-left:8px">Alert</span> log + notify security team</div>`
+  },
+  pipeline: {
+    title: 'Pipeline architecture',
+    html: `<p>A production PII pipeline has several key design decisions:</p>
+<div style="margin-bottom:12px">
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><span class="tag tag-info">Sync vs async</span> Run detection inline (low latency) or via a sidecar queue (better throughput)</div>
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><span class="tag tag-info">Token map</span> Store original→token mapping per session so de-anonymization is possible after LLM response</div>
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><span class="tag tag-warn">Confidence threshold</span> Set minimum score (e.g. 0.7) to balance false positives vs. missed PII</div>
+<div style="padding:6px 0;border-bottom:0.5px solid var(--border)"><span class="tag tag-warn">Audit log</span> Record every detection event (not the PII itself) for compliance reporting</div>
+<div style="padding:6px 0"><span class="tag tag-danger">Fail-safe</span> If the anonymizer errors, block the request — never fall through to sending raw PII</div>
+</div>
+<p style="font-size:12px;color:var(--hint)">Use Presidio's BatchAnalyzerEngine for document-level processing, and consider caching recognizer initialization (it's expensive) across requests.</p>`
+  }
+};
+
+function showConcept(key) {
+  currentConcept = key;
+  document.querySelectorAll('.study-card').forEach((c, i) => {
+    c.classList.toggle('active-card', Object.keys(CONCEPTS)[i] === key);
+  });
+  const c = CONCEPTS[key];
+  document.getElementById('concept-detail').innerHTML = `<h3>${c.title}</h3>${c.html}`;
+}
+
+// ── Code snippets ──
+const CODE_SNIPPETS = {
+  setup: {
+    label: 'Installation & setup',
+    code: `# Install dependencies
+pip install presidio-analyzer presidio-anonymizer
+python -m spacy download en_core_web_lg
+
+# Optional: for multi-language support
+pip install presidio-analyzer[transformers]
+
+from presidio_analyzer import AnalyzerEngine
+from presidio_anonymizer import AnonymizerEngine
+
+# Initialize once (expensive) — cache in production
+analyzer = AnalyzerEngine()
+anonymizer = AnonymizerEngine()
+
+print("Presidio loaded successfully ✓")`
+  },
+  analyze: {
+    label: 'Analyze text for PII',
+    code: `from presidio_analyzer import AnalyzerEngine
+
+analyzer = AnalyzerEngine()
+
+text = """Hi, I'm Sarah Johnson. Email: sarah@gmail.com
+          Phone: (415) 555-0192, SSN: 123-45-6789"""
+
+# Analyze returns list of RecognizerResult objects
+results = analyzer.analyze(
+    text=text,
+    entities=["PERSON", "EMAIL_ADDRESS", "PHONE_NUMBER",
+              "US_SSN", "CREDIT_CARD", "US_BANK_NUMBER"],
+    language="en",
+    score_threshold=0.7,   # minimum confidence
+)
+
+for r in results:
+    print(f"{r.entity_type:20} | {text[r.start:r.end]:30} | "
+          f"score={r.score:.2f} | [{r.start}:{r.end}]")
+
+# Output:
+# PERSON               | Sarah Johnson                 | score=0.85 | [8:21]
+# EMAIL_ADDRESS        | sarah@gmail.com               | score=1.00 | [30:45]
+# PHONE_NUMBER         | (415) 555-0192                | score=0.75 | [55:69]
+# US_SSN               | 123-45-6789                   | score=0.85 | [76:87]`
+  },
+  anonymize: {
+    label: 'Anonymize / redact PII',
+    code: `from presidio_analyzer import AnalyzerEngine
+from presidio_anonymizer import AnonymizerEngine
+from presidio_anonymizer.entities import OperatorConfig
+
+analyzer  = AnalyzerEngine()
+anonymizer = AnonymizerEngine()
+
+text = "Call Sarah Johnson at sarah@gmail.com, SSN 123-45-6789"
+
+results = analyzer.analyze(text=text, language="en")
+
+# --- Strategy 1: Replace with type tag (default) ---
+redacted = anonymizer.anonymize(text, results)
+print(redacted.text)
+# "Call <PERSON> at <EMAIL_ADDRESS>, SSN <US_SSN>"
+
+# --- Strategy 2: Mask ---
+from presidio_anonymizer.operators import Mask
+operators = {
+    "DEFAULT": OperatorConfig("mask", {"masking_char": "*",
+                                        "chars_to_mask": 100,
+                                        "from_end": False})
+}
+masked = anonymizer.anonymize(text, results, operators=operators)
+
+# --- Strategy 3: Custom fake data ---
+import faker; fake = faker.Faker()
+operators = {
+    "PERSON":        OperatorConfig("custom", {"lambda": lambda x: fake.name()}),
+    "EMAIL_ADDRESS": OperatorConfig("custom", {"lambda": lambda x: fake.email()}),
+    "US_SSN":        OperatorConfig("replace", {"new_value": "000-00-0000"}),
+}
+synthesized = anonymizer.anonymize(text, results, operators=operators)`
+  },
+  pipeline: {
+    label: 'Full LLM pipeline with de-anonymization',
+    code: `import anthropic, uuid
+from presidio_analyzer import AnalyzerEngine
+from presidio_anonymizer import AnonymizerEngine, DeanonymizeEngine
+from presidio_anonymizer.entities import OperatorConfig
+
+analyzer     = AnalyzerEngine()
+anonymizer   = AnonymizerEngine()
+deanonymizer = DeanonymizeEngine()
+client       = anthropic.Anthropic()
+
+def build_token_map(text, results):
+    """Create reversible token mapping."""
+    token_map = {}
+    operators = {}
+    for r in results:
+        original = text[r.start:r.end]
+        token = f"TOKEN_{uuid.uuid4().hex[:6].upper()}"
+        token_map[token] = original
+        operators[r.entity_type] = OperatorConfig(
+            "replace", {"new_value": token}
+        )
+    return operators, token_map
+
+def safe_llm_call(user_message: str, system: str = "") -> str:
+    # 1. Detect PII
+    results = analyzer.analyze(
+        text=user_message, language="en", score_threshold=0.7
+    )
+
+    if not results:
+        safe_prompt = user_message
+        token_map = {}
+    else:
+        # 2. Redact with reversible tokens
+        operators, token_map = build_token_map(user_message, results)
+        anon_result = anonymizer.anonymize(
+            user_message, results, operators=operators
+        )
+        safe_prompt = anon_result.text
+        print(f"  → Redacted {len(results)} PII entities")
+
+    # 3. Send anonymized prompt to LLM (never raw PII!)
+    messages = [{"role": "user", "content": safe_prompt}]
+    response = client.messages.create(
+        model="claude-opus-4-5", max_tokens=1024,
+        system=system, messages=messages,
+    )
+    llm_output = response.content[0].text
+
+    # 4. Scan output for PII leakage
+    output_results = analyzer.analyze(text=llm_output, language="en")
+    if output_results:
+        print(f"  ⚠ Output contained {len(output_results)} PII entities!")
+        # Optionally block or redact output here
+
+    # 5. De-anonymize response (restore real values for user)
+    if token_map:
+        for token, original in token_map.items():
+            llm_output = llm_output.replace(token, original)
+
+    return llm_output
+
+# Usage
+reply = safe_llm_call(
+    "Summarize the issue for Sarah Johnson at sarah@gmail.com"
+)
+print(reply)`
+  },
+  output_scan: {
+    label: 'Output scanning & audit logging',
+    code: `import logging, json
+from datetime import datetime
+from presidio_analyzer import AnalyzerEngine
+
+analyzer = AnalyzerEngine()
+audit_log = logging.getLogger("pii_audit")
+
+def scan_output(
+    llm_response: str,
+    session_id: str,
+    action: str = "redact"   # "block" | "redact" | "alert"
+) -> tuple[str, bool]:
+    """
+    Scan LLM output for PII leakage.
+    Returns (processed_text, pii_found).
+    """
+    results = analyzer.analyze(
+        text=llm_response, language="en", score_threshold=0.6
+    )
+    pii_found = len(results) > 0
+
+    if pii_found:
+        # Audit log (never log the PII itself!)
+        audit_log.warning(json.dumps({
+            "timestamp": datetime.utcnow().isoformat(),
+            "session_id": session_id,
+            "entity_types": [r.entity_type for r in results],
+            "count": len(results),
+            "action_taken": action,
+        }))
+
+        if action == "block":
+            return "[Response blocked: contained personal data]", True
+
+        if action == "redact":
+            from presidio_anonymizer import AnonymizerEngine
+            anon = AnonymizerEngine()
+            redacted = anon.anonymize(llm_response, results)
+            return redacted.text, True
+
+    return llm_response, pii_found
+
+# Usage
+clean_response, had_pii = scan_output(
+    llm_response=raw_llm_output,
+    session_id="sess_abc123",
+    action="redact"
+)
+if had_pii:
+    print("⚠ PII was detected and redacted from LLM output")`
+  }
+};
+
+function showCode(key) {
+  currentCode = key;
+  document.querySelectorAll('#panel-code .btn').forEach((b, i) => {
+    b.classList.toggle('primary', Object.keys(CODE_SNIPPETS)[i] === key);
+  });
+  const s = CODE_SNIPPETS[key];
+  document.getElementById('code-label').textContent = s.label;
+  document.getElementById('code-block').textContent = s.code;
+}
+
+// ── Quiz ──
+const QUESTIONS = [
+  {
+    q: 'Which Presidio component DETECTS PII entities in text?',
+    opts: ['AnonymizerEngine', 'AnalyzerEngine', 'BatchEngine', 'RecognizerRegistry'],
+    answer: 1,
+    explain: 'AnalyzerEngine detects PII and returns RecognizerResult objects. AnonymizerEngine transforms/redacts the detected entities.'
+  },
+  {
+    q: 'Latanya Sweeney showed that ~87% of Americans can be re-identified using just three quasi-identifiers. Which three?',
+    opts: ['Name, email, phone', 'ZIP code, date of birth, gender', 'SSN, name, address', 'IP address, browser, timezone'],
+    answer: 1,
+    explain: 'ZIP + DOB + Gender — three seemingly innocuous fields — are enough to uniquely identify most Americans in public datasets.'
+  },
+  {
+    q: 'Under GDPR Article 5, which principle requires only sending PII that is strictly needed to the LLM?',
+    opts: ['Purpose limitation', 'Storage limitation', 'Data minimization', 'Accountability'],
+    answer: 2,
+    explain: 'Data minimization means collecting/processing only the minimum personal data necessary for the specified purpose.'
+  },
+  {
+    q: 'Why must you scan the LLM\'s OUTPUT for PII, even after redacting the input?',
+    opts: ['Legal requirement only', 'LLMs can reproduce memorized PII from training data', 'To improve latency', 'GDPR requires output logging'],
+    answer: 1,
+    explain: 'LLMs may "memorize" and reproduce personal information from training data, or be manipulated via prompt injection to reveal it.'
+  },
+  {
+    q: 'Which redaction strategy is REVERSIBLE — allowing the original value to be restored?',
+    opts: ['Masking (****)', 'Hashing', 'Tokenization', 'Replacement with <TYPE>'],
+    answer: 2,
+    explain: 'Tokenization stores original→token in a secure map, enabling de-anonymization. The others are one-way or format-only.'
+  },
+  {
+    q: 'What is the maximum GDPR fine under Article 83 for serious infringements?',
+    opts: ['€1M or 1% turnover', '€10M or 2% turnover', '€20M or 4% global annual turnover', '€50M flat'],
+    answer: 2,
+    explain: 'The highest tier is €20M OR 4% of total global annual turnover — whichever is higher. For big tech companies this can be billions.'
+  },
+];
+
+function initQuiz() {
+  quizIdx = 0; quizScore = 0; quizAnswered = false;
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const dots = document.getElementById('progress-dots');
+  dots.innerHTML = QUESTIONS.map((_, i) =>
+    `<div class="progress-dot ${i < quizIdx ? 'done' : i === quizIdx ? 'current' : ''}"></div>`
+  ).join('');
+
+  if (quizIdx >= QUESTIONS.length) {
+    document.getElementById('quiz-q').textContent = `Quiz complete! Score: ${quizScore}/${QUESTIONS.length}`;
+    document.getElementById('quiz-opts').innerHTML = '';
+    document.getElementById('quiz-feedback').textContent = quizScore >= 4
+      ? '✓ Great understanding of PII & privacy concepts!'
+      : 'Review the Concepts tab for a refresher.';
+    document.getElementById('next-btn').style.display = 'none';
+    return;
+  }
+
+  const q = QUESTIONS[quizIdx];
+  quizAnswered = false;
+  document.getElementById('quiz-q').textContent = `Q${quizIdx + 1}. ${q.q}`;
+  document.getElementById('quiz-opts').innerHTML = q.opts.map((o, i) =>
+    `<button class="quiz-opt" onclick="answerQuiz(${i})">${o}</button>`
+  ).join('');
+  document.getElementById('quiz-feedback').textContent = '';
+  document.getElementById('next-btn').style.display = 'none';
+}
+
+function answerQuiz(i) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const q = QUESTIONS[quizIdx];
+  const btns = document.querySelectorAll('.quiz-opt');
+  btns.forEach((b, j) => {
+    b.disabled = true;
+    if (j === q.answer) b.classList.add('correct');
+    else if (j === i && i !== q.answer) b.classList.add('wrong');
+  });
+  if (i === q.answer) quizScore++;
+  document.getElementById('quiz-feedback').textContent =
+    (i === q.answer ? '✓ Correct! ' : '✗ Not quite. ') + q.explain;
+  document.getElementById('next-btn').style.display = 'inline-block';
+}
+
+function nextQuestion() { quizIdx++; renderQuestion(); }
+
+// ── Panel switching ──
+function switchPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'quiz') initQuiz();
+  if (name === 'code') showCode('setup');
+}
+
+// Init
+showCode('setup');
+renderQuestion();
+</script>
+</body>
+</html>

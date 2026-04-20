@@ -1,0 +1,527 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .nav { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1.5rem; padding-top: 1rem; }
+  .nav-btn { padding: 6px 14px; border-radius: 999px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+  .nav-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .nav-btn.active { background: #EEEDFE; border-color: #AFA9EC; color: #3C3489; font-weight: 500; }
+  .section { display: none; }
+  .section.active { display: block; }
+  h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; }
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 12px; }
+  .card-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  .card-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .badge { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 500; }
+  .badge-purple { background: #EEEDFE; color: #3C3489; }
+  .badge-teal { background: #E1F5EE; color: #085041; }
+  .badge-amber { background: #FAEEDA; color: #633806; }
+  .badge-coral { background: #FAECE7; color: #712B13; }
+  .badge-gray { background: #F1EFE8; color: #444441; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .vs-row { display: flex; align-items: stretch; gap: 0; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 12px; }
+  .vs-col { flex: 1; padding: 1rem; }
+  .vs-col:first-child { border-right: 0.5px solid var(--color-border-tertiary); }
+  .vs-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .vs-label.prompt { color: #185FA5; }
+  .vs-label.ft { color: #3B6D11; }
+  .criterion { font-size: 12px; color: var(--color-text-secondary); padding: 4px 0; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; justify-content: space-between; align-items: center; }
+  .criterion:last-child { border-bottom: none; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .dot-green { background: #639922; }
+  .dot-red { background: #E24B4A; }
+  .dot-amber { background: #BA7517; }
+  .flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 1rem 0; }
+  .flow-step { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 6px 12px; font-size: 12px; color: var(--color-text-primary); }
+  .flow-arrow { color: var(--color-text-tertiary); font-size: 12px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .progress-row { margin: 8px 0; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); margin-bottom: 3px; }
+  .progress-bar { height: 6px; border-radius: 3px; background: var(--color-background-secondary); overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; }
+  .quiz-q { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 12px; }
+  .quiz-opt { padding: 8px 12px; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); font-size: 13px; color: var(--color-text-secondary); cursor: pointer; margin-bottom: 6px; transition: all 0.15s; }
+  .quiz-opt:hover { background: var(--color-background-secondary); }
+  .quiz-opt.correct { background: #EAF3DE; border-color: #97C459; color: #27500A; }
+  .quiz-opt.wrong { background: #FCEBEB; border-color: #F09595; color: #501313; }
+  .quiz-feedback { font-size: 12px; margin-top: 8px; padding: 8px 12px; border-radius: var(--border-radius-md); }
+  .quiz-feedback.correct { background: #EAF3DE; color: #27500A; }
+  .quiz-feedback.wrong { background: #FCEBEB; color: #501313; }
+  .next-btn { margin-top: 12px; padding: 7px 16px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); font-size: 13px; cursor: pointer; color: var(--color-text-primary); }
+  .proposal-block { border-left: 2px solid #AFA9EC; padding-left: 12px; margin: 10px 0; }
+  .proposal-label { font-size: 11px; font-weight: 500; color: #534AB7; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .proposal-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+  .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 1rem 0; }
+  .metric-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px; text-align: center; }
+  .metric-val { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+  .metric-lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+</style>
+
+<h2 class="sr-only" style="position:absolute;left:-9999px">Fine-Tuning Concepts Study Guide — interactive reference covering when to fine-tune, LoRA, SFT, DPO, data requirements, cost tradeoffs, and a hypothetical proposal</h2>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="show('overview')">Overview</button>
+  <button class="nav-btn" onclick="show('when')">When to fine-tune</button>
+  <button class="nav-btn" onclick="show('techniques')">Techniques</button>
+  <button class="nav-btn" onclick="show('data')">Data & Cost</button>
+  <button class="nav-btn" onclick="show('proposal')">Case Study</button>
+  <button class="nav-btn" onclick="show('quiz')">Quiz</button>
+</div>
+
+<div id="overview" class="section active">
+  <h2>Fine-tuning concepts</h2>
+  <p class="subtitle">A structured map of the fine-tuning landscape</p>
+  <div class="grid2">
+    <div class="card" style="cursor:pointer" onclick="show('when'); setActive('when')">
+      <div class="card-title"><span class="badge badge-blue" style="background:#E6F1FB;color:#0C447C">01</span> When to fine-tune</div>
+      <div class="card-body">Deciding between prompting, RAG, and fine-tuning. Decision framework with key triggers.</div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="show('techniques'); setActive('techniques')">
+      <div class="card-title"><span class="badge badge-purple">02</span> Techniques</div>
+      <div class="card-body">LoRA, SFT, and DPO — how each works, when to use each, and their tradeoffs.</div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="show('data'); setActive('data')">
+      <div class="card-title"><span class="badge badge-teal">03</span> Data & Cost</div>
+      <div class="card-body">Data requirements, quality vs quantity, cost vs quality tradeoffs across approaches.</div>
+    </div>
+    <div class="card" style="cursor:pointer" onclick="show('proposal'); setActive('proposal')">
+      <div class="card-title"><span class="badge badge-amber">04</span> Case Study</div>
+      <div class="card-body">A worked fine-tuning proposal for a real-world hypothetical use case.</div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:4px">
+    <div class="card-title">The fine-tuning mental model</div>
+    <div class="card-body">Fine-tuning adapts a pre-trained model's weights on new data, teaching it style, domain knowledge, or behavior that prompting alone can't reliably achieve. Think of it as the difference between giving an employee a handbook (prompting) vs. a 3-month apprenticeship (fine-tuning).</div>
+    <div class="flow">
+      <div class="flow-step">Pre-trained model</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Task-specific data</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Training loop</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Fine-tuned model</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">Deploy & evaluate</div>
+    </div>
+  </div>
+</div>
+
+<div id="when" class="section">
+  <h2>When to fine-tune vs. prompt</h2>
+  <p class="subtitle">Use this decision framework before committing to fine-tuning</p>
+
+  <div class="vs-row">
+    <div class="vs-col">
+      <div class="vs-label prompt">Prompting / RAG first</div>
+      <div class="criterion"><span>Task solvable with clear instructions?</span><span class="dot dot-green"></span></div>
+      <div class="criterion"><span>Knowledge is external / up-to-date?</span><span class="dot dot-green"></span></div>
+      <div class="criterion"><span>Low volume / prototype stage?</span><span class="dot dot-green"></span></div>
+      <div class="criterion"><span>Budget is tight?</span><span class="dot dot-green"></span></div>
+      <div class="criterion"><span>Behavior is already ~80% correct?</span><span class="dot dot-green"></span></div>
+    </div>
+    <div class="vs-col">
+      <div class="vs-label ft">Fine-tune instead</div>
+      <div class="criterion"><span>Consistent style / tone at scale?</span><span class="dot dot-green"></span></div>
+      <div class="criterion"><span>Domain jargon that base model misses?</span><span class="dot dot-green"></span></div>
+      <div class="criterion"><span>Latency / cost sensitive (smaller model)?</span><span class="dot dot-green"></span></div>
+      <div class="criterion"><span>Need to unlearn / redirect behavior?</span><span class="dot dot-green"></span></div>
+      <div class="criterion"><span>Prompting has plateaued at < 90%?</span><span class="dot dot-green"></span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">The three-way choice: Prompt → RAG → Fine-tune</div>
+    <div class="card-body">
+      <div class="criterion"><span style="font-weight:500;color:var(--color-text-primary)">Prompt engineering</span><span class="badge badge-gray">try first</span></div>
+      <div style="font-size:12px;color:var(--color-text-secondary);padding:6px 0 10px">Best for: general tasks, few-shot examples, fast iteration. No training cost. Fails when behavior needs to be deeply consistent or model lacks domain knowledge.</div>
+      <div class="criterion"><span style="font-weight:500;color:var(--color-text-primary)">Retrieval-Augmented Generation (RAG)</span><span class="badge badge-teal">add knowledge</span></div>
+      <div style="font-size:12px;color:var(--color-text-secondary);padding:6px 0 10px">Best for: injecting up-to-date or private knowledge. Model still needs to reason well over retrieved chunks. Fails when the task is about style or behavior, not facts.</div>
+      <div class="criterion" style="border:none"><span style="font-weight:500;color:var(--color-text-primary)">Fine-tuning</span><span class="badge badge-purple">change the model</span></div>
+      <div style="font-size:12px;color:var(--color-text-secondary);padding:6px 0 0">Best for: reliably reshaping model behavior, teaching new output formats, domain adaptation at scale. Highest upfront cost but cheapest per-inference at volume.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Red flags — don't fine-tune when…</div>
+    <div class="card-body">
+      <div class="tag-row">
+        <span class="badge badge-coral">You have < 50 examples</span>
+        <span class="badge badge-coral">Task keeps changing</span>
+        <span class="badge badge-coral">No eval benchmark exists</span>
+        <span class="badge badge-coral">Data quality is unknown</span>
+        <span class="badge badge-coral">Prompt hasn't been tried</span>
+        <span class="badge badge-coral">No labeled data budget</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="techniques" class="section">
+  <h2>Fine-tuning techniques</h2>
+  <p class="subtitle">LoRA, SFT, and DPO — the core toolkit</p>
+
+  <div class="card">
+    <div class="card-title"><span class="badge badge-purple">SFT</span> Supervised Fine-Tuning</div>
+    <div class="card-body">
+      Train directly on (input → desired output) pairs. The model learns to imitate the demonstrated outputs.
+      <div class="flow" style="margin-top:10px">
+        <div class="flow-step">Input prompt</div>
+        <div class="flow-arrow">+</div>
+        <div class="flow-step">Gold output</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Cross-entropy loss</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Weight update</div>
+      </div>
+      <div class="tag-row">
+        <span class="badge badge-teal">Best for: new output formats</span>
+        <span class="badge badge-teal">Domain tone</span>
+        <span class="badge badge-teal">Task-specific skill</span>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--color-text-secondary)"><strong style="color:var(--color-text-primary)">Pitfall:</strong> Model imitates style but may not learn reasoning. Data quality matters more than quantity.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="badge badge-teal">DPO</span> Direct Preference Optimization</div>
+    <div class="card-body">
+      Trains on preference pairs — (prompt, chosen response, rejected response). No reward model needed. Model learns what humans prefer vs. disprefer.
+      <div class="flow" style="margin-top:10px">
+        <div class="flow-step">Prompt</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Chosen ✓</div>
+        <div class="flow-arrow">vs</div>
+        <div class="flow-step">Rejected ✗</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">DPO loss</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">Aligned model</div>
+      </div>
+      <div class="tag-row">
+        <span class="badge badge-teal">Best for: alignment</span>
+        <span class="badge badge-teal">Tone/safety</span>
+        <span class="badge badge-teal">Reducing unwanted behaviors</span>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--color-text-secondary)"><strong style="color:var(--color-text-primary)">vs RLHF:</strong> DPO skips the reward model step, making it simpler and more stable. Slightly less flexible but widely used in practice (Llama 2, Zephyr, Mistral instruct).</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="badge badge-amber">LoRA</span> Low-Rank Adaptation</div>
+    <div class="card-body">
+      A parameter-efficient technique. Instead of updating all weights, LoRA injects small trainable rank-decomposition matrices into each layer. Only ~0.1–1% of parameters are trained.
+      <div style="margin:10px 0 6px">
+        <div class="progress-row">
+          <div class="progress-label"><span>Full fine-tune (7B model)</span><span style="color:var(--color-text-primary);font-weight:500">28 GB GPU</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:100%;background:#E24B4A"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label"><span>LoRA (r=16)</span><span style="color:var(--color-text-primary);font-weight:500">~8 GB GPU</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:29%;background:#639922"></div></div>
+        </div>
+        <div class="progress-row">
+          <div class="progress-label"><span>QLoRA (4-bit)</span><span style="color:var(--color-text-primary);font-weight:500">~5 GB GPU</span></div>
+          <div class="progress-bar"><div class="progress-fill" style="width:18%;background:#1D9E75"></div></div>
+        </div>
+      </div>
+      <div class="tag-row">
+        <span class="badge badge-amber">Key param: rank r (4–64)</span>
+        <span class="badge badge-amber">Higher r = more capacity</span>
+        <span class="badge badge-amber">Lower r = faster, cheaper</span>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:var(--color-text-secondary)"><strong style="color:var(--color-text-primary)">LoRA + SFT or DPO:</strong> LoRA is a training efficiency technique, not a loss function. You combine LoRA with SFT or DPO as your objective.</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Quick comparison</div>
+    <div class="card-body">
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <thead><tr style="border-bottom:0.5px solid var(--color-border-tertiary)">
+          <th style="text-align:left;padding:4px 8px;color:var(--color-text-secondary);font-weight:500"></th>
+          <th style="padding:4px 8px;color:#534AB7;font-weight:500;text-align:center">SFT</th>
+          <th style="padding:4px 8px;color:#0F6E56;font-weight:500;text-align:center">DPO</th>
+          <th style="padding:4px 8px;color:#854F0B;font-weight:500;text-align:center">LoRA</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:0.5px solid var(--color-border-tertiary)">
+            <td style="padding:5px 8px;color:var(--color-text-secondary)">Data format</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">prompt + output</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">chosen / rejected pairs</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">same as SFT/DPO</td>
+          </tr>
+          <tr style="border-bottom:0.5px solid var(--color-border-tertiary)">
+            <td style="padding:5px 8px;color:var(--color-text-secondary)">Goal</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">teach behavior</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">align preferences</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">reduce compute</td>
+          </tr>
+          <tr style="border-bottom:0.5px solid var(--color-border-tertiary)">
+            <td style="padding:5px 8px;color:var(--color-text-secondary)">GPU cost</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">High</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">High</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">Low–Medium</td>
+          </tr>
+          <tr>
+            <td style="padding:5px 8px;color:var(--color-text-secondary)">Common combo</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">SFT + LoRA</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">SFT → DPO</td>
+            <td style="padding:5px 8px;text-align:center;color:var(--color-text-primary)">QLoRA on colab</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="data" class="section">
+  <h2>Data requirements & cost tradeoffs</h2>
+  <p class="subtitle">What data you need and what it actually costs</p>
+
+  <div class="card">
+    <div class="card-title">Data requirements by technique</div>
+    <div class="card-body">
+      <div class="progress-row" style="margin-top:8px">
+        <div class="progress-label"><span>SFT — minimum viable</span><span style="font-weight:500;color:var(--color-text-primary)">~500–1k examples</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:40%;background:#534AB7"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-label"><span>SFT — production quality</span><span style="font-weight:500;color:var(--color-text-primary)">5k–50k examples</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:75%;background:#534AB7"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-label"><span>DPO — minimum</span><span style="font-weight:500;color:var(--color-text-primary)">~1k–5k pairs</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:50%;background:#1D9E75"></div></div>
+      </div>
+      <div class="progress-row">
+        <div class="progress-label"><span>DPO — production</span><span style="font-weight:500;color:var(--color-text-primary)">10k–100k pairs</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:90%;background:#1D9E75"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">Data quality checklist</div>
+      <div class="card-body">
+        <div class="criterion"><span>No duplicates / near-duplicates</span><span class="dot dot-green"></span></div>
+        <div class="criterion"><span>Diverse prompts (not all similar)</span><span class="dot dot-green"></span></div>
+        <div class="criterion"><span>Outputs match desired behavior</span><span class="dot dot-green"></span></div>
+        <div class="criterion"><span>No hallucinations in gold output</span><span class="dot dot-green"></span></div>
+        <div class="criterion"><span>Domain-representative distribution</span><span class="dot dot-green"></span></div>
+        <div class="criterion"><span>Reviewed by domain expert</span><span class="dot dot-amber"></span></div>
+        <div class="criterion" style="border:none"><span>Held-out eval set (10–20%)</span><span class="dot dot-green"></span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Quality > quantity</div>
+      <div class="card-body" style="font-size:13px;line-height:1.7">
+        <p>100 perfectly curated examples often beats 10,000 noisy ones. Each bad example teaches the model a wrong pattern.</p>
+        <p style="margin-top:8px">Rule of thumb: spend 50% of your budget on data curation, 30% on training, 20% on evaluation.</p>
+        <div class="tag-row" style="margin-top:10px">
+          <span class="badge badge-coral">Garbage in = garbage out</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Cost vs quality tradeoff matrix</div>
+    <div class="card-body">
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <thead><tr style="border-bottom:0.5px solid var(--color-border-tertiary)">
+          <th style="text-align:left;padding:4px 8px;color:var(--color-text-secondary);font-weight:500">Approach</th>
+          <th style="padding:4px 8px;color:var(--color-text-secondary);font-weight:500;text-align:center">Upfront cost</th>
+          <th style="padding:4px 8px;color:var(--color-text-secondary);font-weight:500;text-align:center">Per-inference cost</th>
+          <th style="padding:4px 8px;color:var(--color-text-secondary);font-weight:500;text-align:center">Quality ceiling</th>
+          <th style="padding:4px 8px;color:var(--color-text-secondary);font-weight:500;text-align:center">Time to deploy</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:0.5px solid var(--color-border-tertiary)">
+            <td style="padding:5px 8px;font-weight:500;color:var(--color-text-primary)">Prompting</td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-teal">$0</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-coral">High</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-amber">Medium</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-teal">Hours</span></td>
+          </tr>
+          <tr style="border-bottom:0.5px solid var(--color-border-tertiary)">
+            <td style="padding:5px 8px;font-weight:500;color:var(--color-text-primary)">Full fine-tune (API)</td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-amber">$$</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-amber">Medium</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-teal">High</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-amber">Days</span></td>
+          </tr>
+          <tr style="border-bottom:0.5px solid var(--color-border-tertiary)">
+            <td style="padding:5px 8px;font-weight:500;color:var(--color-text-primary)">LoRA / QLoRA (self-hosted)</td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-amber">$</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-teal">Low</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-teal">High</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-amber">Days</span></td>
+          </tr>
+          <tr>
+            <td style="padding:5px 8px;font-weight:500;color:var(--color-text-primary)">Full fine-tune (self-hosted)</td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-coral">$$$</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-teal">Lowest</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-teal">Highest</span></td>
+            <td style="padding:5px 8px;text-align:center"><span class="badge badge-coral">Weeks</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="proposal" class="section">
+  <h2>Fine-tuning proposal: Legal document summarizer</h2>
+  <p class="subtitle">Hypothetical use case — a law firm wants consistent, structured contract summaries</p>
+
+  <div class="metric-grid">
+    <div class="metric-card">
+      <div class="metric-val" style="color:#534AB7">SFT</div>
+      <div class="metric-lbl">Primary technique</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val" style="color:#0F6E56">LoRA</div>
+      <div class="metric-lbl">Efficiency method</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-val" style="color:#854F0B">2k</div>
+      <div class="metric-lbl">Training examples</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="proposal-block">
+      <div class="proposal-label">Problem</div>
+      <div class="proposal-text">A mid-size law firm processes 200+ contracts per week. Associates spend 2–3 hours summarizing each. Summaries vary in format and consistently miss key clauses like indemnity, termination, and governing law. GPT-4 with prompting produces inconsistent structure.</div>
+    </div>
+    <div class="proposal-block" style="margin-top:12px">
+      <div class="proposal-label">Why fine-tune (not just prompt)</div>
+      <div class="proposal-text">Prompting was tried first. The model ignores formatting instructions ~20% of the time and misses domain-specific clause detection. The output format must be strictly consistent for downstream legal review software to parse it. This is a classic fine-tuning trigger: consistent structured output + domain vocabulary + scale.</div>
+    </div>
+    <div class="proposal-block" style="margin-top:12px">
+      <div class="proposal-label">Chosen approach</div>
+      <div class="proposal-text">SFT + LoRA on a 7B open-source model (e.g. Mistral 7B). SFT because we have gold outputs (existing partner-reviewed summaries). LoRA because we can run this on a single A100 GPU, keeping cost under $500 for training. Not DPO — we don't need preference learning, we need format and clause extraction.</div>
+    </div>
+    <div class="proposal-block" style="margin-top:12px">
+      <div class="proposal-label">Data plan</div>
+      <div class="proposal-text">2,000 contracts → partner-reviewed summaries (already in firm archives). 1,600 train / 200 validation / 200 test. Data cleaning: redact client names, normalize formatting, verify all 8 target clauses are labeled in every summary. Budget: ~$15k in legal staff time for curation.</div>
+    </div>
+    <div class="proposal-block" style="margin-top:12px">
+      <div class="proposal-label">Evaluation</div>
+      <div class="proposal-text">Primary metric: clause recall (did the model find all 8 clause types?). Secondary: ROUGE-L vs partner summaries. Human eval: 50 contracts reviewed by senior associate. Target: &gt;92% clause recall, &gt;80% associate approval.</div>
+    </div>
+    <div class="proposal-block" style="margin-top:12px">
+      <div class="proposal-label">Cost estimate</div>
+      <div class="proposal-text">Training: ~$200 GPU cost on Lambda Labs. Data prep: $15k staff time. Infrastructure: $500/month self-hosted inference. Break-even: at 200 contracts/week × 2.5hr saved per contract × $100/hr associate time = $50k/month saved. Payback in under 1 month.</div>
+    </div>
+    <div class="proposal-block" style="margin-top:12px">
+      <div class="proposal-label">Risks & mitigations</div>
+      <div class="proposal-text">Risk 1 — model hallucinates clause content. Mitigation: output always cites exact contract page + line. Risk 2 — data drift (new contract types). Mitigation: monthly retraining cycle with new examples flagged by users. Risk 3 — confidentiality. Mitigation: self-hosted model, no third-party API.</div>
+    </div>
+  </div>
+</div>
+
+<div id="quiz" class="section">
+  <h2>Knowledge check</h2>
+  <p class="subtitle">Test your understanding — 6 questions</p>
+  <div id="quiz-container"></div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "A startup wants to use an LLM to extract structured JSON from customer support emails. They have 200 labeled examples. What should they do first?",
+    opts: ["Fine-tune immediately with LoRA", "Try prompt engineering with few-shot examples", "Collect DPO preference pairs", "Train from scratch"],
+    answer: 1,
+    feedback: "200 examples is too few to fine-tune reliably. Always try prompt engineering first — especially with few-shot examples of the desired JSON format. Fine-tune only if prompting plateaus."
+  },
+  {
+    q: "What is the primary purpose of DPO (Direct Preference Optimization)?",
+    opts: ["Reduce GPU memory usage during training", "Teach a model new output formats", "Align model behavior to human preferences using chosen/rejected pairs", "Speed up inference on edge devices"],
+    answer: 2,
+    feedback: "DPO trains on pairs of (chosen, rejected) responses to align model behavior with what humans prefer — without needing a separate reward model like in RLHF."
+  },
+  {
+    q: "LoRA trains only ~0.1–1% of model parameters. What is the main trade-off for this efficiency?",
+    opts: ["Cannot be used with SFT", "Slightly lower maximum quality ceiling vs. full fine-tune", "Requires preference data", "Only works on models < 1B parameters"],
+    answer: 1,
+    feedback: "LoRA is very parameter-efficient, but full fine-tuning of all weights can achieve slightly higher quality on complex tasks since it has more capacity to adapt. LoRA is the right choice in most practical scenarios."
+  },
+  {
+    q: "You have 50,000 noisy model-generated training examples and 500 high-quality human-verified examples. Which should you prefer for SFT?",
+    opts: ["The 50k noisy set for better coverage", "The 500 quality set — quality beats quantity", "Mix both equally", "Use 50k for training, 500 for eval only"],
+    answer: 1,
+    feedback: "Data quality is the #1 factor in fine-tuning success. 500 expert-verified examples will almost always outperform 50k noisy ones. Bad examples teach the model bad patterns."
+  },
+  {
+    q: "A company needs a model to reliably output summaries in a specific 8-field JSON schema for every contract, at 500 requests/day. Prompting achieves 75% format compliance. What's the best next step?",
+    opts: ["Keep iterating on the prompt", "Build a RAG pipeline", "Fine-tune on (contract → structured JSON) examples", "Switch to a larger base model only"],
+    answer: 2,
+    feedback: "75% format compliance at scale means 125 broken outputs per day. When consistent structured output is required and prompting has plateaued, fine-tuning on (input → exact desired format) examples is the right answer."
+  },
+  {
+    q: "What does the 'rank' (r) parameter in LoRA control?",
+    opts: ["Number of training epochs", "Learning rate for the adapter layers", "Size of the low-rank adapter matrices — higher r = more capacity, more memory", "The quantization bit-width"],
+    answer: 2,
+    feedback: "In LoRA, the rank r controls the dimensionality of the injected matrices. r=4 is very lightweight; r=64 gives more expressive capacity but uses more GPU memory. Typical values: 8–32 for most tasks."
+  }
+];
+
+let current = 0;
+let answered = [];
+
+function renderQuestion() {
+  const container = document.getElementById('quiz-container');
+  if (current >= questions.length) {
+    const score = answered.filter(Boolean).length;
+    container.innerHTML = `<div class="card" style="text-align:center;padding:2rem">
+      <div style="font-size:36px;font-weight:500;color:var(--color-text-primary)">${score}/${questions.length}</div>
+      <div style="font-size:14px;color:var(--color-text-secondary);margin:8px 0 16px">${score >= 5 ? 'Excellent — you have a strong grasp of fine-tuning concepts.' : score >= 3 ? 'Good — review the techniques and data sections to reinforce weak spots.' : 'Keep studying — revisit the overview and techniques tabs.'}</div>
+      <button class="next-btn" onclick="resetQuiz()">Retake quiz</button>
+    </div>`;
+    return;
+  }
+  const q = questions[current];
+  container.innerHTML = `<div class="card">
+    <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:8px">Question ${current+1} of ${questions.length}</div>
+    <div class="quiz-q">${q.q}</div>
+    ${q.opts.map((o,i) => `<div class="quiz-opt" id="opt-${i}" onclick="answer(${i})">${o}</div>`).join('')}
+    <div id="quiz-feedback"></div>
+    <div id="quiz-next"></div>
+  </div>`;
+}
+
+function answer(i) {
+  const q = questions[current];
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.onclick = null);
+  opts[q.answer].classList.add('correct');
+  if (i !== q.answer) opts[i].classList.add('wrong');
+  const fb = document.getElementById('quiz-feedback');
+  fb.className = 'quiz-feedback ' + (i === q.answer ? 'correct' : 'wrong');
+  fb.textContent = q.feedback;
+  answered.push(i === q.answer);
+  document.getElementById('quiz-next').innerHTML = `<button class="next-btn" onclick="nextQ()">${current+1 < questions.length ? 'Next question →' : 'See results'}</button>`;
+}
+
+function nextQ() { current++; renderQuestion(); }
+function resetQuiz() { current = 0; answered = []; renderQuestion(); }
+
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  setActive(id);
+  if (id === 'quiz' && current === 0 && answered.length === 0) renderQuestion();
+}
+
+function setActive(id) {
+  document.querySelectorAll('.nav-btn').forEach((b, i) => {
+    const ids = ['overview','when','techniques','data','proposal','quiz'];
+    b.classList.toggle('active', ids[i] === id);
+  });
+}
+
+renderQuestion();
+</script>
