@@ -71,11 +71,6 @@ model = ChatOpenAI(model="MiniMax-M2.7")  #reduce inference cost
 abot = Agent(model, [tool], system=prompt)
 
 
-messages = [HumanMessage(content="What is the weather in sf?")]
-result = abot.graph.invoke({"messages": messages})
-
-
-
 
 messages = [HumanMessage(content="What is the weather in SF and LA?")]
 result = abot.graph.invoke({"messages": messages})
